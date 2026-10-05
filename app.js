@@ -56,7 +56,10 @@ const I18N={
     deleteRecoverHint:'실수로 삭제해도 Google Drive 휴지통에서 복구할 수 있습니다.',cancel:'취소',
     recentTitle:'최근 사진',recentSubtitle:'최근 추가된 사진',recentEmpty:'최근 추가된 사진이 없습니다.',
     selectPhotos:'사진 선택',selectedCount:n=>`${n}장 선택`,selectAll:'전체 선택',clearAll:'전체 해제',
-    downloadSelected:n=>`${n}장 다운로드`,downloadPreparing:'선택한 사진 묶는 중…',downloadFailed:'선택 사진을 다운로드하지 못했습니다.',selectAtLeastOne:'다운로드할 사진을 선택해주세요.',
+    downloadSelected:n=>`${n}장 저장`,downloadPreparing:'선택한 원본 사진 준비 중…',downloadFailed:'선택 사진을 저장하지 못했습니다.',selectAtLeastOne:'저장할 사진을 선택해주세요.',
+    savingSelected:(current,total)=>`${current} / ${total}장 원본 준비 중…`,savePrepared:n=>`${n}장 저장 준비 완료`,saveToPhotos:'사진 앱에 저장',
+    confirm:'확인',deleteSelected:n=>`${n}장 삭제`,deleteSelectedConfirm:n=>`${n}장의 사진을 삭제할까요? 선택한 사진은 Google Drive 휴지통으로 이동합니다.`,
+    deletingSelected:(current,total)=>`${current} / ${total}장 삭제 중…`,deleteSelectedDone:n=>`${n}장 삭제 완료`,deleteSelectedFailed:(done,total)=>`${done} / ${total}장 삭제 후 중단되었습니다.`,
     directTitle:'직접 연결 경로 사용',cloudflareTitle:'Cloudflare 우회 경로 사용',sourceHusband:'부부대화 · 남편앱',sourceWife:'부부대화 · 아내앱',sourceGeneral:'일상대화',
     routeManual:'본앱의 연결 방식 설정을 그대로 사용',routeSuccess:'본앱에서 최근 성공한 경로를 사용',routeWife:'아내앱 기본 정책에 따라 Cloudflare 사용',routeTimezone:'본앱의 지역 자동 선택 규칙 사용',routeFallback:'본앱 연결 설정을 사용',
     folderMeta:'Google Drive 폴더',backLabel:'이전 화면',subfolders:'하위 폴더',photosCount:n=>`사진 ${n}장`,foldersCount:n=>`폴더 ${n}개`,
@@ -82,7 +85,10 @@ const I18N={
     deleteRecoverHint:'ຖ້າລຶບຜິດ ສາມາດກູ້ຄືນຈາກຖັງຂີ້ເຫຍື້ອ Google Drive.',cancel:'ຍົກເລີກ',
     recentTitle:'ຮູບຫຼ້າສຸດ',recentSubtitle:'ຮູບທີ່ເພີ່ມຫຼ້າສຸດ',recentEmpty:'ຍັງບໍ່ມີຮູບທີ່ເພີ່ມໃໝ່.',
     selectPhotos:'ເລືອກຮູບ',selectedCount:n=>`ເລືອກ ${n} ຮູບ`,selectAll:'ເລືອກທັງໝົດ',clearAll:'ຍົກເລີກທັງໝົດ',
-    downloadSelected:n=>`ດາວໂຫຼດ ${n} ຮູບ`,downloadPreparing:'ກຳລັງຮວບຮວມຮູບທີ່ເລືອກ…',downloadFailed:'ດາວໂຫຼດຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະດາວໂຫຼດ.',
+    downloadSelected:n=>`ບັນທຶກ ${n} ຮູບ`,downloadPreparing:'ກຳລັງກຽມຮູບຕົ້ນສະບັບທີ່ເລືອກ…',downloadFailed:'ບັນທຶກຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະບັນທຶກ.',
+    savingSelected:(current,total)=>`ກຳລັງກຽມຮູບຕົ້ນສະບັບ ${current} / ${total}…`,savePrepared:n=>`ກຽມ ${n} ຮູບແລ້ວ`,saveToPhotos:'ບັນທຶກເຂົ້າແອັບຮູບ',
+    confirm:'ຢືນຢັນ',deleteSelected:n=>`ລຶບ ${n} ຮູບ`,deleteSelectedConfirm:n=>`ລຶບຮູບທີ່ເລືອກ ${n} ຮູບບໍ? ຮູບຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.`,
+    deletingSelected:(current,total)=>`ກຳລັງລຶບ ${current} / ${total} ຮູບ…`,deleteSelectedDone:n=>`ລຶບສຳເລັດ ${n} ຮູບ`,deleteSelectedFailed:(done,total)=>`ລຶບໄດ້ ${done} / ${total} ຮູບ ແລ້ວຢຸດ.`,
     directTitle:'ໃຊ້ການເຊື່ອມຕໍ່ໂດຍກົງ',cloudflareTitle:'ໃຊ້ເສັ້ທາງ Cloudflare',sourceHusband:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍຜົວ',sourceWife:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍເມຍ',sourceGeneral:'ແອັບສົນທະນາທົ່ວໄປ',
     routeManual:'ໃຊ້ຄ່າການເຊື່ອມຕໍ່ຈາກແອັບຫຼັກ',routeSuccess:'ໃຊ້ເສັ້ທາງທີ່ສຳເລັດຫຼ້າສຸດ',routeWife:'ແອັບຝ່າຍເມຍໃຊ້ Cloudflare ເປັນຄ່າເລີ່ມຕົ້ນ',routeTimezone:'ໃຊ້ກົດເລືອກເສັ້ນທາງຕາມພື້ນທີ່ຂອງແອັບຫຼັກ',routeFallback:'ໃຊ້ຄ່າເຊື່ອມຕໍ່ຂອງແອັບຫຼັກ',
     folderMeta:'ໂຟນເດີ Google Drive',backLabel:'ກັບໄປ',subfolders:'ໂຟນເດີຍ່ອຍ',photosCount:n=>`ຮູບ ${n}`,foldersCount:n=>`ໂຟນເດີ ${n}`,
@@ -119,6 +125,7 @@ let thumbActive=0;
 let viewerLoadSeq=0;
 let uploadBusy=false;
 let downloadBusy=false;
+let deleteBusy=false;
 let pendingAppUpdate=false;
 let lastUpdateCheck=0;
 let selectionMode=false;
@@ -135,6 +142,12 @@ let gestureStartPanX=0;
 let gestureStartPanY=0;
 let gestureStartPointerX=0;
 let gestureStartPointerY=0;
+let viewerSwipeActive=false;
+let viewerSwipeStartX=0;
+let viewerSwipeStartY=0;
+let viewerSwipeLastX=0;
+let viewerSwipeLastY=0;
+let viewerSwipeStartedAt=0;
 const VIEWER_MAX_SCALE=5;
 const THUMB_CONCURRENCY=(navigator.connection&&navigator.connection.saveData)?4:8;
 const THUMB_EAGER_COUNT=window.innerWidth<=600?10:16;
@@ -189,7 +202,7 @@ function showAlbumHome(){
   state.currentFolder=null;state.folderStack=[];state.childFolders=[];state.media=[];
   folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
 }
-function appBusyForUpdate(){return uploadBusy||downloadBusy}
+function appBusyForUpdate(){return uploadBusy||downloadBusy||deleteBusy}
 function applyPendingAppUpdate(){
   if(!pendingAppUpdate||appBusyForUpdate())return false;
   pendingAppUpdate=false;
@@ -359,20 +372,43 @@ function renderMedia(){
       <span class="photo-select-mark" aria-hidden="true">✓</span>
       <span class="photo-name">${escapeHtml(m.name||'')}</span>
     </button>`).join('');
-  photoGrid.querySelectorAll('[data-media-index]').forEach(btn=>btn.addEventListener('click',()=>{
-    const i=Number(btn.dataset.mediaIndex);
-    if(selectionMode){togglePhotoSelection(i);return}
-    openViewer(i,true);
-  }));
+  photoGrid.querySelectorAll('[data-media-index]').forEach(btn=>bindPhotoTile(btn,Number(btn.dataset.mediaIndex)));
   updateSelectionBar();
   setupThumbObserver();
+}
+function bindPhotoTile(btn,index){
+  let timer=0,startX=0,startY=0,longPressed=false;
+  const clear=()=>{if(timer){clearTimeout(timer);timer=0}};
+  btn.addEventListener('pointerdown',e=>{
+    if(selectionMode)return;
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    startX=e.clientX;startY=e.clientY;longPressed=false;
+    timer=setTimeout(()=>{
+      timer=0;longPressed=true;
+      const item=state.media[index];if(!item)return;
+      selectionMode=true;selectedMediaIds.clear();selectedMediaIds.add(String(item.id));
+      if(navigator.vibrate)try{navigator.vibrate(18)}catch(_){}
+      renderMedia();
+    },430);
+  });
+  btn.addEventListener('pointermove',e=>{if(timer&&Math.hypot(e.clientX-startX,e.clientY-startY)>12)clear()});
+  btn.addEventListener('pointerup',clear);
+  btn.addEventListener('pointercancel',clear);
+  btn.addEventListener('contextmenu',e=>{if(selectionMode||longPressed)e.preventDefault()});
+  btn.addEventListener('click',e=>{
+    if(longPressed){longPressed=false;e.preventDefault();return}
+    if(selectionMode){togglePhotoSelection(index);return}
+    openViewer(index,true);
+  });
 }
 function updateSelectionBar(){
   const count=selectedMediaIds.size,total=state.media.length;
   $('selectionBar').hidden=!selectionMode;
   $('selectionCount').textContent=t('selectedCount',count);
   $('downloadSelectedBtn').textContent=t('downloadSelected',count);
+  $('deleteSelectedBtn').textContent=t('deleteSelected',count);
   $('downloadSelectedBtn').disabled=count===0;
+  $('deleteSelectedBtn').disabled=count===0;
   $('selectAllBtn').textContent=count>0&&count===total?t('clearAll'):t('selectAll');
 }
 function setSelectionMode(enabled){
@@ -396,19 +432,78 @@ function toggleSelectAll(){
   renderMedia();
 }
 async function downloadSelectedPhotos(){
-  const ids=state.media.map(x=>String(x.id)).filter(id=>selectedMediaIds.has(id));
-  if(!ids.length)return openSheet(t('download'),t('selectAtLeastOne'));
+  const items=state.media.filter(x=>selectedMediaIds.has(String(x.id)));
+  if(!items.length)return openSheet(t('download'),t('selectAtLeastOne'));
   downloadBusy=true;
   openSheet(t('download'),t('downloadPreparing'));$('closeSheet').disabled=true;
   try{
-    const res=await apiFetch('/api/download-zip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids}),cache:'no-store'});
-    const blob=await res.blob();
-    const url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.href=url;a.download='memory-album-'+new Date().toISOString().slice(0,10)+'.zip';document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-    downloadBusy=false;$('closeSheet').disabled=false;closeSheet();setSelectionMode(false);applyPendingAppUpdate();
+    const files=[];
+    for(let i=0;i<items.length;i++){
+      const item=items[i];sheetText.textContent=t('savingSelected',i+1,items.length);
+      const version=String(item.modifiedTime||'');
+      const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});
+      files.push(new File([data.blob],item.name||('photo-'+(i+1)),{type:data.blob.type||item.mimeType||'image/jpeg'}));
+    }
+    downloadBusy=false;$('closeSheet').disabled=false;
+    const shareSupported=!!navigator.share&&(!navigator.canShare||navigator.canShare({files}));
+    if(shareSupported){
+      closeSheet();
+      try{
+        await navigator.share({files,title:t('savePrepared',files.length)});
+        setSelectionMode(false);applyPendingAppUpdate();return;
+      }catch(e){
+        if(e?.name==='AbortError'){applyPendingAppUpdate();return}
+      }
+      openPreparedSaveSheet(files);return;
+    }
+    closeSheet();saveFilesByDownload(files);setSelectionMode(false);applyPendingAppUpdate();
   }catch(e){
     downloadBusy=false;$('closeSheet').disabled=false;handleApiError(e,t('downloadFailed'));applyPendingAppUpdate();
+  }
+}
+function openPreparedSaveSheet(files){
+  openSheet(t('savePrepared',files.length),'',[],t('cancel'));
+  const b=document.createElement('button');b.type='button';b.className='sheet-choice save-files-choice';b.innerHTML='<strong>'+escapeHtml(t('saveToPhotos'))+'</strong>';
+  b.addEventListener('click',async()=>{
+    try{
+      await navigator.share({files,title:t('savePrepared',files.length)});
+      closeSheet();setSelectionMode(false);
+    }catch(e){
+      if(e?.name!=='AbortError'){closeSheet();saveFilesByDownload(files);setSelectionMode(false)}
+    }
+    applyPendingAppUpdate();
+  });
+  sheetActions.appendChild(b);
+}
+function saveFilesByDownload(files){
+  files.forEach((file,i)=>setTimeout(()=>{
+    const url=URL.createObjectURL(file),a=document.createElement('a');
+    a.href=url;a.download=file.name||('photo-'+(i+1));document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+  },i*180));
+}
+function confirmDeleteSelectedPhotos(){
+  const count=selectedMediaIds.size;if(!count)return;
+  openConfirmSheet(t('deletePhoto'),t('deleteSelectedConfirm',count),()=>deleteSelectedPhotos(),t('confirm'));
+}
+async function deleteSelectedPhotos(){
+  const ids=state.media.map(x=>String(x.id)).filter(id=>selectedMediaIds.has(id));
+  if(!ids.length)return;
+  deleteBusy=true;let done=0;
+  sheetTitle.textContent=t('deleting');sheetActions.innerHTML='';sheetText.textContent=t('deletingSelected',1,ids.length);
+  $('closeSheet').hidden=false;$('closeSheet').disabled=true;backdrop.hidden=false;
+  try{
+    for(const id of ids){
+      sheetText.textContent=t('deletingSelected',done+1,ids.length);
+      await apiPostJson('/api/media/delete',{id});
+      done++;state.media=state.media.filter(x=>String(x.id)!==id);selectedMediaIds.delete(id);
+    }
+    deleteBusy=false;$('closeSheet').disabled=false;setSelectionMode(false);renderMedia();
+    openSheet(t('deleteDone'),t('deleteSelectedDone',done));applyPendingAppUpdate();
+  }catch(e){
+    deleteBusy=false;$('closeSheet').disabled=false;renderMedia();updateSelectionBar();
+    const detail=apiErrorDetail(e);
+    openSheet(t('deleteFailed'),t('deleteSelectedFailed',done,ids.length)+(detail?'\n\n'+detail:''));applyPendingAppUpdate();
   }
 }
 function resetSelection(){selectionMode=false;selectedMediaIds.clear();photoGrid.classList.remove('selection-mode');$('selectionBar').hidden=true;$('selectPhotosBtn').classList.remove('active')}
@@ -503,13 +598,21 @@ async function refreshCurrent(){
 function updateSortLabel(){$('sortBtn').textContent=state.sort==='oldest'?t('sortOldest'):state.sort==='name'?t('sortName'):t('sortNewest')}
 function cycleSort(){state.sort=state.sort==='newest'?'oldest':state.sort==='oldest'?'name':'newest';updateSortLabel();renderMedia()}
 function openSheet(title,text,choices=[],closeLabel=t('ok')){
-  sheetTitle.textContent=title;sheetText.textContent=text||'';sheetActions.innerHTML='';$('closeSheet').textContent=closeLabel;$('closeSheet').disabled=false;
+  sheetTitle.textContent=title;sheetText.textContent=text||'';sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').textContent=closeLabel;$('closeSheet').disabled=false;
   for(const c of choices){
     const b=document.createElement('button');b.type='button';b.className='sheet-choice'+(c.danger?' danger':'');b.innerHTML=`<strong>${escapeHtml(c.label)}</strong>${c.note?`<small>${escapeHtml(c.note)}</small>`:''}`;b.addEventListener('click',()=>{closeSheet();c.onClick?.()});sheetActions.appendChild(b);
   }
   backdrop.hidden=false;
 }
-function closeSheet(){if(uploadBusy)return;backdrop.hidden=true;sheetActions.innerHTML='';$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok')}
+function openConfirmSheet(title,text,onConfirm,confirmLabel=t('confirm')){
+  sheetTitle.textContent=title;sheetText.textContent=text||'';sheetActions.innerHTML='';$('closeSheet').hidden=true;$('closeSheet').disabled=false;
+  const row=document.createElement('div');row.className='sheet-confirm-actions';
+  const cancel=document.createElement('button');cancel.type='button';cancel.className='sheet-confirm-cancel';cancel.textContent=t('cancel');
+  const ok=document.createElement('button');ok.type='button';ok.className='sheet-confirm-ok';ok.textContent=confirmLabel;
+  cancel.addEventListener('click',closeSheet);ok.addEventListener('click',()=>{closeSheet();onConfirm?.()});
+  row.append(cancel,ok);sheetActions.appendChild(row);backdrop.hidden=false;
+}
+function closeSheet(){if(uploadBusy||downloadBusy||deleteBusy)return;backdrop.hidden=true;sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok')}
 function apiErrorDetail(e){
   const parts=[];
   if(e?.status)parts.push('HTTP '+e.status);
@@ -574,9 +677,7 @@ function openCreateFolderSheet(parentId){
 }
 function confirmDeleteCurrentFolder(){
   const folder=state.currentFolder;if(!folder||folder.isRecent)return;
-  openSheet(t('deleteFolder'),t('deleteFolderConfirm',displayName(folder)),[
-    {label:t('deleteFolder'),note:t('deleteRecoverHint'),danger:true,onClick:()=>deleteCurrentFolder()}
-  ],t('cancel'));
+  openConfirmSheet(t('deleteFolder'),t('deleteFolderConfirm',displayName(folder)),()=>deleteCurrentFolder(),t('confirm'));
 }
 async function deleteCurrentFolder(){
   const folder=state.currentFolder;if(!folder||folder.isRecent)return;
@@ -736,8 +837,10 @@ function touchPoint(touch){return{x:touch.clientX,y:touch.clientY}}
 function onViewerTouchStart(e){
   if(viewer.hidden)return;
   if(e.touches.length===1){
-    startSinglePointerGesture(touchPoint(e.touches[0]));
+    const p=touchPoint(e.touches[0]);startSinglePointerGesture(p);
+    viewerSwipeActive=viewerScale<=1.01;viewerSwipeStartX=p.x;viewerSwipeStartY=p.y;viewerSwipeLastX=p.x;viewerSwipeLastY=p.y;viewerSwipeStartedAt=Date.now();
   }else if(e.touches.length>=2){
+    viewerSwipeActive=false;
     const a=touchPoint(e.touches[0]),b=touchPoint(e.touches[1]),mid=viewerMidpoint(a,b);
     gestureStartDistance=Math.max(1,viewerDistance(a,b));
     gestureStartScale=viewerScale;
@@ -759,18 +862,25 @@ function onViewerTouchMove(e){
     return;
   }
   if(e.touches.length===1&&viewerScale>1.01){
+    viewerSwipeActive=false;
     const p=touchPoint(e.touches[0]);
     viewerPanX=gestureStartPanX+(p.x-gestureStartPointerX);
     viewerPanY=gestureStartPanY+(p.y-gestureStartPointerY);
-    applyViewerTransform();
-    e.preventDefault();
+    applyViewerTransform();e.preventDefault();return;
+  }
+  if(e.touches.length===1&&viewerSwipeActive&&viewerScale<=1.01){
+    const p=touchPoint(e.touches[0]);viewerSwipeLastX=p.x;viewerSwipeLastY=p.y;e.preventDefault();
   }
 }
 function onViewerTouchEnd(e){
   if(e.touches.length===1){
-    startSinglePointerGesture(touchPoint(e.touches[0]));
-  }else if(e.touches.length===0&&viewerScale<=1.01){
-    resetViewerZoom();
+    viewerSwipeActive=false;startSinglePointerGesture(touchPoint(e.touches[0]));
+  }else if(e.touches.length===0){
+    if(viewerSwipeActive&&viewerScale<=1.01){
+      const dx=viewerSwipeLastX-viewerSwipeStartX,dy=viewerSwipeLastY-viewerSwipeStartY,elapsed=Date.now()-viewerSwipeStartedAt;
+      if(elapsed<900&&Math.abs(dx)>=52&&Math.abs(dx)>Math.abs(dy)*1.15)moveViewer(dx<0?1:-1);
+    }
+    viewerSwipeActive=false;if(viewerScale<=1.01)resetViewerZoom();
   }
   e.preventDefault();
 }
@@ -843,9 +953,7 @@ async function shareCurrent(){
 }
 function confirmDeleteCurrentPhoto(){
   const item=state.media[state.viewerIndex];if(!item)return;
-  openSheet(t('deletePhoto'),t('deletePhotoConfirm',item.name||''),[
-    {label:t('deletePhoto'),note:t('deleteRecoverHint'),danger:true,onClick:()=>deleteCurrentPhoto(item.id)}
-  ],t('cancel'));
+  openConfirmSheet(t('deletePhoto'),t('deletePhotoConfirm',item.name||''),()=>deleteCurrentPhoto(item.id),t('confirm'));
 }
 async function deleteCurrentPhoto(id){
   try{
@@ -881,7 +989,7 @@ $('mainAppBtn').addEventListener('click',returnToMainApp);
 $('themeBtn').addEventListener('click',e=>{body.classList.toggle('light');e.currentTarget.textContent=body.classList.contains('light')?'☀':'☾'});
 $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEventListener('click',closeFolder);$('refreshFoldersBtn').addEventListener('click',()=>loadFolders(true));
 $('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',openRecent);$('createFolderBtn').addEventListener('click',()=>openCreateFolderSheet(''));
-$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent?beginUploadTo(state.currentFolder.id):chooseUploadFolder());$('createSubfolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent&&openCreateFolderSheet(state.currentFolder.id));$('deleteFolderBtn').addEventListener('click',confirmDeleteCurrentFolder);$('selectPhotosBtn').addEventListener('click',()=>setSelectionMode(!selectionMode));$('selectAllBtn').addEventListener('click',toggleSelectAll);$('cancelSelectionBtn').addEventListener('click',()=>setSelectionMode(false));$('downloadSelectedBtn').addEventListener('click',downloadSelectedPhotos);photoInput.addEventListener('change',uploadSelectedFiles);
+$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent?beginUploadTo(state.currentFolder.id):chooseUploadFolder());$('createSubfolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent&&openCreateFolderSheet(state.currentFolder.id));$('deleteFolderBtn').addEventListener('click',confirmDeleteCurrentFolder);$('selectPhotosBtn').addEventListener('click',()=>setSelectionMode(!selectionMode));$('selectAllBtn').addEventListener('click',toggleSelectAll);$('cancelSelectionBtn').addEventListener('click',()=>setSelectionMode(false));$('downloadSelectedBtn').addEventListener('click',downloadSelectedPhotos);$('deleteSelectedBtn').addEventListener('click',confirmDeleteSelectedPhotos);photoInput.addEventListener('change',uploadSelectedFiles);
 $('viewerCloseBtn').addEventListener('click',closeViewer);$('viewerPrevBtn').addEventListener('click',()=>moveViewer(-1));$('viewerNextBtn').addEventListener('click',()=>moveViewer(1));$('viewerDownloadBtn').addEventListener('click',downloadCurrent);$('viewerShareBtn').addEventListener('click',shareCurrent);$('viewerDeleteBtn').addEventListener('click',confirmDeleteCurrentPhoto);
 viewerStage.addEventListener('pointerdown',onViewerPointerDown,{passive:false});
 viewerStage.addEventListener('pointermove',onViewerPointerMove,{passive:false});
@@ -898,7 +1006,7 @@ for(const type of ['gesturestart','gesturechange','gestureend']){
 }
 window.addEventListener('resize',()=>{if(!viewer.hidden)applyViewerTransform()});
 window.addEventListener('popstate',handleAlbumPopState);
-backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy)closeSheet()});
+backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy&&!downloadBusy&&!deleteBusy)closeSheet()});
 window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
 window.addEventListener('storage',e=>{if(routeCandidates.some(c=>e.key===c.modeKey||e.key===c.statsKey)){renderSharedRoute();refreshCurrent()}});
 document.addEventListener('visibilitychange',()=>{
