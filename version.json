@@ -1,5 +1,5 @@
 {
-  "version": "V0.5.1",
-  "build": "20261005-AUTO-UPDATE-R1",
-  "notes": "Adds safe automatic update detection. The album checks version.json when reopened, refocused, or periodically while visible and reloads only when no upload or multi-photo download is in progress."
+  "version": "V0.5.2",
+  "build": "20261005-GALLERY-SELECT-SWIPE-R1",
+  "notes": "Adds gallery-style long-press multi-select, selected-photo delete with explicit confirmation, original-photo multi-save instead of ZIP, explicit folder/photo delete confirmation, and left/right swipe navigation in the fullscreen viewer while not zoomed."
 }
