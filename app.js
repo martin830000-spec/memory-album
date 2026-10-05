@@ -33,6 +33,8 @@ const ACCESS_KEY_STORAGE='translator_primary_password';
 const ACCESS_KEY_FALLBACK_STORAGE='memory_album_access_key_v1';
 const ROUTE_TTL_MS=30*60*1000;
 const AUTO_REFRESH_MS=30*1000;
+const UPDATE_CHECK_MIN_MS=15*1000;
+const UPDATE_CHECK_INTERVAL_MS=5*60*1000;
 const ALBUM_HISTORY_KEY='memoryAlbum';
 
 const I18N={
@@ -116,6 +118,9 @@ const thumbUrls=new Set();
 let thumbActive=0;
 let viewerLoadSeq=0;
 let uploadBusy=false;
+let downloadBusy=false;
+let pendingAppUpdate=false;
+let lastUpdateCheck=0;
 let selectionMode=false;
 const selectedMediaIds=new Set();
 let viewerScale=1;
@@ -183,6 +188,30 @@ function showAlbumHome(){
   resetSelection();
   state.currentFolder=null;state.folderStack=[];state.childFolders=[];state.media=[];
   folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
+}
+function appBusyForUpdate(){return uploadBusy||downloadBusy}
+function applyPendingAppUpdate(){
+  if(!pendingAppUpdate||appBusyForUpdate())return false;
+  pendingAppUpdate=false;
+  location.reload();
+  return true;
+}
+async function checkForAppUpdate(force=false){
+  if(document.visibilityState!=='visible')return false;
+  const now=Date.now();
+  if(!force&&now-lastUpdateCheck<UPDATE_CHECK_MIN_MS)return false;
+  lastUpdateCheck=now;
+  try{
+    const res=await fetch('./version.json?ts='+now,{cache:'no-store'});
+    if(!res.ok)return false;
+    const remote=await res.json();
+    const remoteVersion=String(remote?.version||'').trim();
+    const currentVersion=String(cfg.version||'').trim();
+    if(!remoteVersion||!currentVersion||remoteVersion===currentVersion)return false;
+    if(appBusyForUpdate()){pendingAppUpdate=true;return true}
+    location.reload();
+    return true;
+  }catch(_){return false}
 }
 function normalizeModeInUrl(){
   try{
@@ -369,6 +398,7 @@ function toggleSelectAll(){
 async function downloadSelectedPhotos(){
   const ids=state.media.map(x=>String(x.id)).filter(id=>selectedMediaIds.has(id));
   if(!ids.length)return openSheet(t('download'),t('selectAtLeastOne'));
+  downloadBusy=true;
   openSheet(t('download'),t('downloadPreparing'));$('closeSheet').disabled=true;
   try{
     const res=await apiFetch('/api/download-zip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids}),cache:'no-store'});
@@ -376,9 +406,9 @@ async function downloadSelectedPhotos(){
     const url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download='memory-album-'+new Date().toISOString().slice(0,10)+'.zip';document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),5000);
-    $('closeSheet').disabled=false;closeSheet();setSelectionMode(false);
+    downloadBusy=false;$('closeSheet').disabled=false;closeSheet();setSelectionMode(false);applyPendingAppUpdate();
   }catch(e){
-    $('closeSheet').disabled=false;handleApiError(e,t('downloadFailed'));
+    downloadBusy=false;$('closeSheet').disabled=false;handleApiError(e,t('downloadFailed'));applyPendingAppUpdate();
   }
 }
 function resetSelection(){selectionMode=false;selectedMediaIds.clear();photoGrid.classList.remove('selection-mode');$('selectionBar').hidden=true;$('selectPhotosBtn').classList.remove('active')}
@@ -586,10 +616,11 @@ async function uploadSelectedFiles(){
       done++;
     }catch(e){
       uploadBusy=false;$('closeSheet').disabled=false;
-      handleUploadError(e,file.name);return;
+      handleUploadError(e,file.name);applyPendingAppUpdate();return;
     }
   }
   uploadBusy=false;
+  if(applyPendingAppUpdate())return;
   openSheet(t('uploadDone'),`${done} / ${files.length}`);
   setTimeout(()=>{closeSheet();refreshCurrent()},900);
 }
@@ -870,7 +901,12 @@ window.addEventListener('popstate',handleAlbumPopState);
 backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy)closeSheet()});
 window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
 window.addEventListener('storage',e=>{if(routeCandidates.some(c=>e.key===c.modeKey||e.key===c.statsKey)){renderSharedRoute();refreshCurrent()}});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastRefresh>AUTO_REFRESH_MS)refreshCurrent()});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible')return;
+  checkForAppUpdate(true).then(updated=>{if(!updated&&Date.now()-state.lastRefresh>AUTO_REFRESH_MS)refreshCurrent()});
+});
+window.addEventListener('focus',()=>checkForAppUpdate(false));
+setInterval(()=>{if(document.visibilityState==='visible')checkForAppUpdate(false)},UPDATE_CHECK_INTERVAL_MS);
 window.addEventListener('beforeunload',()=>{for(const url of thumbUrls)URL.revokeObjectURL(url);thumbUrls.clear()});
 
-applyLanguage();renderSharedRoute();normalizeModeInUrl();initAlbumHistory();loadFolders(false);
+applyLanguage();renderSharedRoute();normalizeModeInUrl();initAlbumHistory();loadFolders(false);setTimeout(()=>checkForAppUpdate(true),1800);
