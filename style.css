@@ -92,3 +92,13 @@ body.light{background:radial-gradient(circle at top right,rgba(255,119,152,.13),
 .selection-actions .selection-download{background:#ff7798;color:#171219;border-color:#ff7798}
 .selection-actions button:disabled{opacity:.45;cursor:default}
 @media(max-width:480px){.selection-bar{align-items:stretch;flex-direction:column}.selection-actions{display:grid;grid-template-columns:1fr 1.4fr 1fr}.selection-actions button{padding:10px 6px}}
+
+/* V0.5.2 gallery-style selection, explicit confirms, and touch polish */
+.photo-tile{-webkit-touch-callout:none;touch-action:manipulation}
+.selection-actions .selection-delete{background:rgba(255,82,82,.13);color:#ff9a9a;border-color:rgba(255,95,95,.45)}
+.sheet-confirm-actions{position:sticky;bottom:0;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:10px;background:linear-gradient(transparent,#1b1f27 24%)}
+.sheet-confirm-actions button{border-radius:14px;padding:13px 14px;font-weight:850;cursor:pointer}
+.sheet-confirm-cancel{border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.sheet-confirm-ok{border:1px solid rgba(255,95,95,.5);background:#ff6f88;color:#171219}
+.save-files-choice{text-align:center}
+@media(max-width:480px){.selection-actions{grid-template-columns:1fr 1.25fr 1.05fr 1fr}}
