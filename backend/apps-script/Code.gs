@@ -20,7 +20,7 @@ function setup() {
     ok: true,
     rootFolderName: folder.getName(),
     rootFolderId: DEFAULT_ROOT_FOLDER_ID,
-    brokerKey: brokerKey
+    brokerKeyConfigured: !!brokerKey
   };
   console.log(JSON.stringify(result));
   return result;
