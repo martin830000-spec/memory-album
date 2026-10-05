@@ -1,6 +1,8 @@
 import express from 'express';
 import multer from 'multer';
+import archiver from 'archiver';
 import { Readable } from 'node:stream';
+import { once } from 'node:events';
 
 const app = express();
 const upload = multer({
@@ -41,7 +43,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.4.0' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.0' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -169,9 +171,9 @@ app.post('/api/folder/delete', async (req, res, next) => {
       params: { fields: 'id,trashed' },
       body: { trashed: true }
     });
-    insideRootCache.delete(id);
-    fileMetaCache.delete(id);
-    recentCache.expiresAt = 0;
+    insideRootCache.clear();
+    fileMetaCache.clear();
+    recentCache = { data: [], expiresAt: 0 };
     res.json({ ok: true });
   } catch (e) { next(e); }
 });
@@ -191,6 +193,56 @@ app.post('/api/media/delete', async (req, res, next) => {
     recentCache.expiresAt = 0;
     res.json({ ok: true });
   } catch (e) { next(e); }
+});
+
+app.post('/api/download-zip', async (req, res, next) => {
+  let archive = null;
+  try {
+    const ids = [...new Set((Array.isArray(req.body?.ids) ? req.body.ids : [])
+      .map(v => String(v || '').trim()).filter(Boolean))];
+    if (!ids.length) return res.status(400).json({ ok: false, error: 'file_ids_required' });
+    if (ids.length > 120) return res.status(413).json({ ok: false, error: 'too_many_files', max: 120 });
+
+    const metas = [];
+    for (const id of ids) {
+      metas.push(await getVerifiedImageMeta(id, 'id,name,mimeType,parents,size,modifiedTime'));
+    }
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    res.status(200);
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="memory-album-${stamp}.zip"`);
+    res.setHeader('Cache-Control', 'no-store');
+
+    archive = archiver('zip', { store: true });
+    archive.on('warning', err => console.warn('[memory-album-zip]', err?.message || err));
+    archive.on('error', err => {
+      console.error('[memory-album-zip]', err);
+      if (!res.destroyed) res.destroy(err);
+    });
+    archive.pipe(res);
+
+    const usedNames = new Map();
+    const token = await getGoogleToken();
+    for (const meta of metas) {
+      const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(meta.id)}?alt=media`;
+      const upstream = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!upstream.body) throw Object.assign(new Error('google_media_empty'), { status: 502 });
+      const source = Readable.fromWeb(upstream.body);
+      archive.append(source, { name: uniqueArchiveName(meta.name, usedNames) });
+      await once(source, 'end');
+    }
+
+    await archive.finalize();
+  } catch (e) {
+    if (res.headersSent) {
+      console.error('[memory-album-zip]', e);
+      if (archive) archive.abort();
+      if (!res.destroyed) res.destroy(e);
+      return;
+    }
+    next(e);
+  }
 });
 
 app.get('/api/thumb', async (req, res, next) => {
@@ -245,6 +297,7 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
     const upstream = await fetchGoogle(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
     const created = await upstream.json();
     insideRootCache.set(created.id, { value: true, at: Date.now() });
+    recentCache = { data: [], expiresAt: 0 };
     res.status(201).json({ ok: true, file: created });
   } catch (e) { next(e); }
 });
@@ -415,7 +468,7 @@ async function driveListAll(params, maxItems = 5000) {
 }
 
 async function listRecentMedia(limit) {
-  if (recentCache.expiresAt > Date.now() && recentCache.data.length) {
+  if (recentCache.expiresAt > Date.now()) {
     return recentCache.data.slice(0, limit);
   }
 
@@ -471,6 +524,32 @@ async function listRecentMedia(limit) {
   });
   recentCache = { data: media.slice(0, 200), expiresAt: Date.now() + 30000 };
   return recentCache.data.slice(0, limit);
+}
+
+function uniqueArchiveName(name, used) {
+  let safe = String(name || 'photo')
+    .replace(/[\\/]+/g, '_')
+    .replace(/[\u0000-\u001f\u007f]/g, '')
+    .trim()
+    .slice(0, 180);
+  if (!safe) safe = 'photo';
+
+  const dot = safe.lastIndexOf('.');
+  const stem = dot > 0 ? safe.slice(0, dot) : safe;
+  const ext = dot > 0 ? safe.slice(dot) : '';
+  const key = safe.toLowerCase();
+  const count = (used.get(key) || 0) + 1;
+  used.set(key, count);
+  if (count === 1) return safe;
+
+  let candidate = `${stem}_${count}${ext}`;
+  let n = count;
+  while (used.has(candidate.toLowerCase())) {
+    n++;
+    candidate = `${stem}_${n}${ext}`;
+  }
+  used.set(candidate.toLowerCase(), 1);
+  return candidate;
 }
 
 function normalizeFolderName(name) {
