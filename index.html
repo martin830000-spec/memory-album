@@ -12,8 +12,8 @@
     <header class="topbar">
       <div>
         <p class="kicker">OUR MEMORY</p>
-        <h1>우리의 추억사진첩</h1>
-        <p class="sub">우리 둘의 소중한 순간을 한곳에</p>
+        <h1 id="appTitle">우리의 추억사진첩</h1>
+        <p class="sub" id="appSubtitle">우리 둘의 소중한 순간을 한곳에</p>
       </div>
       <button class="round-btn" id="themeBtn" aria-label="테마 변경">☾</button>
     </header>
@@ -30,83 +30,61 @@
     <section id="homeView">
       <section class="section-title">
         <div>
-          <p class="kicker">ALBUMS</p>
-          <h2>앨범</h2>
+          <p class="kicker">GOOGLE DRIVE</p>
+          <h2 id="albumSectionTitle">앨범</h2>
         </div>
-        <button class="link-btn" data-coming="새 앨범 만들기">＋ 새 앨범</button>
+        <button class="link-btn" id="refreshFoldersBtn" type="button">↻ 새로고침</button>
       </section>
 
-      <main class="album-list">
-        <button class="album-card" data-album-key="wedding">
-          <div class="cover wedding"><span>💍</span></div>
-          <div class="album-copy">
-            <div>
-              <h3>결혼사진</h3>
-              <p>우리의 결혼식과 웨딩 촬영</p>
-            </div>
-            <span class="meta">원본 · 보정본</span>
-          </div>
-          <span class="chev">›</span>
-        </button>
-
-        <button class="album-card" data-album-key="graduation">
-          <div class="cover graduation"><span>🎓</span></div>
-          <div class="album-copy">
-            <div>
-              <h3>아내 졸업사진</h3>
-              <p>졸업식과 기념 촬영</p>
-            </div>
-            <span class="meta">원본 · 보정본</span>
-          </div>
-          <span class="chev">›</span>
-        </button>
+      <main class="album-list" id="albumList" aria-live="polite">
+        <div class="empty-state album-empty">
+          <div class="empty-icon">📁</div>
+          <strong id="folderEmptyTitle">Google Drive 연결 준비 중</strong>
+          <p id="folderEmptyText">연결 후에는 추억사진첩 안의 폴더가 그대로 여기에 표시됩니다.</p>
+        </div>
       </main>
 
       <section class="actions">
-        <button class="action-card" data-coming="사진 올리기">
+        <button class="action-card" id="uploadHomeBtn" type="button">
           <span class="action-icon">＋</span>
-          <div><strong>사진 올리기</strong><small>Drive 연동 후 사용 가능</small></div>
+          <div><strong id="uploadHomeTitle">사진 올리기</strong><small id="uploadHomeText">폴더를 선택한 뒤 업로드할 수 있어요</small></div>
         </button>
-        <button class="action-card" data-coming="최근 사진">
+        <button class="action-card" id="recentBtn" type="button">
           <span class="action-icon">◷</span>
-          <div><strong>최근 사진</strong><small>새로 추가된 사진 보기</small></div>
+          <div><strong id="recentTitle">최근 사진</strong><small id="recentText">새로 추가된 사진 보기</small></div>
         </button>
       </section>
     </section>
 
-    <section id="albumView" class="album-view" hidden>
+    <section id="folderView" class="album-view" hidden>
       <div class="album-view-head">
-        <button class="back-btn" id="albumBackBtn" type="button" aria-label="앨범 목록으로 돌아가기">‹</button>
+        <button class="back-btn" id="folderBackBtn" type="button" aria-label="앨범 목록으로 돌아가기">‹</button>
         <div>
-          <p class="kicker">ALBUM</p>
-          <h2 id="albumTitle">결혼사진</h2>
-          <p class="album-view-sub" id="albumSubtitle">원본과 보정본을 나눠서 볼 수 있어요.</p>
+          <p class="kicker">FOLDER</p>
+          <h2 id="folderTitle">폴더</h2>
+          <p class="album-view-sub" id="folderSubtitle">Google Drive의 현재 폴더 내용</p>
         </div>
       </div>
 
-      <div class="album-tabs" role="tablist" aria-label="사진 종류">
-        <button class="album-tab active" data-album-tab="original" role="tab" aria-selected="true">원본</button>
-        <button class="album-tab" data-album-tab="retouched" role="tab" aria-selected="false">보정본</button>
-      </div>
-
       <div class="album-toolbar">
-        <span id="albumCount">Drive 연결 대기</span>
+        <span id="folderCount">사진 불러오는 중</span>
         <div class="album-toolbar-actions">
-          <button type="button" data-coming="정렬">정렬</button>
-          <button type="button" data-coming="업로드">＋ 업로드</button>
+          <button type="button" id="sortBtn">정렬</button>
+          <button type="button" id="uploadFolderBtn">＋ 업로드</button>
+          <button type="button" id="refreshFolderBtn">↻</button>
         </div>
       </div>
 
       <div class="photo-grid" id="photoGrid" aria-live="polite">
         <div class="empty-state">
           <div class="empty-icon">📷</div>
-          <strong>Google Drive 연결 준비 완료</strong>
-          <p>다음 단계에서 이 영역에 실제 사진 썸네일을 불러옵니다.</p>
+          <strong id="photoEmptyTitle">Google Drive 연결 준비 중</strong>
+          <p id="photoEmptyText">연결 후에는 이 폴더의 사진 썸네일이 여기에 표시됩니다.</p>
         </div>
       </div>
     </section>
 
-    <footer>For Husband & Wife · Private Memory Album</footer>
+    <footer id="footerText">For Husband & Wife · Private Memory Album</footer>
   </div>
 
   <div class="backdrop" id="backdrop" hidden>
