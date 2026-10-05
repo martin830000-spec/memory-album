@@ -33,6 +33,7 @@ const ACCESS_KEY_STORAGE='translator_primary_password';
 const ACCESS_KEY_FALLBACK_STORAGE='memory_album_access_key_v1';
 const ROUTE_TTL_MS=30*60*1000;
 const AUTO_REFRESH_MS=30*1000;
+const ALBUM_HISTORY_KEY='memoryAlbum';
 
 const I18N={
   ko:{
@@ -44,7 +45,7 @@ const I18N={
     ok:'확인',close:'닫기',ready:'준비 중',apiPending:'사진첩 전용 Google Drive 연결 설정이 아직 완료되지 않았어요.',
     apiMissing:'사진 API 주소가 아직 설정되지 않았어요. 백엔드 연결 후 자동으로 표시됩니다.',authMissing:'본앱에서 사진첩을 열어주세요. 본앱의 접근 정보가 필요합니다.',
     loadFailed:'사진을 불러오지 못했습니다.',uploading:'업로드 중',uploadingTitle:'사진 업로드 중',uploadDone:'업로드 완료',uploadFailed:'업로드 실패',chooseFolder:'업로드할 폴더 선택',
-    uploadCount:(current,total)=>`${current} / ${total}장`,uploadOverall:p=>`전체 진행률 ${p}%`,uploadCurrent:p=>`현재 사진 ${p}%`,
+    uploadCount:(current,total)=>`${current} / ${total}장`,uploadOverall:p=>`전체 진행률 ${p}%`,uploadCurrent:p=>`현재 사진 ${p}%`,uploadSaving:'Google Drive에 저장 중…',
     createFolder:'새 폴더',createFolderHint:'사진을 정리할 새 앨범 폴더 만들기',createSubfolder:'＋ 폴더',folderName:'폴더 이름',folderNamePlaceholder:'새 폴더 이름',
     folderCreated:'폴더를 만들었습니다.',folderCreateFailed:'폴더를 만들지 못했습니다.',folderExists:'같은 이름의 폴더가 이미 있습니다.',
     delete:'삭제',deletePhoto:'사진 삭제',deleteFolder:'폴더 삭제',deleting:'삭제 중',deleteDone:'삭제 완료',deleteFailed:'삭제 실패',
@@ -68,7 +69,7 @@ const I18N={
     ok:'ຕົກລົງ',close:'ປິດ',ready:'ກຳລັງກຽມ',apiPending:'ຍັງບໍ່ທັນເຊື່ອມລະບົບ Google Drive ສຳລັບອະລະບໍ້າ.',
     apiMissing:'ຍັງບໍ່ໄດ້ຕັ້ງທີ່ຢູ່ API ຮູບ. ຫຼັງເຊື່ອມ backend ແລ້ວຈະສະແດງອັດຕະໂນມັດ.',authMissing:'ກະລຸນາເປີດອະລະບໍ້າຈາກແອັບຫຼັກ. ຕ້ອງໃຊ້ຂໍ້ມູນເຂົ້າເຖິງຈາກແອັບຫຼັກ.',
     loadFailed:'ບໍ່ສາມາດໂຫຼດຮູບໄດ້.',uploading:'ກຳລັງອັບໂຫຼດ',uploadingTitle:'ກຳລັງອັບໂຫຼດຮູບ',uploadDone:'ອັບໂຫຼດສຳເລັດ',uploadFailed:'ອັບໂຫຼດບໍ່ສຳເລັດ',chooseFolder:'ເລືອກໂຟນເດີທີ່ຈະອັບໂຫຼດ',
-    uploadCount:(current,total)=>`${current} / ${total} ຮູບ`,uploadOverall:p=>`ຄວາມຄືບໜ້າລວມ ${p}%`,uploadCurrent:p=>`ຮູບປັດຈຸບັນ ${p}%`,
+    uploadCount:(current,total)=>`${current} / ${total} ຮູບ`,uploadOverall:p=>`ຄວາມຄືບໜ້າລວມ ${p}%`,uploadCurrent:p=>`ຮູບປັດຈຸບັນ ${p}%`,uploadSaving:'ກຳລັງບັນທຶກເຂົ້າ Google Drive…',
     createFolder:'ສ້າງໂຟນເດີ',createFolderHint:'ສ້າງໂຟນເດີອະລະບໍ້າໃໝ່',createSubfolder:'＋ ໂຟນເດີ',folderName:'ຊື່ໂຟນເດີ',folderNamePlaceholder:'ຊື່ໂຟນເດີໃໝ່',
     folderCreated:'ສ້າງໂຟນເດີແລ້ວ.',folderCreateFailed:'ສ້າງໂຟນເດີບໍ່ສຳເລັດ.',folderExists:'ມີໂຟນເດີຊື່ນີ້ແລ້ວ.',
     delete:'ລຶບ',deletePhoto:'ລຶບຮູບ',deleteFolder:'ລຶບໂຟນເດີ',deleting:'ກຳລັງລຶບ',deleteDone:'ລຶບສຳເລັດ',deleteFailed:'ລຶບບໍ່ສຳເລັດ',
@@ -157,6 +158,24 @@ function returnToMainApp(){
   }catch(_){
     location.href=String(cfg.mainAppBase||'/wife/');
   }
+}
+function albumHistoryState(view,id=''){return{[ALBUM_HISTORY_KEY]:true,view,id}}
+function albumUrl(view,id=''){
+  const base=location.pathname+location.search;
+  if(view==='recent')return base+'#recent';
+  if(view==='folder'&&id)return base+'#folder='+encodeURIComponent(id);
+  return base;
+}
+function initAlbumHistory(){
+  let view='home',id='';
+  if(location.hash==='#recent')view='recent';
+  else if(location.hash.startsWith('#folder=')){view='folder';id=decodeURIComponent(location.hash.slice(8))}
+  history.replaceState(albumHistoryState(view,id),'',location.href);
+}
+function pushAlbumHistory(view,id=''){history.pushState(albumHistoryState(view,id),'',albumUrl(view,id))}
+function showAlbumHome(){
+  state.currentFolder=null;state.folderStack=[];state.childFolders=[];state.media=[];
+  folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
 }
 function normalizeModeInUrl(){
   try{
@@ -343,14 +362,14 @@ async function loadThumb(img){
     img.src=url;img.classList.add('loaded');img.dataset.loaded='1';
   }catch(_){img.alt=''}
 }
-async function openRecent(){
+async function openRecent(pushHistory=true){
   state.folderStack=[];
   state.currentFolder={id:'__recent__',name:t('recentTitle'),displayName:t('recentTitle'),isRecent:true};
   state.childFolders=[];state.media=[];homeView.hidden=true;folderView.hidden=false;
   folderTitle.textContent=t('recentTitle');folderSubtitle.textContent=t('recentSubtitle');folderCount.textContent=t('loadingPhotos');
   $('uploadFolderBtn').hidden=true;$('createSubfolderBtn').hidden=true;$('deleteFolderBtn').hidden=true;
   subfolderList.innerHTML='';photoGrid.innerHTML='<div class="loading-line"></div>';
-  history.replaceState(null,'','#recent');window.scrollTo({top:0,behavior:'smooth'});
+  if(pushHistory)pushAlbumHistory('recent');window.scrollTo({top:0,behavior:'smooth'});
   try{
     const data=await apiJson('/api/recent?limit=120');
     state.media=Array.isArray(data.media)?data.media:[];
@@ -363,7 +382,7 @@ async function openRecent(){
     state.media=[];photoGrid.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><strong>${escapeHtml(t('loadFailed'))}</strong></div>`;handleApiError(e,t('loadFailed'));
   }
 }
-async function openFolderById(id,push){
+async function openFolderById(id,push=true){
   const rootItem=state.folders.find(x=>String(x.id)===String(id));
   if(rootItem&&push)state.folderStack=[];
   const folder=rootItem||state.childFolders.find(x=>String(x.id)===String(id))||{id,name:''};
@@ -371,7 +390,7 @@ async function openFolderById(id,push){
   state.currentFolder=folder;homeView.hidden=true;folderView.hidden=false;
   $('uploadFolderBtn').hidden=false;$('createSubfolderBtn').hidden=false;$('deleteFolderBtn').hidden=false;
   folderTitle.textContent=displayName(folder)||t('loadingPhotos');folderSubtitle.textContent=t('folderSubtitle');folderCount.textContent=t('loadingPhotos');
-  subfolderList.innerHTML='';photoGrid.innerHTML='<div class="loading-line"></div>';history.replaceState(null,'','#folder='+encodeURIComponent(id));window.scrollTo({top:0,behavior:'smooth'});
+  subfolderList.innerHTML='';photoGrid.innerHTML='<div class="loading-line"></div>';if(push)pushAlbumHistory('folder',id);window.scrollTo({top:0,behavior:'smooth'});
   try{
     const data=await apiJson('/api/folder?id='+encodeURIComponent(id)+'&lang='+encodeURIComponent(uiLang()));
     state.currentFolder={...(data.folder||folder)};
@@ -382,13 +401,11 @@ async function openFolderById(id,push){
 }
 function openChildFolder(id){openFolderById(id,true)}
 function closeFolder(){
-  if(state.folderStack.length){
-    const prev=state.folderStack.pop();state.currentFolder=null;openFolderById(prev.id,false);return;
-  }
-  state.currentFolder=null;state.childFolders=[];state.media=[];folderView.hidden=true;homeView.hidden=false;history.replaceState(null,'',location.pathname+location.search);window.scrollTo({top:0,behavior:'smooth'});
+  if(history.state?.[ALBUM_HISTORY_KEY]&&history.state.view!=='home'){history.back();return}
+  showAlbumHome();
 }
 async function refreshCurrent(){
-  if(state.currentFolder?.isRecent)return openRecent();
+  if(state.currentFolder?.isRecent)return openRecent(false);
   if(state.currentFolder)return openFolderById(state.currentFolder.id,false);
   return loadFolders(false);
 }
@@ -431,11 +448,11 @@ function handleUploadError(e,fileName=''){
   const label=t('uploadFailed')+(fileName?' · '+fileName:'');
   openSheet(t('ready'),label+(detail?'\n\n'+detail:''));
 }
-function showUploadProgress(file,index,total,filePercent,overallPercent){
-  sheetTitle.textContent=t('uploadingTitle');
+function showUploadProgress(file,index,total,filePercent,overallPercent,saving=false){
+  sheetTitle.textContent=saving?t('uploadSaving'):t('uploadingTitle');
   sheetText.textContent=`${t('uploadCount',index,total)} · ${file.name}`;
   sheetActions.innerHTML=`<div class="upload-progress-wrap">
-    <div class="upload-progress-row"><strong>${escapeHtml(t('uploadCurrent',filePercent))}</strong><span>${filePercent}%</span></div>
+    <div class="upload-progress-row"><strong>${escapeHtml(saving?t('uploadSaving'):t('uploadCurrent',filePercent))}</strong><span>${filePercent}%</span></div>
     <div class="upload-progress-track"><span style="width:${filePercent}%"></span></div>
     <div class="upload-progress-row overall"><strong>${escapeHtml(t('uploadOverall',overallPercent))}</strong><span>${overallPercent}%</span></div>
     <div class="upload-progress-track overall"><span style="width:${overallPercent}%"></span></div>
@@ -474,10 +491,11 @@ async function deleteCurrentFolder(){
   const folder=state.currentFolder;if(!folder||folder.isRecent)return;
   try{
     await apiPostJson('/api/folder/delete',{id:folder.id});
-    if(state.folderStack.length){
-      const parent=state.folderStack.pop();state.currentFolder=null;await openFolderById(parent.id,false);
+    if(history.state?.[ALBUM_HISTORY_KEY]&&history.state.view==='folder'){
+      history.back();
+      setTimeout(()=>refreshCurrent(),180);
     }else{
-      state.currentFolder=null;folderView.hidden=true;homeView.hidden=false;history.replaceState(null,'',location.pathname+location.search);await loadFolders(false);
+      showAlbumHome();await loadFolders(false);
     }
   }catch(e){handleApiError(e,t('deleteFailed'))}
 }
@@ -496,9 +514,13 @@ async function uploadSelectedFiles(){
   for(let i=0;i<files.length;i++){
     const file=files[i];
     try{
+      showUploadProgress(file,i+1,files.length,0,Math.round(done/files.length*100),false);
       await uploadOne(file,folderId,p=>{
-        const overall=Math.round(((done+p/100)/files.length)*100);
-        showUploadProgress(file,i+1,files.length,p,overall);
+        const overall=Math.min(99,Math.round(((done+p/100)/files.length)*100));
+        showUploadProgress(file,i+1,files.length,p,overall,false);
+      },()=>{
+        const overall=Math.min(99,Math.round(((done+0.98)/files.length)*100));
+        showUploadProgress(file,i+1,files.length,100,overall,true);
       });
       done++;
     }catch(e){
@@ -510,7 +532,7 @@ async function uploadSelectedFiles(){
   openSheet(t('uploadDone'),`${done} / ${files.length}`);
   setTimeout(()=>{closeSheet();refreshCurrent()},900);
 }
-function uploadOne(file,folderId,onProgress){
+function uploadOne(file,folderId,onProgress,onSaving){
   const bases=apiBases(),key=accessKey();
   return new Promise((resolve,reject)=>{
     const tryAt=i=>{
@@ -519,6 +541,7 @@ function uploadOne(file,folderId,onProgress){
       xhr.open('POST',bases[i]+'/api/upload?folder='+encodeURIComponent(folderId));
       xhr.setRequestHeader('X-Album-Key',key);
       xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress?.(Math.max(0,Math.min(100,Math.round(e.loaded/e.total*100))))};
+      xhr.upload.onload=()=>onSaving?.();
       xhr.onload=()=>{
         if(xhr.status>=200&&xhr.status<300){onProgress?.(100);return resolve(xhr.responseText)}
         if((xhr.status>=500||xhr.status===404)&&i+1<bases.length)return tryAt(i+1);
@@ -736,10 +759,18 @@ async function deleteCurrentPhoto(id){
   }catch(e){handleApiError(e,t('deleteFailed'))}
 }
 function syncFromHash(){
-  if(location.hash==='#recent'){openRecent();return}
+  if(location.hash==='#recent'){openRecent(false);return}
   if(!location.hash.startsWith('#folder='))return;
   const id=decodeURIComponent(location.hash.slice(8));if(!id||state.currentFolder?.id===id)return;
-  const f=state.folders.find(x=>String(x.id)===id);if(f)openFolderById(id,true);
+  openFolderById(id,false);
+}
+function handleAlbumPopState(e){
+  const h=e.state;
+  if(!h?.[ALBUM_HISTORY_KEY])return;
+  if(!viewer.hidden)closeViewer();
+  if(h.view==='recent'){openRecent(false);return}
+  if(h.view==='folder'&&h.id){openFolderById(h.id,false);return}
+  showAlbumHome();
 }
 
 $('mainAppBtn').addEventListener('click',returnToMainApp);
@@ -762,10 +793,11 @@ for(const type of ['gesturestart','gesturechange','gestureend']){
   viewerStage.addEventListener(type,e=>e.preventDefault(),{passive:false});
 }
 window.addEventListener('resize',()=>{if(!viewer.hidden)applyViewerTransform()});
+window.addEventListener('popstate',handleAlbumPopState);
 backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy)closeSheet()});
 window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
 window.addEventListener('storage',e=>{if(routeCandidates.some(c=>e.key===c.modeKey||e.key===c.statsKey)){renderSharedRoute();refreshCurrent()}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastRefresh>AUTO_REFRESH_MS)refreshCurrent()});
 window.addEventListener('beforeunload',()=>{for(const url of thumbUrls)URL.revokeObjectURL(url);thumbUrls.clear()});
 
-applyLanguage();renderSharedRoute();normalizeModeInUrl();loadFolders(false);
+applyLanguage();renderSharedRoute();normalizeModeInUrl();initAlbumHistory();loadFolders(false);
