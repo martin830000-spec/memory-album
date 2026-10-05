@@ -574,15 +574,17 @@ function startPinchGesture(){
   gestureStartPanX=viewerPanX;
   gestureStartPanY=viewerPanY;
 }
+function touchInputAvailable(){return ('ontouchstart' in window)||(navigator.maxTouchPoints||0)>0}
 function onViewerPointerDown(e){
   if(viewer.hidden)return;
+  if(e.pointerType==='touch'&&touchInputAvailable())return;
   viewerPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   try{viewerStage.setPointerCapture(e.pointerId)}catch(_){}
   if(viewerPointers.size===1)startSinglePointerGesture({x:e.clientX,y:e.clientY});
   else if(viewerPointers.size===2)startPinchGesture();
-  if(e.pointerType==='touch')e.preventDefault();
 }
 function onViewerPointerMove(e){
+  if(e.pointerType==='touch'&&touchInputAvailable())return;
   if(!viewerPointers.has(e.pointerId))return;
   viewerPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(viewerPointers.size>=2){
@@ -605,6 +607,7 @@ function onViewerPointerMove(e){
   }
 }
 function onViewerPointerEnd(e){
+  if(e.pointerType==='touch'&&touchInputAvailable())return;
   viewerPointers.delete(e.pointerId);
   try{viewerStage.releasePointerCapture(e.pointerId)}catch(_){}
   if(viewerPointers.size===1){
@@ -613,6 +616,48 @@ function onViewerPointerEnd(e){
   }else if(viewerPointers.size===0&&viewerScale<=1.01){
     resetViewerZoom();
   }
+}
+function touchPoint(touch){return{x:touch.clientX,y:touch.clientY}}
+function onViewerTouchStart(e){
+  if(viewer.hidden)return;
+  if(e.touches.length===1){
+    startSinglePointerGesture(touchPoint(e.touches[0]));
+  }else if(e.touches.length>=2){
+    const a=touchPoint(e.touches[0]),b=touchPoint(e.touches[1]),mid=viewerMidpoint(a,b);
+    gestureStartDistance=Math.max(1,viewerDistance(a,b));
+    gestureStartScale=viewerScale;
+    gestureStartMidX=mid.x;gestureStartMidY=mid.y;
+    gestureStartPanX=viewerPanX;gestureStartPanY=viewerPanY;
+  }
+  e.preventDefault();
+}
+function onViewerTouchMove(e){
+  if(viewer.hidden)return;
+  if(e.touches.length>=2){
+    const a=touchPoint(e.touches[0]),b=touchPoint(e.touches[1]),mid=viewerMidpoint(a,b);
+    const distance=Math.max(1,viewerDistance(a,b));
+    viewerScale=clamp(gestureStartScale*(distance/Math.max(1,gestureStartDistance)),1,VIEWER_MAX_SCALE);
+    viewerPanX=gestureStartPanX+(mid.x-gestureStartMidX);
+    viewerPanY=gestureStartPanY+(mid.y-gestureStartMidY);
+    applyViewerTransform();
+    e.preventDefault();
+    return;
+  }
+  if(e.touches.length===1&&viewerScale>1.01){
+    const p=touchPoint(e.touches[0]);
+    viewerPanX=gestureStartPanX+(p.x-gestureStartPointerX);
+    viewerPanY=gestureStartPanY+(p.y-gestureStartPointerY);
+    applyViewerTransform();
+    e.preventDefault();
+  }
+}
+function onViewerTouchEnd(e){
+  if(e.touches.length===1){
+    startSinglePointerGesture(touchPoint(e.touches[0]));
+  }else if(e.touches.length===0&&viewerScale<=1.01){
+    resetViewerZoom();
+  }
+  e.preventDefault();
 }
 async function openViewer(index){
   const rows=state.media;if(!rows[index])return;
@@ -707,6 +752,10 @@ viewerStage.addEventListener('pointerdown',onViewerPointerDown,{passive:false});
 viewerStage.addEventListener('pointermove',onViewerPointerMove,{passive:false});
 viewerStage.addEventListener('pointerup',onViewerPointerEnd,{passive:false});
 viewerStage.addEventListener('pointercancel',onViewerPointerEnd,{passive:false});
+viewerStage.addEventListener('touchstart',onViewerTouchStart,{passive:false});
+viewerStage.addEventListener('touchmove',onViewerTouchMove,{passive:false});
+viewerStage.addEventListener('touchend',onViewerTouchEnd,{passive:false});
+viewerStage.addEventListener('touchcancel',onViewerTouchEnd,{passive:false});
 // iOS Safari can still emit its native gesture events even when Pointer Events are used.
 // Prevent only inside the photo stage so pinch/pan stays owned by the album viewer.
 for(const type of ['gesturestart','gesturechange','gestureend']){
