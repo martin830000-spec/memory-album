@@ -1,0 +1,7 @@
+name = "memory-album-api"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALBUM_ORIGIN_URL = "https://YOUR-ALBUM-CLOUD-RUN.run.app"
+ALBUM_SITE_ORIGIN = "https://martin830000-spec.github.io"
