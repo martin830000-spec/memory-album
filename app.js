@@ -230,7 +230,9 @@ function showAlbumHome(){
   state.currentFolder=null;state.folderStack=[];state.childFolders=[];state.media=[];
   folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
 }
-function appBusyForUpdate(){return uploadBusy||downloadBusy||deleteBusy||preparedSaveActive}
+function appBusyForUpdate(){
+  return uploadBusy||downloadBusy||deleteBusy||preparedSaveActive||selectionMode||!viewer.hidden||!backdrop.hidden||!$('manualModal').hidden||!$('updateModal').hidden;
+}
 function reloadForVersion(version){
   const u=new URL(location.href);
   u.searchParams.set('__album_v',String(version||Date.now()));
@@ -299,6 +301,7 @@ function closeManual(fromHistory=false){
   if(!fromHistory&&history.state?.overlay==='manual'){history.back();return}
   $('manualModal').hidden=true;
   if($('updateModal').hidden)body.classList.remove('modal-open');
+  if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
 function renderUpdatePopup(info){
   const version=String(info?.version||cfg.version);
@@ -323,6 +326,7 @@ function closeUpdatePopup(fromHistory=false){
   if(!fromHistory&&history.state?.overlay==='update'){history.back();return}
   $('updateModal').hidden=true;
   if($('manualModal').hidden)body.classList.remove('modal-open');
+  if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
 async function showUpdatePopupIfNeeded(force=false){
   try{
@@ -540,6 +544,7 @@ function setSelectionMode(enabled){
   photoGrid.classList.toggle('selection-mode',selectionMode);
   $('selectPhotosBtn').classList.toggle('active',selectionMode);
   renderMedia();
+  if(!selectionMode&&pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
 function togglePhotoSelection(index){
   const item=state.media[index];if(!item)return;
@@ -738,7 +743,12 @@ function openConfirmSheet(title,text,onConfirm,confirmLabel=t('confirm')){
   cancel.addEventListener('click',closeSheet);ok.addEventListener('click',()=>{closeSheet();onConfirm?.()});
   row.append(cancel,ok);sheetActions.appendChild(row);backdrop.hidden=false;
 }
-function closeSheet(){if(uploadBusy||downloadBusy||deleteBusy)return;preparedSaveActive=false;backdrop.hidden=true;sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok')}
+function closeSheet(){
+  if(uploadBusy||downloadBusy||deleteBusy)return;
+  const wasPrepared=preparedSaveActive;
+  preparedSaveActive=false;backdrop.hidden=true;sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok');
+  if(!wasPrepared&&pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
+}
 function apiErrorDetail(e){
   const parts=[];
   if(e?.status)parts.push('HTTP '+e.status);
@@ -1062,6 +1072,7 @@ function releaseViewerBlob(){if(state.viewerUrl)URL.revokeObjectURL(state.viewer
 function closeViewer(fromHistory=false){
   if(!fromHistory&&history.state?.[ALBUM_HISTORY_KEY]&&history.state.view==='viewer'){history.back();return}
   viewerLoadSeq++;resetViewerZoom();releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.removeAttribute('src');viewerLoading.textContent=t('viewerLoading');
+  if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
 async function moveViewer(delta){if(!state.media.length)return;state.viewerIndex=(state.viewerIndex+delta+state.media.length)%state.media.length;await renderViewer()}
 async function ensureViewerBlob(){if(state.viewerBlob)return state.viewerBlob;const item=state.media[state.viewerIndex];if(!item)return null;const version=String(item.modifiedTime||'');const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});state.viewerBlob=data.blob;return data.blob}
