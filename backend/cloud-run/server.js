@@ -223,8 +223,8 @@ app.post('/api/download-zip', async (req, res, next) => {
     archive.pipe(res);
 
     const usedNames = new Map();
-    const token = await getGoogleToken();
     for (const meta of metas) {
+      const token = await getGoogleToken();
       const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(meta.id)}?alt=media`;
       const upstream = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
       if (!upstream.body) throw Object.assign(new Error('google_media_empty'), { status: 502 });
