@@ -14,8 +14,13 @@ const ALLOWED_ORIGINS = String(process.env.ALLOWED_ORIGINS || 'https://martin830
   .split(',').map(v => v.trim()).filter(Boolean);
 
 let tokenCache = { token: '', expiresAt: 0 };
+let runtimeTokenCache = { token: '', expiresAt: 0 };
 const insideRootCache = new Map();
 const translationCache = new Map();
+const KNOWN_LAO_FOLDER_NAMES = new Map([
+  ['결혼사진', 'ຮູບແຕ່ງງານ'],
+  ['아내 졸업사진', 'ຮູບຈົບການສຶກສາຂອງພັນລະຍາ']
+]);
 
 app.disable('x-powered-by');
 
@@ -32,7 +37,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.3.0' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.3.1' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -316,8 +321,15 @@ async function localizeFolders(rows, lang) {
   for (const row of normalized) {
     if (!/[\uac00-\ud7a3]/.test(row.name || '')) continue;
     const key = `${row.id}\n${row.name}`;
-    if (translationCache.has(key)) row.displayName = translationCache.get(key);
-    else needs.push(row);
+    const known = KNOWN_LAO_FOLDER_NAMES.get(String(row.name || '').trim());
+    if (known) {
+      row.displayName = known;
+      translationCache.set(key, known);
+    } else if (translationCache.has(key)) {
+      row.displayName = translationCache.get(key);
+    } else {
+      needs.push(row);
+    }
   }
   if (!needs.length) return normalized;
 
@@ -334,8 +346,41 @@ async function localizeFolders(rows, lang) {
 
 async function translateFolderBatch(rows) {
   const out = new Map();
-  const apiKey = String(process.env.GEMINI_API_KEY || process.env.ALBUM_ACCESS_KEY || '');
-  if (!apiKey || !rows.length) return out;
+  if (!rows.length) return out;
+
+  try {
+    const token = await getRuntimeAccessToken();
+    const res = await fetch('https://translation.googleapis.com/language/translate/v2', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        q: rows.map(x => String(x.name || '')),
+        source: 'ko',
+        target: 'lo',
+        format: 'text'
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const translations = Array.isArray(data?.data?.translations) ? data.data.translations : [];
+      rows.forEach((row, i) => {
+        const lao = decodeTranslationText(translations[i]?.translatedText || '');
+        if (lao) out.set(String(row.id || ''), lao);
+      });
+      if (out.size) return out;
+    } else {
+      const body = await res.text().catch(() => '');
+      console.warn('[folder-translation-cloud]', res.status, body.slice(0, 240));
+    }
+  } catch (e) {
+    console.warn('[folder-translation-cloud]', e?.message || e);
+  }
+
+  const apiKey = String(process.env.GEMINI_API_KEY || '');
+  if (!apiKey) return out;
   const model = String(process.env.GEMINI_MODEL || 'gemini-2.5-flash');
 
   const payload = rows.map(x => ({ id: x.id, name: x.name }));
@@ -367,9 +412,37 @@ async function translateFolderBatch(rows) {
       }
     }
   } catch (e) {
-    console.warn('[folder-translation]', e?.message || e);
+    console.warn('[folder-translation-gemini]', e?.message || e);
   }
   return out;
+}
+
+async function getRuntimeAccessToken(force = false) {
+  if (!force && runtimeTokenCache.token && Date.now() < runtimeTokenCache.expiresAt - 60000) {
+    return runtimeTokenCache.token;
+  }
+  const res = await fetch(
+    'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token',
+    { headers: { 'Metadata-Flavor': 'Google' } }
+  );
+  if (!res.ok) throw new Error(`runtime_token_${res.status}`);
+  const data = await res.json();
+  if (!data?.access_token) throw new Error('runtime_token_invalid');
+  runtimeTokenCache = {
+    token: String(data.access_token),
+    expiresAt: Date.now() + Math.max(300, Number(data.expires_in || 3000)) * 1000
+  };
+  return runtimeTokenCache.token;
+}
+
+function decodeTranslationText(value) {
+  return String(value || '')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .trim();
 }
 
 function pipeGoogleResponse(upstream, res, name, attachment) {
