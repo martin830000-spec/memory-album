@@ -15,6 +15,7 @@ const ALLOWED_ORIGINS = String(process.env.ALLOWED_ORIGINS || 'https://martin830
 
 let tokenCache = { token: '', expiresAt: 0 };
 let runtimeTokenCache = { token: '', expiresAt: 0 };
+let recentCache = { data: [], expiresAt: 0 };
 const insideRootCache = new Map();
 const translationCache = new Map();
 const fileMetaCache = new Map();
@@ -25,6 +26,7 @@ const KNOWN_LAO_FOLDER_NAMES = new Map([
 ]);
 
 app.disable('x-powered-by');
+app.use(express.json({ limit: '32kb' }));
 
 app.use((req, res, next) => {
   const origin = String(req.headers.origin || '');
@@ -39,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.3.3' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.4.0' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -119,6 +121,75 @@ app.get('/api/folder', async (req, res, next) => {
       media,
       nextPageToken: data.nextPageToken || null
     });
+  } catch (e) { next(e); }
+});
+
+
+app.get('/api/recent', async (req, res, next) => {
+  try {
+    const limit = Math.max(1, Math.min(200, Number(req.query.limit || 120)));
+    const media = await listRecentMedia(limit);
+    res.json({ ok: true, media });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/folders', async (req, res, next) => {
+  try {
+    const parentId = String(req.body?.parentId || ROOT_ID);
+    const name = normalizeFolderName(req.body?.name);
+    if (!name) return res.status(400).json({ ok: false, error: 'folder_name_required' });
+    if (parentId !== ROOT_ID) await assertFolderInsideRoot(parentId);
+
+    const existing = await driveList({
+      q: `'${escapeQuery(parentId)}' in parents and trashed = false and mimeType = 'application/vnd.google-apps.folder' and name = '${escapeQuery(name)}'`,
+      pageSize: '1',
+      fields: 'files(id)'
+    });
+    if ((existing.files || []).length) return res.status(409).json({ ok: false, error: 'folder_name_exists' });
+
+    const created = await driveJsonRequest('files', {
+      method: 'POST',
+      params: { fields: 'id,name,mimeType,createdTime,modifiedTime,parents' },
+      body: { name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] }
+    });
+    insideRootCache.set(String(created.id), { value: true, at: Date.now() });
+    const localized = (await localizeFolders([created], req.query.lang))[0] || created;
+    res.status(201).json({ ok: true, folder: localized });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/folder/delete', async (req, res, next) => {
+  try {
+    const id = String(req.body?.id || '');
+    if (!id) return res.status(400).json({ ok: false, error: 'folder_id_required' });
+    if (id === ROOT_ID) return res.status(403).json({ ok: false, error: 'root_folder_delete_forbidden' });
+    await assertFolderInsideRoot(id);
+    await driveJsonRequest(`files/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      params: { fields: 'id,trashed' },
+      body: { trashed: true }
+    });
+    insideRootCache.delete(id);
+    fileMetaCache.delete(id);
+    recentCache.expiresAt = 0;
+    res.json({ ok: true });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/media/delete', async (req, res, next) => {
+  try {
+    const id = String(req.body?.id || '');
+    if (!id) return res.status(400).json({ ok: false, error: 'file_id_required' });
+    await getVerifiedImageMeta(id, 'id,name,mimeType,parents');
+    await driveJsonRequest(`files/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      params: { fields: 'id,trashed' },
+      body: { trashed: true }
+    });
+    insideRootCache.delete(id);
+    fileMetaCache.delete(id);
+    recentCache.expiresAt = 0;
+    res.json({ ok: true });
   } catch (e) { next(e); }
 });
 
@@ -237,12 +308,23 @@ async function fetchGoogle(url, init = {}, retry = true) {
   return res;
 }
 
-async function driveJson(path, params = {}) {
+async function driveJsonRequest(path, { method = 'GET', params = {}, body = null } = {}) {
   const token = await getGoogleToken();
   const url = new URL(`https://www.googleapis.com/drive/v3/${path.replace(/^\/+/, '')}`);
   for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v));
-  const res = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
+  const headers = { Authorization: `Bearer ${token}` };
+  const init = { method, headers };
+  if (body !== null) {
+    headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(body);
+  }
+  const res = await fetchGoogle(url, init);
+  if (res.status === 204) return {};
   return res.json();
+}
+
+async function driveJson(path, params = {}) {
+  return driveJsonRequest(path, { params });
 }
 
 function driveList(params) {
@@ -318,6 +400,81 @@ async function assertInsideRoot(id) {
 
   insideRootCache.set(id, { value: false, at: Date.now() });
   throw Object.assign(new Error('outside_album_root'), { status: 403 });
+}
+
+
+async function driveListAll(params, maxItems = 5000) {
+  const out = [];
+  let pageToken = '';
+  do {
+    const data = await driveList({ ...params, pageToken });
+    out.push(...(data.files || []));
+    pageToken = String(data.nextPageToken || '');
+  } while (pageToken && out.length < maxItems);
+  return out.slice(0, maxItems);
+}
+
+async function listRecentMedia(limit) {
+  if (recentCache.expiresAt > Date.now() && recentCache.data.length) {
+    return recentCache.data.slice(0, limit);
+  }
+
+  const queue = [ROOT_ID];
+  const seen = new Set();
+  const media = [];
+  let scannedFolders = 0;
+
+  while (queue.length && scannedFolders < 250) {
+    const parentId = queue.shift();
+    if (!parentId || seen.has(parentId)) continue;
+    seen.add(parentId);
+    scannedFolders++;
+
+    const rows = await driveListAll({
+      q: `'${escapeQuery(parentId)}' in parents and trashed = false`,
+      orderBy: 'modifiedTime desc',
+      pageSize: '1000',
+      fields: 'nextPageToken,files(id,name,mimeType,size,createdTime,modifiedTime,parents,thumbnailLink,imageMediaMetadata(width,height,time))'
+    });
+
+    const now = Date.now();
+    for (const item of rows) {
+      if (!item?.id) continue;
+      if (item.mimeType === 'application/vnd.google-apps.folder') {
+        insideRootCache.set(String(item.id), { value: true, at: now });
+        queue.push(String(item.id));
+        continue;
+      }
+      if (!String(item.mimeType || '').startsWith('image/')) continue;
+      const fileId = String(item.id);
+      insideRootCache.set(fileId, { value: true, at: now });
+      fileMetaCache.set(fileId, { value: item, at: now });
+      media.push({
+        id: item.id,
+        name: item.name,
+        mimeType: item.mimeType,
+        size: item.size || '',
+        createdTime: item.createdTime || '',
+        modifiedTime: item.modifiedTime || '',
+        imageTime: item.imageMediaMetadata?.time || '',
+        width: item.imageMediaMetadata?.width || null,
+        height: item.imageMediaMetadata?.height || null,
+        thumbVersion: item.modifiedTime || item.createdTime || ''
+      });
+    }
+  }
+
+  media.sort((a, b) => {
+    const ad = Date.parse(a.createdTime || a.modifiedTime || 0) || 0;
+    const bd = Date.parse(b.createdTime || b.modifiedTime || 0) || 0;
+    return bd - ad;
+  });
+  recentCache = { data: media.slice(0, 200), expiresAt: Date.now() + 30000 };
+  return recentCache.data.slice(0, limit);
+}
+
+function normalizeFolderName(name) {
+  return String(name || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 100);
 }
 
 function escapeQuery(value) {
