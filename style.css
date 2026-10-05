@@ -4,7 +4,7 @@
   --line:rgba(255,255,255,.08);--accent:#ff7798;--shadow:0 18px 45px rgba(0,0,0,.24)
 }
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+html,body{margin:0;min-height:100%;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR","Noto Sans Lao",sans-serif}
 body{background:radial-gradient(circle at top right,rgba(255,119,152,.12),transparent 34%),var(--bg);color:var(--text)}
 button{font:inherit;color:inherit}
 .app{width:min(100%,720px);margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom))}
@@ -23,33 +23,29 @@ h1{margin:0 0 6px;font-size:30px;line-height:1.15;letter-spacing:-.045em}
 .badge.cloudflare{color:#ffb485;background:rgba(243,154,98,.11)}
 .section-title{display:flex;align-items:end;justify-content:space-between;margin-bottom:13px}
 .section-title h2{margin:0;font-size:22px;letter-spacing:-.03em}.link-btn{border:0;background:none;color:#ff9ab2;font-weight:750;font-size:13px;cursor:pointer;padding:8px 0}
-.album-list{display:grid;gap:14px}
-.album-card{position:relative;width:100%;display:grid;grid-template-columns:112px 1fr 18px;gap:14px;align-items:center;text-align:left;padding:11px;border:1px solid var(--line);border-radius:22px;background:var(--panel);cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,.12);transition:.18s}
+.album-list{display:grid;gap:12px}
+.album-card{position:relative;width:100%;display:grid;grid-template-columns:76px 1fr 18px;gap:13px;align-items:center;text-align:left;padding:11px;border:1px solid var(--line);border-radius:20px;background:var(--panel);cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,.12);transition:.18s}
 .album-card:hover{background:var(--panel2);border-color:rgba(255,255,255,.14)}.album-card:active{transform:scale(.987)}
-.cover{height:104px;border-radius:17px;display:grid;place-items:center;font-size:35px;overflow:hidden;position:relative}
-.cover:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent 55%)}
-.cover span{position:relative;filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}
-.wedding{background:linear-gradient(135deg,#7d334b,#d77e95)}.graduation{background:linear-gradient(135deg,#263a71,#7993d7)}
-.album-copy{min-width:0;display:flex;min-height:92px;flex-direction:column;justify-content:space-between}.album-copy h3{margin:0 0 5px;font-size:17px;letter-spacing:-.025em}.album-copy p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.meta{font-size:11px;color:#c2c8d0}.chev{font-size:26px;color:#6f7680}
+.folder-cover{height:70px;border-radius:16px;display:grid;place-items:center;font-size:31px;background:linear-gradient(135deg,#6d3e51,#c76d87);overflow:hidden;position:relative}
+.folder-cover:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 58%)}
+.folder-cover span{position:relative;filter:drop-shadow(0 7px 12px rgba(0,0,0,.18))}
+.album-copy{min-width:0;display:flex;min-height:66px;flex-direction:column;justify-content:center}.album-copy h3{margin:0 0 6px;font-size:16px;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.album-copy p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.45}.chev{font-size:26px;color:#6f7680}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
 .action-card{display:flex;align-items:center;gap:11px;text-align:left;padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.035);cursor:pointer}.action-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(255,119,152,.12);color:#ff9ab2;font-size:20px}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);font-size:10.5px;margin-top:3px}
 
 .album-view{animation:fadeIn .18s ease}
 .album-view-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
-.album-view-head h2{margin:0;font-size:24px;letter-spacing:-.035em}
+.album-view-head h2{margin:0;font-size:24px;letter-spacing:-.035em;word-break:break-word}
 .album-view-sub{margin:5px 0 0;color:var(--muted);font-size:12px}
-.back-btn{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-size:30px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 0 4px}
-.album-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:5px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid var(--line);margin-bottom:14px}
-.album-tab{border:0;background:transparent;border-radius:12px;padding:11px 10px;color:var(--muted);font-weight:800;cursor:pointer}
-.album-tab.active{background:var(--panel2);color:var(--text);box-shadow:0 5px 14px rgba(0,0,0,.12)}
+.back-btn{width:42px;height:42px;flex:0 0 42px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-size:30px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 0 4px}
 .album-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 2px 12px;color:var(--muted);font-size:11px}
 .album-toolbar-actions{display:flex;gap:6px}.album-toolbar-actions button{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 9px;font-size:11px;cursor:pointer}
 .photo-grid{min-height:330px;border:1px dashed rgba(255,255,255,.12);border-radius:20px;background:rgba(255,255,255,.02);padding:18px;display:grid;place-items:center}
-.empty-state{text-align:center;max-width:300px}.empty-icon{font-size:40px;margin-bottom:10px}.empty-state strong{display:block;font-size:14px}.empty-state p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+.empty-state{text-align:center;max-width:320px;margin:auto;padding:28px 12px}.album-empty{min-height:235px;border:1px dashed rgba(255,255,255,.12);border-radius:20px;background:rgba(255,255,255,.02)}.empty-icon{font-size:40px;margin-bottom:10px}.empty-state strong{display:block;font-size:14px}.empty-state p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
 
 footer{text-align:center;color:#686f79;font-size:11px;margin-top:34px}
 .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:14px;z-index:10}.backdrop[hidden]{display:none}.sheet{width:min(100%,620px);background:#1b1f27;border:1px solid var(--line);border-radius:24px;padding:12px 18px 18px;box-shadow:0 28px 80px rgba(0,0,0,.45)}.handle{width:42px;height:4px;border-radius:999px;background:#555d69;margin:2px auto 18px}.sheet h2{margin:0 0 8px;font-size:20px}.sheet p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.55}.primary{width:100%;border:0;border-radius:14px;padding:13px 16px;background:#ff7798;color:#171219;font-weight:850;cursor:pointer}
 body.light{--bg:#f6f4f5;--panel:#fff;--panel2:#faf7f8;--text:#1b1c20;--muted:#717781;--line:rgba(20,20,25,.09);--shadow:0 16px 40px rgba(35,25,30,.08);color-scheme:light}
 body.light{background:radial-gradient(circle at top right,rgba(255,119,152,.13),transparent 34%),var(--bg)}body.light .round-btn,body.light .action-card{background:rgba(0,0,0,.025)}
 @keyframes fadeIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
-@media(max-width:480px){h1{font-size:27px}.album-card{grid-template-columns:94px 1fr 14px}.cover{height:92px}.actions{grid-template-columns:1fr}.hero{align-items:flex-start}.badge{margin-top:1px}.album-toolbar{align-items:flex-start;flex-direction:column}.album-toolbar-actions{width:100%}.album-toolbar-actions button{flex:1}}
+@media(max-width:480px){h1{font-size:27px}.actions{grid-template-columns:1fr}.hero{align-items:flex-start}.badge{margin-top:1px}.album-toolbar{align-items:flex-start;flex-direction:column}.album-toolbar-actions{width:100%}.album-toolbar-actions button{flex:1}.album-card{grid-template-columns:68px 1fr 14px}.folder-cover{height:64px}}
