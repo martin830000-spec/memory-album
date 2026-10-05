@@ -17,6 +17,8 @@ let tokenCache = { token: '', expiresAt: 0 };
 let runtimeTokenCache = { token: '', expiresAt: 0 };
 const insideRootCache = new Map();
 const translationCache = new Map();
+const fileMetaCache = new Map();
+const FILE_META_TTL_MS = 30 * 60 * 1000;
 const KNOWN_LAO_FOLDER_NAMES = new Map([
   ['결혼사진', 'ຮູບແຕ່ງງານ'],
   ['아내 졸업사진', 'ຮູບຈົບການສຶກສາຂອງພັນລະຍາ']
@@ -37,7 +39,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.3.1' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.3.2' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -55,7 +57,12 @@ app.get('/api/folders', async (req, res, next) => {
       pageSize: '1000',
       fields: 'files(id,name,mimeType,createdTime,modifiedTime,parents)'
     });
-    const folders = await localizeFolders(data.files || [], req.query.lang);
+    const rows = data.files || [];
+    const now = Date.now();
+    for (const folder of rows) {
+      if (folder?.id) insideRootCache.set(String(folder.id), { value: true, at: now });
+    }
+    const folders = await localizeFolders(rows, req.query.lang);
     res.json({ ok: true, folders });
   } catch (e) { next(e); }
 });
@@ -71,12 +78,25 @@ app.get('/api/folder', async (req, res, next) => {
       q: `'${escapeQuery(id)}' in parents and trashed = false`,
       orderBy: 'modifiedTime desc',
       pageSize: '1000',
-      fields: 'nextPageToken,files(id,name,mimeType,size,createdTime,modifiedTime,parents,imageMediaMetadata(width,height,time))'
+      fields: 'nextPageToken,files(id,name,mimeType,size,createdTime,modifiedTime,parents,thumbnailLink,imageMediaMetadata(width,height,time))'
     });
 
     const all = data.files || [];
     const folderRows = all.filter(x => x.mimeType === 'application/vnd.google-apps.folder');
-    const media = all.filter(x => String(x.mimeType || '').startsWith('image/')).map(x => ({
+    const mediaRows = all.filter(x => String(x.mimeType || '').startsWith('image/'));
+    const now = Date.now();
+
+    for (const folder of folderRows) {
+      if (folder?.id) insideRootCache.set(String(folder.id), { value: true, at: now });
+    }
+    for (const item of mediaRows) {
+      if (!item?.id) continue;
+      const fileId = String(item.id);
+      insideRootCache.set(fileId, { value: true, at: now });
+      fileMetaCache.set(fileId, { value: item, at: now });
+    }
+
+    const media = mediaRows.map(x => ({
       id: x.id,
       name: x.name,
       mimeType: x.mimeType,
@@ -85,7 +105,8 @@ app.get('/api/folder', async (req, res, next) => {
       modifiedTime: x.modifiedTime || '',
       imageTime: x.imageMediaMetadata?.time || '',
       width: x.imageMediaMetadata?.width || null,
-      height: x.imageMediaMetadata?.height || null
+      height: x.imageMediaMetadata?.height || null,
+      thumbVersion: x.modifiedTime || x.createdTime || ''
     }));
 
     const localizedFolder = (await localizeFolders([folderMeta], req.query.lang))[0];
@@ -105,18 +126,14 @@ app.get('/api/thumb', async (req, res, next) => {
   try {
     const id = String(req.query.id || '');
     if (!id) return res.status(400).json({ ok: false, error: 'file_id_required' });
-    await assertInsideRoot(id);
-
-    const meta = await getMeta(id, 'id,name,mimeType,parents,thumbnailLink');
-    if (!String(meta.mimeType || '').startsWith('image/')) return res.status(415).json({ ok: false, error: 'not_image' });
-
+    const meta = await getVerifiedImageMeta(id, 'id,name,mimeType,parents,size,modifiedTime,thumbnailLink');
     const token = await getGoogleToken();
     let url = meta.thumbnailLink || '';
     if (url) url = url.replace(/=s\d+(?:-c)?$/, '=s640');
     if (!url) url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`;
 
     const upstream = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
-    res.setHeader('Cache-Control', 'private, max-age=3600');
+    res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
     pipeGoogleResponse(upstream, res, meta.name, false);
   } catch (e) { next(e); }
 });
@@ -125,17 +142,13 @@ app.get('/api/media', async (req, res, next) => {
   try {
     const id = String(req.query.id || '');
     if (!id) return res.status(400).json({ ok: false, error: 'file_id_required' });
-    await assertInsideRoot(id);
-
-    const meta = await getMeta(id, 'id,name,mimeType,parents,size');
-    if (!String(meta.mimeType || '').startsWith('image/')) return res.status(415).json({ ok: false, error: 'not_image' });
-
+    const meta = await getVerifiedImageMeta(id, 'id,name,mimeType,parents,size,modifiedTime');
     const token = await getGoogleToken();
     const headers = { Authorization: `Bearer ${token}` };
     if (req.headers.range) headers.Range = String(req.headers.range);
     const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`;
     const upstream = await fetchGoogle(url, { headers });
-    res.setHeader('Cache-Control', 'private, max-age=300');
+    res.setHeader('Cache-Control', 'private, max-age=3600');
     pipeGoogleResponse(upstream, res, meta.name, false);
   } catch (e) { next(e); }
 });
@@ -231,6 +244,29 @@ function driveList(params) {
 
 function getMeta(id, fields = 'id,name,mimeType,parents') {
   return driveJson(`files/${encodeURIComponent(id)}`, { fields, supportsAllDrives: 'true' });
+}
+
+function getCachedFileMeta(id) {
+  const cached = fileMetaCache.get(String(id || ''));
+  if (!cached || Date.now() - cached.at >= FILE_META_TTL_MS) return null;
+  return cached.value || null;
+}
+
+function rememberFileMeta(meta) {
+  if (meta?.id) fileMetaCache.set(String(meta.id), { value: meta, at: Date.now() });
+  return meta;
+}
+
+async function getVerifiedImageMeta(id, fields) {
+  const cached = getCachedFileMeta(id);
+  if (cached && String(cached.mimeType || '').startsWith('image/')) return cached;
+
+  await assertInsideRoot(id);
+  const meta = rememberFileMeta(await getMeta(id, fields));
+  if (!String(meta?.mimeType || '').startsWith('image/')) {
+    throw Object.assign(new Error('not_image'), { status: 415 });
+  }
+  return meta;
 }
 
 async function assertFolderInsideRoot(id) {
