@@ -112,8 +112,14 @@
         <small id="viewerCounter"></small>
       </div>
       <div class="viewer-tools">
-        <button class="viewer-icon-btn" id="viewerShareBtn" type="button" aria-label="공유">↗</button>
-        <button class="viewer-icon-btn" id="viewerDownloadBtn" type="button" aria-label="저장">↓</button>
+        <button class="viewer-icon-btn viewer-action-btn" id="viewerShareBtn" type="button" aria-label="공유" title="공유">
+          <span class="viewer-action-icon" aria-hidden="true">↗</span>
+          <span class="viewer-action-label" id="viewerShareLabel">공유</span>
+        </button>
+        <button class="viewer-icon-btn viewer-action-btn" id="viewerDownloadBtn" type="button" aria-label="다운로드" title="다운로드">
+          <span class="viewer-action-icon" aria-hidden="true">↓</span>
+          <span class="viewer-action-label" id="viewerDownloadLabel">다운로드</span>
+        </button>
       </div>
     </header>
     <button class="viewer-nav viewer-prev" id="viewerPrevBtn" type="button" aria-label="이전 사진">‹</button>
