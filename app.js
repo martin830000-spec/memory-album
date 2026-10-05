@@ -91,6 +91,8 @@ let state={
 let thumbObserver=null;
 const thumbQueue=[];
 let thumbActive=0;
+const THUMB_CONCURRENCY=(navigator.connection&&navigator.connection.saveData)?4:8;
+const THUMB_EAGER_COUNT=window.innerWidth<=600?10:16;
 
 function lsGet(key){try{return localStorage.getItem(key)||''}catch(_){return''}}
 function lsSet(key,value){try{localStorage.setItem(key,String(value));return true}catch(_){return false}}
@@ -182,7 +184,7 @@ async function apiFetch(path,options={}){
   for(let i=0;i<bases.length;i++){
     const headers=new Headers(options.headers||{});headers.set('X-Album-Key',key);
     try{
-      const res=await fetch(bases[i]+path,{...options,headers,cache:'no-store'});
+      const res=await fetch(bases[i]+path,{...options,headers,cache:options.cache||'no-store'});
       if(res.ok)return res;
       const err=new Error('HTTP_'+res.status);err.status=res.status;err.body=await res.text().catch(()=> '');
       if(res.status===401||res.status===403)throw err;
@@ -248,7 +250,7 @@ function renderMedia(){
   photoGrid.innerHTML=rows.map((m,i)=>`
     <button class="photo-tile" type="button" data-media-index="${i}">
       <span class="photo-placeholder">▧</span>
-      <img class="photo-thumb" data-file-id="${escapeAttr(m.id)}" alt="${escapeAttr(m.name||'')}" loading="lazy" />
+      <img class="photo-thumb" data-file-id="${escapeAttr(m.id)}" data-thumb-version="${escapeAttr(m.thumbVersion||m.modifiedTime||'')}" alt="${escapeAttr(m.name||'')}" decoding="async" />
       <span class="photo-name">${escapeHtml(m.name||'')}</span>
     </button>`).join('');
   photoGrid.querySelectorAll('[data-media-index]').forEach(btn=>btn.addEventListener('click',()=>openViewer(Number(btn.dataset.mediaIndex))));
@@ -256,24 +258,37 @@ function renderMedia(){
 }
 function setupThumbObserver(){
   if(thumbObserver)thumbObserver.disconnect();
+  thumbQueue.length=0;
   thumbObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
     if(entry.isIntersecting){thumbObserver.unobserve(entry.target);enqueueThumb(entry.target)}
-  }),{rootMargin:'320px'});
-  photoGrid.querySelectorAll('.photo-thumb').forEach(img=>thumbObserver.observe(img));
+  }),{rootMargin:'1000px 0px'});
+  const imgs=[...photoGrid.querySelectorAll('.photo-thumb')];
+  imgs.slice(0,THUMB_EAGER_COUNT).forEach(enqueueThumb);
+  imgs.slice(THUMB_EAGER_COUNT).forEach(img=>thumbObserver.observe(img));
 }
-function enqueueThumb(img){thumbQueue.push(img);pumpThumbQueue()}
+function enqueueThumb(img){
+  if(!img||img.dataset.loaded||img.dataset.queued)return;
+  img.dataset.queued='1';thumbQueue.push(img);pumpThumbQueue();
+}
 function pumpThumbQueue(){
-  while(thumbActive<4&&thumbQueue.length){
-    const img=thumbQueue.shift();if(!img||img.dataset.loaded)return;
+  while(thumbActive<THUMB_CONCURRENCY&&thumbQueue.length){
+    const img=thumbQueue.shift();
+    if(!img||img.dataset.loaded||!img.isConnected)continue;
+    delete img.dataset.queued;
     thumbActive++;
     loadThumb(img).finally(()=>{thumbActive--;pumpThumbQueue()});
   }
 }
 async function loadThumb(img){
   const id=img.dataset.fileId;if(!id)return;
+  const version=String(img.dataset.thumbVersion||'');
+  const path='/api/thumb?id='+encodeURIComponent(id)+(version?'&v='+encodeURIComponent(version):'');
   try{
-    const {blob}=await apiBlob('/api/thumb?id='+encodeURIComponent(id));
-    const url=URL.createObjectURL(blob);img.src=url;img.classList.add('loaded');img.dataset.loaded='1';img.addEventListener('load',()=>setTimeout(()=>URL.revokeObjectURL(url),30000),{once:true});
+    const {blob}=await apiBlob(path,{cache:'force-cache'});
+    if(!img.isConnected)return;
+    const url=URL.createObjectURL(blob);
+    img.src=url;img.classList.add('loaded');img.dataset.loaded='1';
+    img.addEventListener('load',()=>setTimeout(()=>URL.revokeObjectURL(url),30000),{once:true});
   }catch(_){img.alt=''}
 }
 async function openFolderById(id,push){
@@ -376,13 +391,14 @@ async function renderViewer(){
   const item=state.media[state.viewerIndex];if(!item)return closeViewer();
   releaseViewerBlob();viewerName.textContent=item.name||'';viewerCounter.textContent=`${state.viewerIndex+1} / ${state.media.length}`;viewerLoading.hidden=false;viewerImage.removeAttribute('src');
   try{
-    const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id));state.viewerBlob=data.blob;state.viewerUrl=URL.createObjectURL(data.blob);viewerImage.src=state.viewerUrl;viewerImage.alt=item.name||'';viewerLoading.hidden=true;
+    const version=String(item.modifiedTime||'');
+    const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});state.viewerBlob=data.blob;state.viewerUrl=URL.createObjectURL(data.blob);viewerImage.src=state.viewerUrl;viewerImage.alt=item.name||'';viewerLoading.hidden=true;
   }catch(e){viewerLoading.textContent=t('loadFailed');viewerLoading.hidden=false}
 }
 function releaseViewerBlob(){if(state.viewerUrl)URL.revokeObjectURL(state.viewerUrl);state.viewerUrl='';state.viewerBlob=null}
 function closeViewer(){releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerLoading.textContent=t('viewerLoading')}
 async function moveViewer(delta){if(!state.media.length)return;state.viewerIndex=(state.viewerIndex+delta+state.media.length)%state.media.length;await renderViewer()}
-async function ensureViewerBlob(){if(state.viewerBlob)return state.viewerBlob;const item=state.media[state.viewerIndex];if(!item)return null;const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id));state.viewerBlob=data.blob;return data.blob}
+async function ensureViewerBlob(){if(state.viewerBlob)return state.viewerBlob;const item=state.media[state.viewerIndex];if(!item)return null;const version=String(item.modifiedTime||'');const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});state.viewerBlob=data.blob;return data.blob}
 async function downloadCurrent(){
   const item=state.media[state.viewerIndex],blob=await ensureViewerBlob();if(!item||!blob)return;
   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=item.name||'photo';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
