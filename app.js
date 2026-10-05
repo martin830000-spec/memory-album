@@ -313,10 +313,27 @@ function openSheet(title,text,choices=[]){
   backdrop.hidden=false;
 }
 function closeSheet(){backdrop.hidden=true;sheetActions.innerHTML=''}
+function apiErrorDetail(e){
+  const parts=[];
+  if(e?.status)parts.push('HTTP '+e.status);
+  const raw=String(e?.body||'').trim();
+  if(raw){
+    try{
+      const data=JSON.parse(raw);
+      if(data?.error)parts.push(String(data.error));
+    }catch(_){
+      parts.push(raw.slice(0,160));
+    }
+  }else if(e?.message&&!/^HTTP_\d+$/.test(String(e.message))){
+    parts.push(String(e.message).slice(0,160));
+  }
+  return parts.join(' · ');
+}
 function handleApiError(e,fallback){
   if(e?.code==='API_NOT_CONFIGURED')return openSheet(t('ready'),t('apiMissing'));
   if(e?.code==='ACCESS_KEY_MISSING'||e?.status===401||e?.status===403)return openSheet(t('ready'),t('authMissing'));
-  openSheet(t('ready'),fallback||t('loadFailed'));
+  const detail=apiErrorDetail(e);
+  openSheet(t('ready'),(fallback||t('loadFailed'))+(detail?'\n\n'+detail:''));
 }
 function chooseUploadFolder(){
   if(!state.folders.length)return openSheet(t('chooseFolder'),t('noFolders'));
