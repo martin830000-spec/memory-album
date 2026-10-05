@@ -265,65 +265,213 @@ function localizedList(value,lang=uiLang()){
   return Array.isArray(value)?value.map(x=>String(x)):value?[String(value)]:[];
 }
 function manualCopy(lang){
-  return lang==='lo'?{
-    heroBanner:'🇱🇦 ຄູ່ມືພາສາລາວ',title:'💑 ອະລະບໍ້າຄວາມຊົງຈຳ',lead:'ເບິ່ງໂຟນເດີ → ເລືອກຮູບ → ເບິ່ງ/ຊູມ → ບັນທຶກ ຫຼື ແບ່ງປັນ. ຈື່ພຽງຂັ້ນຕອນນີ້ກໍໃຊ້ໄດ້.',
-    update:'🆕 ປະຫວັດອັບເດດ',flow:['📁 ໂຟນເດີ','🖼️ ເລືອກຮູບ','🔎 ເບິ່ງ/ຊູມ','💾 ບັນທຶກ'],
-    shotKicker:'ເບິ່ງໜ້າຈໍແລ້ວເຮັດຕາມ',shotTitle:'🚀 1. ໜ້າຈໍຫຼັກ ແລະ ໂຟນເດີ',homeCap:'ໜ້າຫຼັກ · ເລືອກອະລະບໍ້າ, ຮູບຫຼ້າສຸດ, ອັບໂຫຼດ ແລະ ສ້າງໂຟນເດີ',folderCap:'ໜ້າໂຟນເດີ · ເບິ່ງຮູບ, ຈັດລຽງ, ເລືອກຫຼາຍຮູບ',
-    folderTitle:'📁 2. ໂຟນເດີ · ຮູບຫຼ້າສຸດ',folderItems:['ໜ້າຫຼັກສະແດງໂຟນເດີ Google Drive ຂອງອະລະບໍ້າ.','ປຸ່ມ “ຮູບຫຼ້າສຸດ” ຮວບຮວມຮູບທີ່ເພີ່ມໃໝ່ໂດຍບໍ່ຈຳກັດໂຟນເດີ.','ສາມາດສ້າງໂຟນເດີຈາກໜ້າຫຼັກ ຫຼື ພາຍໃນໂຟນເດີ.'],
-    selectTitle:'☑️ 3. ເລືອກຫຼາຍຮູບ',selectItems:['ກົດຄ້າງຮູບຕົວຢ່າງປະມານ 0.4 ວິນາທີ ເພື່ອເຂົ້າໂໝດເລືອກແບບ Gallery.','ແຕະຮູບອື່ນເພື່ອເພີ່ມ/ຍົກເລີກ ແລະ ໃຊ້ “ເລືອກທັງໝົດ” ໄດ້.','ຫຼັງເລືອກ ສາມາດບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບພ້ອມກັນ.'],
-    viewerKicker:'ຮູບຕົ້ນສະບັບ',viewerTitle:'🔎 4. ເບິ່ງ · ຊູມ · ປັດປ່ຽນຮູບ',viewerCap:'ໜ້າຮູບຕົ້ນສະບັບ · ແບ່ງປັນ, ດາວໂຫຼດ, ລຶບ ແລະ ປັດປ່ຽນຮູບ',
-    viewerItems:['ເມື່ອບໍ່ຊູມ ປັດຊ້າຍ/ຂວາເພື່ອໄປຮູບກ່ອນ ຫຼື ຮູບຖັດໄປ.','ໃຊ້ສອງນິ້ວເພື່ອຊູມ; ເມື່ອຊູມແລ້ວໃຊ້ນິ້ວດຽວເລື່ອນຊ້າຍ·ຂວາ·ເທິງ·ລຸ່ມ.','ປຸ່ມດ້ານເທິງມີ ແບ່ງປັນ, ດາວໂຫຼດ ແລະ ລຶບ.'],
-    uploadTitle:'⬆️ 5. ອັບໂຫຼດຮູບ',uploadItems:['ປຸ່ມ ＋ ອັບໂຫຼດ ສາມາດເລືອກຫຼາຍຮູບພ້ອມກັນ.','ຈະສະແດງຄວາມຄືບໜ້າຮູບປັດຈຸບັນ ແລະ ຄວາມຄືບໜ້າລວມ.','ຫຼັງສົ່ງໄຟລ໌ ຈະສະແດງຂັ້ນ “ກຳລັງບັນທຶກເຂົ້າ Google Drive”.'],
-    saveTitle:'💾 6. ບັນທຶກ · ແບ່ງປັນ',saveItems:['ຮູບດຽວໃຊ້ປຸ່ມດາວໂຫຼດ ຫຼື ແບ່ງປັນໃນໜ້າຮູບ.','ຫຼາຍຮູບຈະກຽມໄຟລ໌ຕົ້ນສະບັບ ແລ້ວເປີດໜ້າບັນທຶກ/Share ຂອງໂທລະສັບ.','iPhone Safari ໃຫ້ເລືອກ “Save Images”; Android ໃຫ້ໃຊ້ລາຍການບັນທຶກ/ແບ່ງປັນຂອງເຄື່ອງ.'],
-    deleteTitle:'🗑️ 7. ລຶບ · ກູ້ຄືນ',deleteItems:['ການລຶບຮູບ, ຫຼາຍຮູບ ແລະ ໂຟນເດີຈະສະແດງ ຍົກເລີກ / ຢືນຢັນ ກ່ອນ.','ລາຍການທີ່ລຶບຈະຍ້າຍໄປ Google Drive Trash ແລະ ສາມາດກູ້ຄືນໄດ້.'],
-    updateTitle:'🔄 8. ອັບເດດອັດຕະໂນມັດ',updateItems:['ອະລະບໍ້າຈະກວດຫາເວີຊັນໃໝ່ອັດຕະໂນມັດ.','ຖ້າກຳລັງເບິ່ງຮູບ, ເລືອກຮູບ, ອັບໂຫຼດ ຫຼື ບັນທຶກ ຈະລໍຖ້າໃຫ້ວຽກຈົບກ່ອນອັບເດດ.','ຫຼັງອັບເດດຈະມີປັອບອັບແຈ້ງການໜຶ່ງຄັ້ງ.'],
-    tip:'TIP · ຖ້າຮູບມີຈຳນວນຫຼາຍ ໃຫ້ແບ່ງບັນທຶກ/ອັບໂຫຼດເປັນຫຼາຍຄັ້ງ ເພື່ອໃຫ້ Safari/Chrome ເຮັດວຽກສະຖຽນ.',
-    footer:'ຄູ່ມືຢູ່ໃນແອັບ ແລະ ບໍ່ຕ້ອງເປີດເວັບພາຍນອກ.'
-  }:{
-    heroBanner:'🇰🇷 한국어 사용 가이드',title:'💑 우리의 추억사진첩',lead:'폴더 보기 → 사진 선택 → 원본 보기/확대 → 저장·공유. 이 흐름만 알면 바로 사용할 수 있습니다.',
-    update:'🆕 업데이트 내역',flow:['📁 폴더','🖼️ 사진 선택','🔎 보기/확대','💾 저장'],
-    shotKicker:'화면을 보면서 따라 하기',shotTitle:'🚀 1. 메인 화면과 폴더',homeCap:'메인 화면 · 앨범 선택, 최근 사진, 업로드와 새 폴더',folderCap:'폴더 화면 · 사진 보기, 정렬, 여러 장 선택',
-    folderTitle:'📁 2. 폴더 · 최근 사진',folderItems:['메인 화면에는 Google Drive의 사진첩 폴더가 그대로 표시됩니다.','‘최근 사진’에서는 폴더와 관계없이 최근 추가한 사진을 모아서 볼 수 있습니다.','새 폴더는 메인 화면 또는 폴더 안의 ＋ 폴더 버튼으로 만들 수 있습니다.'],
-    selectTitle:'☑️ 3. 여러 장 선택',selectItems:['썸네일 한 장을 약 0.4초 길게 누르면 삼성 갤러리처럼 선택 모드가 시작됩니다.','선택 모드에서 다른 사진을 눌러 추가·해제할 수 있고 ‘전체 선택’도 사용할 수 있습니다.','선택한 사진은 여러 장 저장하거나 한 번에 삭제할 수 있습니다.'],
-    viewerKicker:'원본 사진 보기',viewerTitle:'🔎 4. 보기 · 확대 · 좌우 스와이프',viewerCap:'원본 사진 화면 · 공유, 다운로드, 삭제와 좌우 스와이프',
-    viewerItems:['확대하지 않은 상태에서는 좌우로 스와이프해 이전·다음 사진으로 이동합니다.','두 손가락으로 확대·축소하고, 확대된 상태에서는 한 손가락으로 좌우·상하 이동합니다.','상단의 공유·다운로드·삭제 버튼으로 현재 사진을 바로 처리할 수 있습니다.'],
-    uploadTitle:'⬆️ 5. 사진 업로드',uploadItems:['＋ 업로드에서 여러 사진을 한 번에 선택할 수 있습니다.','현재 사진 진행률과 전체 진행률을 따로 표시합니다.','전송이 끝난 뒤 ‘Google Drive에 저장 중’ 단계가 표시되고 완료 후 목록을 갱신합니다.'],
-    saveTitle:'💾 6. 저장 · 공유',saveItems:['한 장은 원본 화면의 다운로드 또는 공유 버튼을 사용합니다.','여러 장은 원본을 준비한 뒤 휴대폰의 시스템 저장/공유 화면을 엽니다.','iPhone Safari에서는 공유 화면의 ‘이미지 저장’, Android에서는 기기의 저장/공유 항목을 사용하면 됩니다.'],
-    deleteTitle:'🗑️ 7. 삭제 · 복구',deleteItems:['사진·여러 사진·폴더 삭제는 모두 취소 / 확인 화면을 거친 뒤 실행됩니다.','삭제된 항목은 Google Drive 휴지통으로 이동하므로 실수로 삭제했으면 휴지통에서 복구할 수 있습니다.'],
-    updateTitle:'🔄 8. 자동 업데이트',updateItems:['사진첩은 새 버전을 자동으로 확인합니다.','사진 보기·선택·업로드·저장 중에는 강제로 새로고침하지 않고 작업이 끝난 뒤 업데이트합니다.','업데이트 후에는 본앱처럼 주요 변경점을 한 번 팝업으로 알려줍니다.'],
-    tip:'TIP · 사진이 아주 많을 때는 Safari/Chrome 안정성을 위해 저장·업로드를 여러 번에 나누면 더 좋습니다.',
-    footer:'상세 설명서는 사진첩 안에 포함되어 있으며 별도 인터넷 페이지를 열지 않습니다.'
+  const ko={
+    heroBanner:'🇰🇷 한국어 사용 가이드',
+    title:'💑 우리의 추억사진첩',
+    lead:'처음 쓰는 사람도 화면만 보고 바로 사용할 수 있도록 실제 사진첩 화면과 같은 구성으로 단계별로 설명합니다.',
+    update:'🆕 업데이트 내역',
+    quickTitle:'가장 많이 쓰는 4가지',
+    quick:[
+      ['📁','앨범 열기','메인 화면에서 원하는 폴더를 누릅니다.'],
+      ['🔎','사진 보기','사진을 한 번 누르면 원본 보기 화면이 열립니다.'],
+      ['☑️','여러 장 선택','사진 한 장을 길게 누른 뒤 다른 사진을 계속 선택합니다.'],
+      ['💾','저장·공유','원본 화면 또는 선택모드에서 저장·공유합니다.']
+    ],
+    sections:[
+      {
+        kind:'home',num:'01',kicker:'처음 화면',title:'메인 화면에서 원하는 작업 시작하기',
+        desc:'사진첩을 열면 업로드, 최근 사진, 새 폴더와 앨범 목록이 한 화면에 보입니다.',
+        steps:[
+          ['업로드','사진을 새로 올릴 때 사용합니다. 메인 화면에서 올리면 저장할 폴더를 고르게 됩니다.'],
+          ['최근 사진','폴더가 달라도 최근 추가된 사진만 모아서 빠르게 확인합니다.'],
+          ['새 폴더','새 앨범이나 하위 폴더를 만들 때 사용합니다.'],
+          ['앨범 열기','아래 앨범 목록에서 원하는 폴더를 누르면 사진 목록으로 들어갑니다.']
+        ],
+        note:'상단의 “본앱”은 번역앱으로 돌아가는 버튼입니다. “설명서”는 지금 보고 있는 이 가이드를 엽니다.'
+      },
+      {
+        kind:'folder',num:'02',kicker:'폴더 화면',title:'사진 목록 보기 · 정렬 · 폴더 관리',
+        desc:'폴더 안에서는 사진을 보거나, 업로드하거나, 새 하위 폴더를 만들고 여러 장 선택을 시작할 수 있습니다.',
+        steps:[
+          ['사진 열기','썸네일을 한 번 누르면 원본 사진 화면이 열립니다.'],
+          ['최신순/오래된순','정렬 버튼으로 사진 순서를 바꿉니다.'],
+          ['사진 선택','버튼을 누르거나 사진 한 장을 길게 눌러 여러 장 선택모드로 들어갑니다.'],
+          ['폴더 삭제','삭제를 누른 뒤 반드시 확인을 한 번 더 눌러야 실제 삭제됩니다.']
+        ],
+        note:'폴더 삭제는 영구 삭제가 아니라 Google Drive 휴지통으로 이동하므로 실수했다면 복구할 수 있습니다.'
+      },
+      {
+        kind:'select',num:'03',kicker:'삼성 갤러리처럼',title:'길게 눌러 여러 장 선택하기',
+        desc:'사진 한 장을 약 0.4초 길게 누르면 선택모드가 시작됩니다. 그 다음부터는 원하는 사진을 짧게 눌러 추가·해제하면 됩니다.',
+        steps:[
+          ['길게 누르기','첫 사진을 길게 눌러 선택모드를 시작합니다. 선택된 사진에는 체크 표시가 생깁니다.'],
+          ['추가 선택','다른 사진을 짧게 눌러 여러 장을 선택하거나 다시 눌러 해제합니다.'],
+          ['전체 선택','현재 폴더에 보이는 사진을 한 번에 선택하거나 모두 해제합니다.'],
+          ['저장 또는 삭제','선택한 사진을 여러 장 저장하거나, 확인창을 거쳐 한 번에 삭제합니다.']
+        ],
+        note:'사진이 아주 많을 때는 한 번에 너무 많이 저장하기보다 여러 번 나눠 저장하면 iPhone Safari와 Android Chrome에서 더 안정적입니다.'
+      },
+      {
+        kind:'viewer',num:'04',kicker:'원본 사진 보기',title:'좌우 스와이프 · 확대 · 이동 · 공유',
+        desc:'원본 보기 화면에서는 사진 감상과 확대, 다음/이전 사진 이동, 공유·다운로드·삭제를 모두 할 수 있습니다.',
+        steps:[
+          ['좌우 스와이프','확대하지 않은 상태에서 왼쪽으로 밀면 다음 사진, 오른쪽으로 밀면 이전 사진으로 이동합니다.'],
+          ['두 손가락 확대','두 손가락을 벌리거나 모아서 확대·축소합니다.'],
+          ['확대한 사진 이동','확대한 뒤에는 손가락 한 개로 좌우·상하 원하는 위치를 볼 수 있습니다.'],
+          ['공유·다운로드','상단 아이콘을 이용해 현재 원본 사진을 공유하거나 기기에 저장합니다.']
+        ],
+        note:'처음 열 때 작은 썸네일이 먼저 보였다가 2048px 고화질 프리뷰, 원본 순으로 바뀝니다. 다음·이전 사진은 미리 불러와 더 빨리 선명해집니다.'
+      },
+      {
+        kind:'upload',num:'05',kicker:'사진 추가',title:'여러 사진 한 번에 업로드하기',
+        desc:'한 장씩 올릴 필요 없이 휴대폰 사진 선택 화면에서 여러 사진을 한 번에 선택할 수 있습니다.',
+        steps:[
+          ['사진 선택','＋ 업로드를 누르고 휴대폰에서 올릴 사진들을 선택합니다.'],
+          ['현재 사진 진행률','지금 전송 중인 사진이 몇 %인지 표시합니다.'],
+          ['전체 진행률','선택한 사진 전체 중 몇 장이 끝났는지 따로 표시합니다.'],
+          ['Drive 저장 완료','전송 뒤 “Google Drive에 저장 중” 단계가 끝나면 폴더 목록이 자동 갱신됩니다.']
+        ],
+        note:'업로드 중에는 자동 업데이트가 끼어들지 않습니다. 모든 업로드가 끝난 뒤 새 버전이 있으면 안전하게 적용됩니다.'
+      },
+      {
+        kind:'delete',num:'06',kicker:'실수 방지',title:'사진·폴더 삭제와 복구',
+        desc:'단일 사진, 여러 장의 사진, 폴더 모두 바로 지워지지 않고 확인 단계를 한 번 더 거칩니다.',
+        steps:[
+          ['삭제 누르기','사진 또는 폴더의 삭제 버튼을 누릅니다.'],
+          ['내용 확인','무엇을 삭제하는지 확인 문구를 읽습니다.'],
+          ['확인 누르기','확인을 눌러야 실제 삭제가 실행됩니다. 취소를 누르면 아무 변화가 없습니다.'],
+          ['필요하면 복구','삭제된 항목은 Google Drive 휴지통으로 이동하므로 휴지통에서 되살릴 수 있습니다.']
+        ],
+        note:'사진첩의 삭제는 즉시 영구삭제가 아닙니다. Drive 휴지통을 비우기 전까지 복구할 수 있습니다.'
+      }
+    ],
+    extraTitle:'알아두면 편한 기능',
+    extras:[
+      ['📥 한 장 저장','원본 사진 화면의 다운로드 버튼을 누르면 현재 사진 한 장이 원본 파일로 저장됩니다.'],
+      ['📦 여러 장 저장','선택모드에서 “N장 저장”을 누르면 원본을 준비한 뒤 휴대폰의 저장/공유 화면을 엽니다.'],
+      ['↩️ 휴대폰 뒤로가기','원본 사진 → 현재 폴더 → 사진첩 홈 순서로 자연스럽게 돌아갑니다.'],
+      ['🔄 자동 업데이트','새 버전이 있으면 사용 중인 작업을 방해하지 않고 안전한 시점에 자동 적용합니다.'],
+      ['🔔 업데이트 팝업','새 버전의 주요 변경점을 한 번 알려주며, 업데이트 내역의 🔔 버튼으로 다시 볼 수 있습니다.'],
+      ['🌓 화면 테마','오른쪽 위 달/해 버튼으로 어두운 화면과 밝은 화면을 바꿀 수 있습니다.']
+    ],
+    faqTitle:'문제가 생겼을 때',
+    faq:[
+      ['사진이 처음에 조금 흐려요','썸네일을 먼저 보여준 뒤 2048px 프리뷰와 원본으로 교체하는 중입니다. 잠시 후 선명해집니다.'],
+      ['삭제한 사진을 되돌리고 싶어요','Google Drive의 휴지통에서 해당 사진이나 폴더를 복원하면 됩니다.'],
+      ['공유한 사진이 조금 흐려졌어요','사진첩은 원본 파일을 공유하지만 카카오톡·Messenger 등이 전송하면서 자체 압축할 수 있습니다.'],
+      ['업데이트 중 화면이 갑자기 바뀔까 걱정돼요','사진 보기·선택·업로드·저장·삭제·설명서 사용 중에는 자동 새로고침을 미룹니다.']
+    ],
+    tip:'설명서를 보다가 언제든 상단의 “← 사진첩으로”를 누르면 원래 보던 사진첩 화면으로 돌아갑니다.',
+    footer:'이 설명서는 사진첩 기능과 함께 관리되며 기능이 바뀌면 업데이트 내역과 함께 갱신됩니다.'
   };
+  const lo={
+    heroBanner:'🇱🇦 ຄູ່ມືພາສາລາວ',
+    title:'💑 ອະລະບໍ້າຄວາມຊົງຈຳຂອງເຮົາ',
+    lead:'ຄູ່ມືນີ້ອະທິບາຍແບບຂັ້ນຕອນ ພ້ອມຮູບໜ້າຈໍທີ່ຄ້າຍແອັບຈິງ ເພື່ອໃຫ້ຜູ້ໃຊ້ໃໝ່ເຮັດຕາມໄດ້ງ່າຍ.',
+    update:'🆕 ປະຫວັດອັບເດດ',
+    quickTitle:'4 ຢ່າງທີ່ໃຊ້ບ່ອຍ',
+    quick:[
+      ['📁','ເປີດອະລະບໍ້າ','ແຕະໂຟນເດີທີ່ຕ້ອງການຈາກໜ້າຫຼັກ.'],
+      ['🔎','ເບິ່ງຮູບ','ແຕະຮູບໜຶ່ງຄັ້ງເພື່ອເປີດຮູບຕົ້ນສະບັບ.'],
+      ['☑️','ເລືອກຫຼາຍຮູບ','ກົດຄ້າງຮູບໜຶ່ງ ແລ້ວແຕະຮູບອື່ນຕໍ່.'],
+      ['💾','ບັນທຶກ·ແບ່ງປັນ','ບັນທຶກ ຫຼື ແບ່ງປັນຈາກໜ້າຮູບ ຫຼື ໂໝດເລືອກ.']
+    ],
+    sections:[
+      {kind:'home',num:'01',kicker:'ໜ້າແລກ',title:'ເລີ່ມວຽກຈາກໜ້າຫຼັກ',desc:'ໜ້າຫຼັກສະແດງ ອັບໂຫຼດ, ຮູບຫຼ້າສຸດ, ສ້າງໂຟນເດີ ແລະ ລາຍການອະລະບໍ້າ.',steps:[['ອັບໂຫຼດ','ໃຊ້ເມື່ອຈະເພີ່ມຮູບໃໝ່. ຖ້າອັບຈາກໜ້າຫຼັກ ຈະໃຫ້ເລືອກໂຟນເດີກ່ອນ.'],['ຮູບຫຼ້າສຸດ','ເບິ່ງຮູບທີ່ເພີ່ມໃໝ່ຈາກທຸກໂຟນເດີ.'],['ໂຟນເດີໃໝ່','ສ້າງອະລະບໍ້າ ຫຼື ໂຟນເດີຍ່ອຍໃໝ່.'],['ເປີດອະລະບໍ້າ','ແຕະໂຟນເດີໃນລາຍການດ້ານລຸ່ມເພື່ອເຂົ້າເບິ່ງຮູບ.']],note:'ປຸ່ມ “ແອັບຫຼັກ” ໃຊ້ກັບໄປແອັບແປພາສາ. “ຄູ່ມື” ເປີດໜ້າອະທິບາຍນີ້.'},
+      {kind:'folder',num:'02',kicker:'ໜ້າໂຟນເດີ',title:'ເບິ່ງຮູບ · ຈັດລຽງ · ຈັດການໂຟນເດີ',desc:'ພາຍໃນໂຟນເດີສາມາດເບິ່ງຮູບ, ອັບໂຫຼດ, ສ້າງໂຟນເດີຍ່ອຍ ແລະ ເລືອກຫຼາຍຮູບ.',steps:[['ເປີດຮູບ','ແຕະຮູບຕົວຢ່າງໜຶ່ງຄັ້ງ.'],['ຈັດລຽງ','ປ່ຽນລຳດັບຈາກໃໝ່ສຸດ/ເກົ່າສຸດ.'],['ເລືອກຮູບ','ກົດປຸ່ມ ຫຼື ກົດຄ້າງຮູບໜຶ່ງເພື່ອເຂົ້າໂໝດເລືອກ.'],['ລຶບໂຟນເດີ','ຕ້ອງກົດຢືນຢັນອີກໜຶ່ງຄັ້ງກ່ອນລຶບ.']],note:'ໂຟນເດີທີ່ລຶບຈະຍ້າຍໄປ Google Drive Trash ແລະ ກູ້ຄືນໄດ້.'},
+      {kind:'select',num:'03',kicker:'ແບບ Gallery',title:'ກົດຄ້າງເພື່ອເລືອກຫຼາຍຮູບ',desc:'ກົດຄ້າງຮູບປະມານ 0.4 ວິນາທີ ແລ້ວແຕະຮູບອື່ນເພື່ອເພີ່ມ/ຍົກເລີກ.',steps:[['ກົດຄ້າງ','ກົດຄ້າງຮູບທຳອິດ ແລະ ຈະເຫັນເຄື່ອງໝາຍເລືອກ.'],['ເລືອກເພີ່ມ','ແຕະຮູບອື່ນເພື່ອເພີ່ມ ຫຼື ແຕະຊ້ຳເພື່ອຍົກເລີກ.'],['ເລືອກທັງໝົດ','ເລືອກ ຫຼື ຍົກເລີກຮູບທັງໝົດທີ່ກຳລັງເບິ່ງ.'],['ບັນທຶກ/ລຶບ','ບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບພ້ອມກັນຫຼັງຢືນຢັນ.']],note:'ຖ້າມີຮູບຫຼາຍຫຼາຍ ແນະນຳໃຫ້ແບ່ງບັນທຶກເປັນຫຼາຍຄັ້ງ.'},
+      {kind:'viewer',num:'04',kicker:'ຮູບຕົ້ນສະບັບ',title:'ປັດຊ້າຍ/ຂວາ · ຊູມ · ເລື່ອນ · ແບ່ງປັນ',desc:'ໜ້າຮູບຕົ້ນສະບັບໃຊ້ເບິ່ງຮູບ, ຊູມ, ປ່ຽນຮູບ, ແບ່ງປັນ, ດາວໂຫຼດ ແລະ ລຶບ.',steps:[['ປັດຊ້າຍ/ຂວາ','ເມື່ອບໍ່ຊູມ ປັດຊ້າຍໄປຮູບຖັດໄປ, ປັດຂວາໄປຮູບກ່ອນ.'],['ຊູມສອງນິ້ວ','ໃຊ້ສອງນິ້ວເພື່ອຂະຫຍາຍ/ຫຍໍ້.'],['ເລື່ອນຫຼັງຊູມ','ຫຼັງຊູມໃຊ້ນິ້ວດຽວເລື່ອນໄດ້ທຸກທິດ.'],['ແບ່ງປັນ/ດາວໂຫຼດ','ໃຊ້ໄອຄອນດ້ານເທິງເພື່ອແບ່ງປັນ ຫຼື ບັນທຶກຮູບປັດຈຸບັນ.']],note:'ຕອນເປີດຮູບຈະສະແດງ thumbnail ກ່ອນ ແລ້ວປ່ຽນເປັນ preview 2048px ແລະ ຮູບຕົ້ນສະບັບ.'},
+      {kind:'upload',num:'05',kicker:'ເພີ່ມຮູບ',title:'ອັບໂຫຼດຫຼາຍຮູບພ້ອມກັນ',desc:'ສາມາດເລືອກຮູບຫຼາຍຮູບຈາກໜ້າເລືອກຮູບຂອງໂທລະສັບ.',steps:[['ເລືອກຮູບ','ກົດ ＋ ອັບໂຫຼດ ແລະ ເລືອກຮູບ.'],['ຄວາມຄືບໜ້າຮູບ','ເບິ່ງ % ຂອງຮູບທີ່ກຳລັງສົ່ງ.'],['ຄວາມຄືບໜ້າລວມ','ເບິ່ງຈຳນວນຮູບທີ່ສຳເລັດຈາກທັງໝົດ.'],['ບັນທຶກລົງ Drive','ຫຼັງ “ກຳລັງບັນທຶກເຂົ້າ Google Drive” ສຳເລັດ ລາຍການຈະໂຫຼດໃໝ່.']],note:'ອັບເດດອັດຕະໂນມັດຈະບໍ່ຂັດຈັງຫວະຂະນະອັບໂຫຼດ.'},
+      {kind:'delete',num:'06',kicker:'ປ້ອງກັນກົດຜິດ',title:'ລຶບຮູບ·ໂຟນເດີ ແລະ ກູ້ຄືນ',desc:'ການລຶບທຸກຢ່າງຈະມີກ່ອງຢືນຢັນກ່ອນ.',steps:[['ກົດລຶບ','ກົດປຸ່ມລຶບຂອງຮູບ ຫຼື ໂຟນເດີ.'],['ກວດຂໍ້ຄວາມ','ອ່ານຊື່ ແລະ ລາຍລະອຽດທີ່ຈະລຶບ.'],['ກົດຢືນຢັນ','ຈະລຶບຈິງເມື່ອກົດຢືນຢັນ. ກົດຍົກເລີກແລ້ວຈະບໍ່ປ່ຽນແປງ.'],['ກູ້ຄືນ','ໄປ Google Drive Trash ເພື່ອກູ້ຮູບ/ໂຟນເດີ.']],note:'ການລຶບໃນອະລະບໍ້າບໍ່ແມ່ນລຶບຖາວອນທັນທີ.'}
+    ],
+    extraTitle:'ຟັງຊັນທີ່ຮູ້ໄວ້ຈະສະດວກ',
+    extras:[
+      ['📥 ບັນທຶກຮູບດຽວ','ໃນໜ້າຮູບຕົ້ນສະບັບ ກົດດາວໂຫຼດເພື່ອບັນທຶກຮູບປັດຈຸບັນ.'],
+      ['📦 ບັນທຶກຫຼາຍຮູບ','ໃນໂໝດເລືອກ ກົດ “ບັນທຶກ N ຮູບ” ແລ້ວໃຊ້ໜ້າ Share/Save ຂອງໂທລະສັບ.'],
+      ['↩️ ປຸ່ມກັບ','ກັບຈາກຮູບ → ໂຟນເດີ → ໜ້າຫຼັກອະລະບໍ້າ.'],
+      ['🔄 ອັບເດດອັດຕະໂນມັດ','ຖ້າມີເວີຊັນໃໝ່ ຈະລໍຖ້າເວລາທີ່ປອດໄພກ່ອນອັບເດດ.'],
+      ['🔔 ປັອບອັບອັບເດດ','ສະແດງການປ່ຽນແປງສຳຄັນໜຶ່ງຄັ້ງ ແລະ ກົດ 🔔 ເພື່ອເບິ່ງອີກຄັ້ງ.'],
+      ['🌓 ທີມສີ','ກົດໄອຄອນດວງຈັນ/ດວງອາທິດ ເພື່ອປ່ຽນສີໜ້າຈໍ.']
+    ],
+    faqTitle:'ເມື່ອມີບັນຫາ',
+    faq:[
+      ['ຮູບຕອນແຮກເບິ່ງບໍ່ຄົມ','ລະບົບກຳລັງປ່ຽນຈາກ thumbnail → preview 2048px → ຮູບຕົ້ນສະບັບ.'],
+      ['ຢາກກູ້ຮູບທີ່ລຶບ','ເປີດ Google Drive Trash ແລະ Restore ຮູບ ຫຼື ໂຟນເດີ.'],
+      ['ຮູບທີ່ແບ່ງປັນຫຍຸ້ງນິດໜ່ອຍ','ອະລະບໍ້າສົ່ງໄຟລ໌ຕົ້ນສະບັບ ແຕ່ KakaoTalk/Messenger ອາດບີບອັດຕອນສົ່ງ.'],
+      ['ກົວວ່າອັບເດດຈະຂັດຈັງຫວະ','ລະຫວ່າງເບິ່ງ, ເລືອກ, ອັບໂຫຼດ, ບັນທຶກ, ລຶບ ຫຼື ເບິ່ງຄູ່ມື ຈະບໍ່ໂຫຼດໃໝ່.']
+    ],
+    tip:'ໃນຄູ່ມື ກົດ “← ກັບອະລະບໍ້າ” ເພື່ອກັບໄປໜ້າທີ່ເຄີຍເບິ່ງ.',
+    footer:'ຄູ່ມືນີ້ຈະຖືກອັບເດດພ້ອມກັບຟັງຊັນຂອງອະລະບໍ້າ.'
+  };
+  return lang==='lo'?lo:ko;
 }
 function manualShotSvg(kind,lang){
-  const lo=lang==='lo';
-  const label=kind==='home'?(lo?'ອະລະບໍ້າ':'앨범'):kind==='folder'?(lo?'ໂຟນເດີຮູບ':'졸업사진'):lo?'ຮູບ 12 / 105':'12 / 105';
-  const sub=kind==='home'?(lo?'ຮູບຫຼ້າສຸດ · ອັບໂຫຼດ · ໂຟນເດີ':'최근 사진 · 업로드 · 새 폴더'):kind==='folder'?(lo?'ເລືອກຮູບ · ຈັດລຽງ':'사진 선택 · 최신순'):lo?'ແບ່ງປັນ   ດາວໂຫຼດ   ລຶບ':'공유   다운로드   삭제';
-  const tiles=kind==='home'
-    ?'<rect x="26" y="150" width="308" height="82" rx="17" fill="#1d212a" stroke="#343946"/><rect x="40" y="163" width="58" height="56" rx="13" fill="#9d5872"/><text x="116" y="184" fill="#fff" font-size="15" font-weight="700">🎓 Graduation</text><text x="116" y="205" fill="#9aa2ad" font-size="10">Google Drive</text><rect x="26" y="246" width="148" height="70" rx="15" fill="#1d212a" stroke="#343946"/><rect x="186" y="246" width="148" height="70" rx="15" fill="#1d212a" stroke="#343946"/><rect x="26" y="328" width="308" height="70" rx="15" fill="#1d212a" stroke="#343946"/>'
-    :kind==='folder'
-    ?Array.from({length:9},(_,i)=>{const x=26+(i%3)*104,y=155+Math.floor(i/3)*104;return '<rect x="'+x+'" y="'+y+'" width="96" height="96" rx="8" fill="'+(i%2?'#b8788e':'#795d67')+'"/><circle cx="'+(x+78)+'" cy="'+(y+18)+'" r="10" fill="#ffffff33"/>';}).join('')
-    :'<rect x="18" y="118" width="324" height="445" rx="10" fill="#342c31"/><circle cx="180" cy="340" r="105" fill="#7e5965"/><circle cx="180" cy="340" r="72" fill="#b07688"/><path d="M32 340h28M300 340h28" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M48 330l-10 10 10 10M312 330l10 10-10 10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
-  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="360" height="640" viewBox="0 0 360 640"><rect width="360" height="640" rx="28" fill="#101217"/><rect x="14" y="14" width="332" height="52" rx="14" fill="#171a21" stroke="#343946"/><text x="28" y="35" fill="#ff9ab2" font-size="9" font-family="Arial,sans-serif" font-weight="700">OUR MEMORY</text><text x="28" y="55" fill="#fff" font-size="16" font-family="Arial,sans-serif" font-weight="700">'+label+'</text><text x="330" y="46" text-anchor="end" fill="#fff" font-size="11" font-family="Arial,sans-serif">☾</text><text x="26" y="104" fill="#f7f8fa" font-size="18" font-family="Arial,sans-serif" font-weight="700">'+label+'</text><text x="26" y="126" fill="#9aa2ad" font-size="10" font-family="Arial,sans-serif">'+sub+'</text>'+tiles+'<rect x="22" y="592" width="316" height="28" rx="12" fill="#171a21"/><text x="180" y="610" text-anchor="middle" fill="#9aa2ad" font-size="9" font-family="Arial,sans-serif">For Husband &amp; Wife · Private Memory Album</text></svg>';
-  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  const lo=lang==='lo',ko=!lo;
+  const T=(koText,loText)=>lo?loText:koText;
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const text=(x,y,value,size=11,fill='#f5f7fa',weight=700,anchor='start')=>'<text x="'+x+'" y="'+y+'" fill="'+fill+'" font-size="'+size+'" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-weight="'+weight+'" text-anchor="'+anchor+'">'+esc(value)+'</text>';
+  const badge=(x,y,n)=>'<circle cx="'+x+'" cy="'+y+'" r="12" fill="#ff7798" stroke="#fff" stroke-width="2"/>'+text(x,y+4,String(n),11,'#171219',900,'middle');
+  const button=(x,y,w,label,active=false,danger=false)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="34" rx="10" fill="'+(danger?'#3a1d26':active?'#5e3346':'#222630')+'" stroke="'+(danger?'#8c465b':active?'#ff7798':'#393e49')+'"/>'+text(x+w/2,y+22,label,9,danger?'#ff9ab2':'#eef1f5',800,'middle');
+  const phoneTop='<rect x="0" y="0" width="390" height="760" rx="30" fill="#090b0f"/><rect x="12" y="12" width="366" height="52" rx="15" fill="#171a21" stroke="#303641"/>'+text(26,32,'OUR MEMORY',8,'#ff9ab2',900)+text(26,53,T('우리의 추억사진첩','ອະລະບໍ້າຄວາມຊົງຈຳ'),13,'#fff',900)+button(232,21,64,T('설명서','ຄູ່ມື'))+button(301,21,48,T('본앱','ຫຼັກ'))+'<circle cx="363" cy="38" r="13" fill="#222630"/>'+text(363,42,'☾',12,'#fff',700,'middle');
+  let body='';
+  if(kind==='home'){
+    body+=text(22,102,T('앨범','ອະລະບໍ້າ'),22,'#fff',900)+text(22,123,T('우리 둘의 소중한 순간을 한곳에','ເກັບຄວາມຊົງຈຳໄວ້ບ່ອນດຽວ'),10,'#9ba3af',600);
+    const cards=[[22,145,108,'＋',T('업로드','ອັບໂຫຼດ')],[141,145,108,'◷',T('최근 사진','ຮູບຫຼ້າສຸດ')],[260,145,108,'＋',T('새 폴더','ໂຟນເດີໃໝ່')]];
+    for(const [x,y,w,ico,label] of cards){body+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="82" rx="16" fill="#171a21" stroke="#303641"/>'+text(x+14,y+27,ico,18,'#ff9ab2',900)+text(x+14,y+51,label,11,'#fff',850)+text(x+14,y+67,T('바로 실행','ເລີ່ມໄດ້'),8,'#8f98a6',600)}
+    body+=text(22,265,T('앨범','ອະລະບໍ້າ'),16,'#fff',900)+button(280,245,88,T('↻ 새로고침','↻ ໂຫຼດໃໝ່'));
+    body+='<rect x="22" y="288" width="346" height="108" rx="18" fill="#171a21" stroke="#303641"/><rect x="34" y="300" width="86" height="84" rx="14" fill="url(#g1)"/>'+text(137,323,T('졸업사진','ຮູບຮັບປະລິນຍາ'),15,'#fff',900)+text(137,345,'105 '+T('장','ຮູບ'),10,'#9aa2ad',700)+text(137,366,T('사진을 눌러 앨범 열기','ແຕະເພື່ອເປີດ'),9,'#c8ced8',650)+text(347,345,'›',28,'#fff',600,'middle');
+    body+=badge(74,176,1)+badge(193,176,2)+badge(312,176,3)+badge(347,341,4);
+  }else if(kind==='folder'){
+    body+=text(22,102,'←',20,'#fff',700)+text(52,102,T('졸업사진','ຮູບຮັບປະລິນຍາ'),20,'#fff',900)+text(52,123,'105 '+T('장','ຮູບ'),10,'#9ba3af',600);
+    body+=button(22,142,75,T('＋ 업로드','＋ ອັບ'))+button(103,142,70,T('＋ 폴더','＋ ໂຟນ'))+button(179,142,74,T('폴더 삭제','ລຶບໂຟນ'),false,true)+button(259,142,76,T('사진 선택','ເລືອກຮູບ'),true)+button(301,183,67,T('최신순','ໃໝ່ສຸດ'));
+    for(let i=0;i<12;i++){const x=22+(i%3)*116,y=232+Math.floor(i/3)*111;body+='<rect x="'+x+'" y="'+y+'" width="108" height="103" rx="10" fill="'+(i%3===0?'#765867':i%3===1?'#8f6978':'#5f6572')+'"/><rect x="'+(x+8)+'" y="'+(y+8)+'" width="92" height="70" rx="8" fill="rgba(255,255,255,.08)"/>'+text(x+9,y+94,'IMG_'+String(i+1).padStart(3,'0')+'.jpg',7,'#d6dbe2',600)}
+    body+=badge(331,159,1)+badge(217,159,2)+badge(294,159,3)+badge(76,279,4);
+  }else if(kind==='select'){
+    body+=text(22,102,T('졸업사진 · 선택모드','ຮູບຮັບປະລິນຍາ · ໂໝດເລືອກ'),18,'#fff',900)+text(22,124,T('선택한 사진 4장','ເລືອກແລ້ວ 4 ຮູບ'),10,'#ff9ab2',800);
+    for(let i=0;i<12;i++){const x=22+(i%3)*116,y=150+Math.floor(i/3)*111,selected=[0,1,4,7].includes(i);body+='<rect x="'+x+'" y="'+y+'" width="108" height="103" rx="10" fill="'+(i%2?'#8a6775':'#67616b')+'" stroke="'+(selected?'#ff7798':'#303641')+'" stroke-width="'+(selected?3:1)+'"/>';if(selected)body+='<circle cx="'+(x+89)+'" cy="'+(y+18)+'" r="13" fill="#ff7798"/>'+text(x+89,y+22,'✓',12,'#171219',900,'middle')}
+    body+='<rect x="16" y="653" width="358" height="78" rx="18" fill="#171a21" stroke="#393e49"/>'+button(28,674,72,T('전체 선택','ທັງໝົດ'))+button(106,674,83,T('4장 저장','ບັນທຶກ 4'),true)+button(195,674,83,T('4장 삭제','ລຶບ 4'),false,true)+button(284,674,78,T('취소','ຍົກເລີກ'));
+    body+=badge(108,168,1)+badge(224,279,2)+badge(64,691,3)+badge(236,691,4);
+  }else if(kind==='viewer'){
+    body+='<rect x="12" y="75" width="366" height="54" rx="14" fill="#111318"/>'+button(20,84,38,'×')+text(74,98,T('졸업사진_012.jpg','ຮູບ_012.jpg'),10,'#fff',800)+text(74,115,'12 / 105',8,'#9299a5',700)+button(227,84,48,T('공유','ແບ່ງ'))+button(281,84,58,T('저장','ບັນທຶກ'))+button(345,84,25,'🗑',false,true);
+    body+='<rect x="16" y="140" width="358" height="560" rx="12" fill="#050608"/><rect x="42" y="190" width="306" height="420" rx="12" fill="url(#photo)"/><circle cx="195" cy="400" r="92" fill="rgba(255,255,255,.12)"/><circle cx="195" cy="400" r="55" fill="rgba(255,255,255,.10)"/>'+text(32,423,'‹',42,'#fff',500)+text(358,423,'›',42,'#fff',500,'middle');
+    body+='<path d="M108 634 C145 615 245 615 282 634" stroke="#ff7798" stroke-width="3" fill="none" stroke-linecap="round"/>'+text(195,657,T('좌우로 밀어 사진 이동','ປັດຊ້າຍ/ຂວາເພື່ອປ່ຽນຮູບ'),9,'#ffb0c3',800,'middle')+badge(251,101,1)+badge(310,101,2)+badge(195,383,3)+badge(195,635,4);
+  }else if(kind==='upload'){
+    body+=text(22,103,T('사진 업로드','ອັບໂຫຼດຮູບ'),21,'#fff',900)+text(22,126,T('여러 사진을 한 번에 선택할 수 있습니다.','ເລືອກຫຼາຍຮູບໄດ້ໃນຄັ້ງດຽວ.'),10,'#9ba3af',600);
+    body+='<rect x="18" y="166" width="354" height="430" rx="24" fill="#1b1f27" stroke="#3b414d"/><rect x="170" y="179" width="50" height="5" rx="3" fill="#555d69"/>'+text(36,226,T('사진 업로드 중','ກຳລັງອັບໂຫຼດ'),19,'#fff',900)+text(36,257,'IMG_012.jpg',11,'#d9dde4',750)+text(340,257,'72%',11,'#ff9ab2',900,'end')+'<rect x="36" y="270" width="304" height="11" rx="6" fill="#303641"/><rect x="36" y="270" width="219" height="11" rx="6" fill="#ff7798"/>'+text(36,317,T('전체 진행률','ຄວາມຄືບໜ້າລວມ'),11,'#aeb5c0',700)+text(340,317,'7 / 10',11,'#fff',850,'end')+'<rect x="36" y="330" width="304" height="11" rx="6" fill="#303641"/><rect x="36" y="330" width="213" height="11" rx="6" fill="#ff9ab2"/><rect x="36" y="382" width="304" height="78" rx="14" fill="#222630" stroke="#383e49"/>'+text(56,412,'☁',20,'#ff9ab2',900)+text(88,408,T('Google Drive에 저장 중…','ກຳລັງບັນທຶກເຂົ້າ Google Drive…'),10,'#fff',800)+text(88,429,T('전송이 끝난 뒤 마지막 저장 단계입니다.','ເປັນຂັ້ນຕອນສຸດທ້າຍຫຼັງສົ່ງໄຟລ໌.'),8,'#9aa2ad',600)+button(36,500,304,T('업로드 중에는 닫지 마세요','ຢ່າປິດໃນຂະນະອັບໂຫຼດ'),true);
+    body+=badge(322,255,1)+badge(322,315,2)+badge(60,412,3)+badge(190,517,4);
+  }else{
+    body+=text(22,102,T('삭제 확인','ຢືນຢັນການລຶບ'),21,'#fff',900)+text(22,127,T('사진·폴더는 확인 후에만 삭제됩니다.','ຮູບ/ໂຟນເດີຈະຖືກລຶບຫຼັງຢືນຢັນ.'),10,'#9ba3af',600);
+    body+='<rect x="20" y="182" width="350" height="350" rx="24" fill="#1b1f27" stroke="#3b414d"/><rect x="169" y="196" width="52" height="5" rx="3" fill="#555d69"/>'+text(40,246,T('사진 삭제','ລຶບຮູບ'),20,'#fff',900)+text(40,285,T('선택한 사진을 삭제할까요?','ລຶບຮູບທີ່ເລືອກບໍ?'),12,'#dfe3e8',750)+text(40,311,T('Google Drive 휴지통으로 이동합니다.','ຈະຍ້າຍໄປ Google Drive Trash.'),10,'#a3aab5',650)+'<rect x="40" y="352" width="310" height="70" rx="14" fill="#252a34"/>'+text(58,379,T('복구 가능','ກູ້ຄືນໄດ້'),11,'#ffb0c3',900)+text(58,400,T('휴지통을 비우기 전까지 되살릴 수 있습니다.','ກູ້ໄດ້ຈົນກວ່າຈະລ້າງ Trash.'),9,'#abb2bc',650)+button(40,458,145,T('취소','ຍົກເລີກ'))+button(205,458,145,T('확인','ຢືນຢັນ'),false,true);
+    body+=badge(87,475,1)+badge(275,475,2)+badge(58,378,3);
+  }
+  const defs='<defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d18da3"/><stop offset="1" stop-color="#6c5965"/></linearGradient><linearGradient id="photo" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#92717e"/><stop offset=".45" stop-color="#4c515c"/><stop offset="1" stop-color="#b47c91"/></linearGradient></defs>';
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="390" height="760" viewBox="0 0 390 760">'+defs+phoneTop+body+'</svg>');
 }
 function syncManualScreenshots(lang){
   document.querySelectorAll('[data-manual-shot]').forEach(img=>{img.src=manualShotSvg(img.dataset.manualShot,lang)});
 }
-function manualCard(title,items){
-  return '<section class="manual-card manual-renew-card"><h2>'+escapeHtml(title)+'</h2><div class="manual-do-grid">'+items.map(x=>'<div class="manual-do">'+escapeHtml(x)+'</div>').join('')+'</div></section>';
+function manualQuick(c){
+  return '<section class="manual-card manual-quick-card"><div class="manual-section-eyebrow">QUICK START</div><h2>'+escapeHtml(c.quickTitle)+'</h2><div class="manual-quick-grid">'+c.quick.map((x,i)=>'<div class="manual-quick-item"><div class="manual-quick-icon">'+x[0]+'</div><div><strong>'+escapeHtml((i+1)+'. '+x[1])+'</strong><p>'+escapeHtml(x[2])+'</p></div></div>').join('')+'</div></section>';
+}
+function manualSection(section){
+  return '<section class="manual-card manual-guide-section"><div class="manual-section-head"><div class="manual-section-number">'+escapeHtml(section.num)+'</div><div><div class="manual-kicker2">'+escapeHtml(section.kicker)+'</div><h2>'+escapeHtml(section.title)+'</h2><p>'+escapeHtml(section.desc)+'</p></div></div><div class="manual-screen-layout"><figure class="manual-shot-clean manual-shot-rich"><img data-manual-shot="'+escapeHtml(section.kind)+'" alt=""><figcaption>'+escapeHtml(section.title)+'</figcaption></figure><div class="manual-step-list">'+section.steps.map((step,i)=>'<div class="manual-step-row"><span class="manual-step-no">'+(i+1)+'</span><div class="manual-step-copy"><strong>'+escapeHtml(step[0])+'</strong><p>'+escapeHtml(step[1])+'</p></div></div>').join('')+(section.note?'<div class="manual-section-note">💡 '+escapeHtml(section.note)+'</div>':'')+'</div></div></section>';
+}
+function manualInfoGrid(title,rows,cls=''){
+  return '<section class="manual-card '+cls+'"><h2>'+escapeHtml(title)+'</h2><div class="manual-info-grid">'+rows.map(x=>'<div class="manual-info-item"><strong>'+escapeHtml(x[0])+'</strong><p>'+escapeHtml(x[1])+'</p></div>').join('')+'</div></section>';
 }
 function renderUnifiedManual(lang=manualLanguage){
   manualLanguage=lang==='lo'?'lo':'ko';
   const c=manualCopy(manualLanguage),pane=$('manualContent');
   $('manualKoBtn').classList.toggle('active',manualLanguage==='ko');$('manualLoBtn').classList.toggle('active',manualLanguage==='lo');
   $('manualCloseBtn').textContent=manualLanguage==='lo'?'← ກັບອະລະບໍ້າ':'← 사진첩으로';
-  pane.innerHTML='<section class="manual-hero manual-renew"><div class="manual-language-banner">'+c.heroBanner+'</div><h1>'+c.title+'</h1><div class="manual-sub">'+escapeHtml(cfg.version)+' · Android / iPhone / PC</div><p class="manual-lead">'+c.lead+'</p><button class="manual-update-history-btn" type="button" id="manualUpdateHistoryBtn">'+c.update+'</button><div class="manual-fastflow">'+c.flow.map(x=>'<div><b>'+x.split(' ')[0]+'</b>'+escapeHtml(x.split(' ').slice(1).join(' '))+'</div>').join('')+'</div></section>'+
-    '<section class="manual-card manual-renew-card"><div class="manual-kicker2">'+c.shotKicker+'</div><h2>'+c.shotTitle+'</h2><div class="manual-shot-two"><figure class="manual-shot-clean"><img data-manual-shot="home" alt=""><figcaption>'+c.homeCap+'</figcaption></figure><figure class="manual-shot-clean"><img data-manual-shot="folder" alt=""><figcaption>'+c.folderCap+'</figcaption></figure></div></section>'+
-    manualCard(c.folderTitle,c.folderItems)+manualCard(c.selectTitle,c.selectItems)+
-    '<section class="manual-card manual-renew-card"><div class="manual-kicker2">'+c.viewerKicker+'</div><h2>'+c.viewerTitle+'</h2><div class="manual-shot-one"><figure class="manual-shot-clean"><img data-manual-shot="viewer" alt=""><figcaption>'+c.viewerCap+'</figcaption></figure></div><div class="manual-do-grid">'+c.viewerItems.map(x=>'<div class="manual-do">'+escapeHtml(x)+'</div>').join('')+'</div></section>'+
-    manualCard(c.uploadTitle,c.uploadItems)+manualCard(c.saveTitle,c.saveItems)+manualCard(c.deleteTitle,c.deleteItems)+manualCard(c.updateTitle,c.updateItems)+
-    '<div class="manual-mini-tip"><b>TIP</b> '+escapeHtml(c.tip.replace(/^TIP\s*·?\s*/i,''))+'</div><div class="manual-footer">'+escapeHtml(cfg.version)+' · '+escapeHtml(c.footer)+'</div>';
+  pane.innerHTML=
+    '<section class="manual-hero manual-renew"><div class="manual-language-banner">'+c.heroBanner+'</div><h1>'+c.title+'</h1><div class="manual-sub">'+escapeHtml(cfg.version)+' · Android / iPhone / PC</div><p class="manual-lead">'+escapeHtml(c.lead)+'</p><button class="manual-update-history-btn" type="button" id="manualUpdateHistoryBtn">'+c.update+'</button></section>'+
+    manualQuick(c)+
+    c.sections.map(manualSection).join('')+
+    manualInfoGrid(c.extraTitle,c.extras,'manual-extra-card')+
+    manualInfoGrid(c.faqTitle,c.faq,'manual-faq-card')+
+    '<div class="manual-mini-tip"><b>TIP</b> '+escapeHtml(c.tip)+'</div>'+
+    '<div class="manual-footer">'+escapeHtml(cfg.version)+' · '+escapeHtml(c.footer)+'</div>';
   syncManualScreenshots(manualLanguage);
   $('manualUpdateHistoryBtn')?.addEventListener('click',()=>openManualUpdateHistory(manualLanguage,true));
 }
