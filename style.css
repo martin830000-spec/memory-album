@@ -102,3 +102,20 @@ body.light{background:radial-gradient(circle at top right,rgba(255,119,152,.13),
 .sheet-confirm-ok{border:1px solid rgba(255,95,95,.5);background:#ff6f88;color:#171219}
 .save-files-choice{text-align:center}
 @media(max-width:480px){.selection-actions{grid-template-columns:1fr 1.25fr 1.05fr 1fr}}
+
+/* V0.5.3 manual, update popup and stability */
+body.modal-open{overflow:hidden}
+.manual-btn{padding-left:10px;padding-right:10px}
+.manual-modal,.update-modal{position:fixed;inset:0;background:rgba(0,0,0,.64);display:flex;justify-content:center;padding:12px;backdrop-filter:blur(8px)}
+.manual-modal{z-index:100;align-items:stretch}.update-modal{z-index:120;align-items:center}
+.manual-modal[hidden],.update-modal[hidden]{display:none}
+.manual-panel{width:min(100%,760px);height:min(100%,900px);max-height:calc(100dvh - 24px);margin:auto;background:#151922;border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.5);display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}
+.manual-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 20px 12px}.manual-head h2{margin:3px 0 0}.manual-close{width:40px;height:40px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);font-size:24px;cursor:pointer}
+.manual-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 20px 12px}.manual-tabs button{border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:10px;color:var(--muted);font-weight:800;cursor:pointer}.manual-tabs button.active{background:rgba(255,119,152,.13);border-color:#ff7798;color:#ff9ab2}
+.manual-content{overflow:auto;padding:4px 20px 18px;overscroll-behavior:contain}.manual-version{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:6px 10px;margin-bottom:10px;color:var(--muted);font-size:11px}
+.manual-section,.release-card{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025);padding:14px 15px;margin-bottom:10px}.manual-section h3,.release-card h3{margin:0 0 8px;font-size:14px}.manual-section ul,.release-card ul,.update-card ul{margin:0;padding-left:19px;color:var(--muted);font-size:12px;line-height:1.62}.manual-section li+li,.release-card li+li,.update-card li+li{margin-top:4px}
+.release-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}.release-head strong{font-size:13px;color:#ff9ab2}.release-head span{font-size:10px;color:var(--muted)}.manual-empty{padding:30px 10px;text-align:center;color:var(--muted)}
+.replay-update-btn{margin:0 20px calc(16px + env(safe-area-inset-bottom));border:1px solid var(--line);border-radius:13px;background:var(--panel2);padding:11px;color:var(--text);font-weight:800;cursor:pointer}
+.update-card{width:min(100%,500px);max-height:calc(100dvh - 30px);overflow:auto;background:#191d25;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.58)}.update-version{display:inline-flex;padding:6px 10px;border-radius:999px;background:rgba(255,119,152,.13);color:#ff9ab2;font-size:11px;font-weight:900}.update-card h2{margin:12px 0 8px;font-size:21px}.update-card p{margin:0 0 13px;color:var(--muted);font-size:13px;line-height:1.55}.update-card ul{margin-bottom:17px}.update-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.update-actions button{min-height:44px;border-radius:13px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-weight:800;cursor:pointer}.update-actions .primary{border:0;background:#ff7798;color:#171219}
+body.light .manual-panel,body.light .update-card{background:#fff}body.light .manual-section,body.light .release-card{background:rgba(0,0,0,.02)}
+@media(max-width:480px){.manual-btn{padding-left:7px;padding-right:7px}.manual-panel{border-radius:20px}.manual-head{padding:16px 14px 10px}.manual-tabs{padding:0 14px 10px}.manual-content{padding:4px 14px 14px}.replay-update-btn{margin-left:14px;margin-right:14px}.update-card{padding:18px}.update-actions{grid-template-columns:1fr}}

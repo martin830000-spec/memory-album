@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#101217" />
   <title>우리의 추억사진첩</title>
-  <link rel="stylesheet" href="./style.css?v=0.5.2" />
+  <link rel="stylesheet" href="./style.css?v=0.5.3" />
 </head>
 <body>
   <div class="app">
@@ -16,6 +16,7 @@
         <p class="sub" id="appSubtitle">우리 둘의 소중한 순간을 한곳에</p>
       </div>
       <div class="top-actions">
+        <button class="main-app-btn manual-btn" id="manualBtn" type="button">? 설명서</button>
         <button class="main-app-btn" id="mainAppBtn" type="button">← 본앱</button>
         <button class="round-btn" id="themeBtn" aria-label="테마 변경">☾</button>
       </div>
@@ -122,6 +123,34 @@
     </section>
   </div>
 
+  <div class="manual-modal" id="manualModal" hidden>
+    <section class="manual-panel" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+      <header class="manual-head">
+        <div><p class="kicker">GUIDE</p><h2 id="manualTitle">사용설명서</h2></div>
+        <button class="manual-close" id="manualCloseBtn" type="button" aria-label="닫기">×</button>
+      </header>
+      <div class="manual-tabs">
+        <button type="button" id="manualGuideTab">사용법</button>
+        <button type="button" id="manualUpdatesTab">업데이트 내역</button>
+      </div>
+      <div class="manual-content" id="manualContent"></div>
+      <button class="replay-update-btn" id="replayUpdateBtn" type="button" hidden>업데이트 팝업 다시 보기</button>
+    </section>
+  </div>
+
+  <div class="update-modal" id="updateModal" hidden>
+    <section class="update-card" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
+      <span class="update-version" id="updateVersionBadge">V0.0.0</span>
+      <h2 id="updateTitle">사진첩이 업데이트됐어요</h2>
+      <p id="updateSummary"></p>
+      <ul id="updateHighlights"></ul>
+      <div class="update-actions">
+        <button type="button" id="updateDetailsBtn">업데이트 내역 상세</button>
+        <button type="button" id="updateConfirmBtn" class="primary">확인</button>
+      </div>
+    </section>
+  </div>
+
   <div class="viewer" id="viewer" hidden>
     <header class="viewer-top">
       <button class="viewer-icon-btn" id="viewerCloseBtn" type="button" aria-label="닫기">×</button>
@@ -152,7 +181,7 @@
     <button class="viewer-nav viewer-next" id="viewerNextBtn" type="button" aria-label="다음 사진">›</button>
   </div>
 
-  <script src="./config.js?v=0.5.2"></script>
-  <script src="./app.js?v=0.5.2"></script>
+  <script src="./config.js?v=0.5.3"></script>
+  <script src="./app.js?v=0.5.3"></script>
 </body>
 </html>

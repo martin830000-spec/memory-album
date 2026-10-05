@@ -36,10 +36,12 @@ const AUTO_REFRESH_MS=30*1000;
 const UPDATE_CHECK_MIN_MS=15*1000;
 const UPDATE_CHECK_INTERVAL_MS=5*60*1000;
 const ALBUM_HISTORY_KEY='memoryAlbum';
+const UPDATE_SEEN_KEY='memory_album_update_seen_v1';
 
 const I18N={
   ko:{
-    appTitle:'우리의 추억사진첩',appSubtitle:'우리 둘의 소중한 순간을 한곳에',mainApp:'← 본앱',albums:'앨범',refresh:'↻ 새로고침',
+    appTitle:'우리의 추억사진첩',appSubtitle:'우리 둘의 소중한 순간을 한곳에',mainApp:'← 본앱',manual:'? 설명서',manualTitle:'사용설명서',manualGuideTab:'사용법',manualUpdatesTab:'업데이트 내역',replayUpdate:'업데이트 팝업 다시 보기',albums:'앨범',refresh:'↻ 새로고침',
+    updateTitle:'사진첩이 업데이트됐어요',updateDetail:'업데이트 내역 상세',updateConfirm:'확인',updateHistoryLoadFailed:'업데이트 내역을 불러오지 못했습니다.',currentVersion:v=>`현재 버전 ${v}`,
     folderEmptyTitle:'Google Drive 연결 대기',folderEmptyText:'사진첩 전용 연결이 완료되면 Drive 폴더가 그대로 여기에 표시됩니다.',
     upload:'사진 올리기',uploadHint:'폴더를 선택한 뒤 여러 장을 올릴 수 있어요',recent:'최근 사진',recentHint:'새로 추가된 사진 보기',
     folderSubtitle:'Google Drive의 현재 폴더',loadingPhotos:'사진 불러오는 중',sortNewest:'최신순',sortOldest:'오래된순',sortName:'이름순',
@@ -57,7 +59,7 @@ const I18N={
     recentTitle:'최근 사진',recentSubtitle:'최근 추가된 사진',recentEmpty:'최근 추가된 사진이 없습니다.',
     selectPhotos:'사진 선택',selectedCount:n=>`${n}장 선택`,selectAll:'전체 선택',clearAll:'전체 해제',
     downloadSelected:n=>`${n}장 저장`,downloadPreparing:'선택한 원본 사진 준비 중…',downloadFailed:'선택 사진을 저장하지 못했습니다.',selectAtLeastOne:'저장할 사진을 선택해주세요.',
-    savingSelected:(current,total)=>`${current} / ${total}장 원본 준비 중…`,savePrepared:n=>`${n}장 저장 준비 완료`,saveToPhotos:'사진 앱에 저장',
+    savingSelected:(current,total)=>`${current} / ${total}장 원본 준비 중…`,savePrepared:n=>`${n}장 저장 준비 완료`,saveToPhotos:'사진 앱에 저장',saveFiles:'사진 파일로 저장',
     confirm:'확인',deleteSelected:n=>`${n}장 삭제`,deleteSelectedConfirm:n=>`${n}장의 사진을 삭제할까요? 선택한 사진은 Google Drive 휴지통으로 이동합니다.`,
     deletingSelected:(current,total)=>`${current} / ${total}장 삭제 중…`,deleteSelectedDone:n=>`${n}장 삭제 완료`,deleteSelectedFailed:(done,total)=>`${done} / ${total}장 삭제 후 중단되었습니다.`,
     directTitle:'직접 연결 경로 사용',cloudflareTitle:'Cloudflare 우회 경로 사용',sourceHusband:'부부대화 · 남편앱',sourceWife:'부부대화 · 아내앱',sourceGeneral:'일상대화',
@@ -68,7 +70,8 @@ const I18N={
     folderLoadFailed:'폴더 내용을 불러오지 못했습니다.',footer:'For Husband & Wife · Private Memory Album'
   },
   lo:{
-    appTitle:'ອະລະບໍ້າຄວາມຊົງຈຳຂອງເຮົາ',appSubtitle:'ເກັບຮູບແລະຄວາມຊົງຈຳຂອງເຮົາໄວ້ບ່ອນດຽວ',mainApp:'← ແອັບຫຼັກ',albums:'ອະລະບໍ້າ',refresh:'↻ ໂຫຼດໃໝ່',
+    appTitle:'ອະລະບໍ້າຄວາມຊົງຈຳຂອງເຮົາ',appSubtitle:'ເກັບຮູບແລະຄວາມຊົງຈຳຂອງເຮົາໄວ້ບ່ອນດຽວ',mainApp:'← ແອັບຫຼັກ',manual:'? ຄູ່ມື',manualTitle:'ຄູ່ມືການໃຊ້ງານ',manualGuideTab:'ວິທີໃຊ້',manualUpdatesTab:'ປະຫວັດອັບເດດ',replayUpdate:'ເບິ່ງປັອບອັບອັບເດດອີກຄັ້ງ',albums:'ອະລະບໍ້າ',refresh:'↻ ໂຫຼດໃໝ່',
+    updateTitle:'ອະລະບໍ້າຮູບຖືກອັບເດດແລ້ວ',updateDetail:'ເບິ່ງລາຍລະອຽດອັບເດດ',updateConfirm:'ຕົກລົງ',updateHistoryLoadFailed:'ບໍ່ສາມາດໂຫຼດປະຫວັດອັບເດດໄດ້.',currentVersion:v=>`ເວີຊັນປັດຈຸບັນ ${v}`,
     folderEmptyTitle:'ລໍຖ້າເຊື່ອມ Google Drive',folderEmptyText:'ເມື່ອເຊື່ອມລະບົບຮູບແລ້ວ ໂຟນເດີໃນ Drive ຈະສະແດງຢູ່ນີ້ຕາມທີ່ມີ.',
     upload:'ອັບໂຫຼດຮູບ',uploadHint:'ເລືອກໂຟນເດີແລ້ວອັບໂຫຼດຫຼາຍຮູບໄດ້',recent:'ຮູບຫຼ້າສຸດ',recentHint:'ເບິ່ງຮູບທີ່ເພີ່ມໃໝ່',
     folderSubtitle:'ໂຟນເດີປັດຈຸບັນໃນ Google Drive',loadingPhotos:'ກຳລັງໂຫຼດຮູບ',sortNewest:'ໃໝ່ສຸດ',sortOldest:'ເກົ່າສຸດ',sortName:'ຕາມຊື່',
@@ -86,7 +89,7 @@ const I18N={
     recentTitle:'ຮູບຫຼ້າສຸດ',recentSubtitle:'ຮູບທີ່ເພີ່ມຫຼ້າສຸດ',recentEmpty:'ຍັງບໍ່ມີຮູບທີ່ເພີ່ມໃໝ່.',
     selectPhotos:'ເລືອກຮູບ',selectedCount:n=>`ເລືອກ ${n} ຮູບ`,selectAll:'ເລືອກທັງໝົດ',clearAll:'ຍົກເລີກທັງໝົດ',
     downloadSelected:n=>`ບັນທຶກ ${n} ຮູບ`,downloadPreparing:'ກຳລັງກຽມຮູບຕົ້ນສະບັບທີ່ເລືອກ…',downloadFailed:'ບັນທຶກຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະບັນທຶກ.',
-    savingSelected:(current,total)=>`ກຳລັງກຽມຮູບຕົ້ນສະບັບ ${current} / ${total}…`,savePrepared:n=>`ກຽມ ${n} ຮູບແລ້ວ`,saveToPhotos:'ບັນທຶກເຂົ້າແອັບຮູບ',
+    savingSelected:(current,total)=>`ກຳລັງກຽມຮູບຕົ້ນສະບັບ ${current} / ${total}…`,savePrepared:n=>`ກຽມ ${n} ຮູບແລ້ວ`,saveToPhotos:'ບັນທຶກເຂົ້າແອັບຮູບ',saveFiles:'ບັນທຶກເປັນໄຟລ໌ຮູບ',
     confirm:'ຢືນຢັນ',deleteSelected:n=>`ລຶບ ${n} ຮູບ`,deleteSelectedConfirm:n=>`ລຶບຮູບທີ່ເລືອກ ${n} ຮູບບໍ? ຮູບຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.`,
     deletingSelected:(current,total)=>`ກຳລັງລຶບ ${current} / ${total} ຮູບ…`,deleteSelectedDone:n=>`ລຶບສຳເລັດ ${n} ຮູບ`,deleteSelectedFailed:(done,total)=>`ລຶບໄດ້ ${done} / ${total} ຮູບ ແລ້ວຢຸດ.`,
     directTitle:'ໃຊ້ການເຊື່ອມຕໍ່ໂດຍກົງ',cloudflareTitle:'ໃຊ້ເສັ້ທາງ Cloudflare',sourceHusband:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍຜົວ',sourceWife:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍເມຍ',sourceGeneral:'ແອັບສົນທະນາທົ່ວໄປ',
@@ -96,6 +99,27 @@ const I18N={
     recentPending:'ຮູບຫຼ້າສຸດຈະເປີດໃຊ້ຫຼັງເຊື່ອມ Drive.',noFolders:'ບໍ່ມີໂຟນເດີສຳລັບອັບໂຫຼດ.',uploadProgress:(name,p)=>`${name} · ${p}%`,
     folderLoadFailed:'ບໍ່ສາມາດໂຫຼດເນື້ອຫາໂຟນເດີໄດ້.',footer:'For Husband & Wife · Private Memory Album'
   }
+};
+
+const MANUAL_CONTENT={
+  ko:[
+    {title:'앨범과 폴더',items:['메인 화면에는 Google Drive의 사진첩 폴더가 표시됩니다.','새 폴더는 메인 화면이나 폴더 안의 ＋ 폴더 버튼으로 만들 수 있습니다.','최근 사진에서는 폴더와 관계없이 최근 추가한 사진을 모아 볼 수 있습니다.','폴더 삭제는 확인을 누른 뒤에만 실행되며 Google Drive 휴지통으로 이동합니다.']},
+    {title:'사진 보기와 이동',items:['썸네일을 한 번 누르면 원본 사진 화면이 열립니다.','확대하지 않은 상태에서는 좌우로 스와이프해 이전·다음 사진으로 이동합니다.','두 손가락으로 확대·축소하고, 확대된 상태에서는 한 손가락으로 좌우·상하 이동합니다.','휴대폰 뒤로가기는 원본 사진 → 현재 폴더 → 사진첩 홈 순서로 돌아갑니다.']},
+    {title:'여러 장 선택',items:['썸네일 한 장을 약 0.4초 길게 누르면 갤러리처럼 선택 모드가 시작됩니다.','선택 모드에서는 다른 사진을 눌러 여러 장을 추가하거나 해제할 수 있습니다.','전체 선택·전체 해제도 사용할 수 있습니다.','선택 사진은 여러 장 저장하거나 한 번에 삭제할 수 있습니다.']},
+    {title:'사진 저장과 공유',items:['한 장은 원본 화면의 다운로드 또는 공유 버튼을 사용합니다.','여러 장 저장은 원본을 준비한 뒤 휴대폰의 시스템 저장/공유 화면을 엽니다.','iPhone에서는 공유 화면의 이미지 저장, Android에서는 기기의 저장/공유 항목을 사용하면 됩니다.','대량 사진은 휴대폰 메모리를 위해 여러 번에 나눠 저장하는 것을 권장합니다.']},
+    {title:'업로드',items:['＋ 업로드에서 여러 사진을 한 번에 선택할 수 있습니다.','현재 사진 진행률과 전체 진행률을 따로 표시합니다.','전송이 끝난 뒤 Google Drive에 저장 중 단계가 표시되고 완료 후 목록을 갱신합니다.']},
+    {title:'삭제와 복구',items:['사진·여러 사진·폴더 삭제는 모두 확인 화면을 거친 뒤 실행됩니다.','삭제 항목은 즉시 영구 삭제하지 않고 Google Drive 휴지통으로 이동합니다.','실수로 삭제했다면 Google Drive 휴지통에서 복구할 수 있습니다.']},
+    {title:'업데이트',items:['사진첩은 새 버전을 자동 확인합니다.','업로드나 여러 장 저장·삭제 중에는 강제 갱신하지 않고 작업이 끝난 뒤 갱신합니다.','업데이트 후에는 한 번 팝업으로 주요 변경점을 안내하며, 업데이트 내역 탭에서 상세 기록을 다시 볼 수 있습니다.']}
+  ],
+  lo:[
+    {title:'ອະລະບໍ້າ ແລະ ໂຟນເດີ',items:['ໜ້າຫຼັກຈະສະແດງໂຟນເດີຮູບຈາກ Google Drive.','ສາມາດສ້າງໂຟນເດີໃໝ່ຈາກໜ້າຫຼັກ ຫຼື ປຸ່ມ ＋ ໂຟນເດີ ຂ້າງໃນໂຟນເດີ.','ຮູບຫຼ້າສຸດຈະຮວບຮວມຮູບທີ່ເພີ່ມໃໝ່ໂດຍບໍ່ຈຳກັດໂຟນເດີ.','ການລຶບໂຟນເດີຈະເຮັດຫຼັງຈາກກົດຢືນຢັນ ແລະ ຈະຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.']},
+    {title:'ເບິ່ງຮູບ ແລະ ເລື່ອນຮູບ',items:['ແຕະຮູບຕົວຢ່າງໜຶ່ງຄັ້ງເພື່ອເປີດຮູບຕົ້ນສະບັບ.','ເມື່ອບໍ່ໄດ້ຊູມ ປັດຊ້າຍ/ຂວາເພື່ອໄປຮູບກ່ອນໜ້າ ຫຼື ຮູບຖັດໄປ.','ໃຊ້ສອງນິ້ວເພື່ອຊູມ ແລະ ເມື່ອຊູມແລ້ວໃຊ້ນິ້ວດຽວເລື່ອນຮູບໄດ້ທຸກທິດ.','ປຸ່ມກັບຂອງໂທລະສັບຈະກັບຈາກຮູບ → ໂຟນເດີ → ໜ້າຫຼັກອະລະບໍ້າ.']},
+    {title:'ເລືອກຫຼາຍຮູບ',items:['ກົດຄ້າງຮູບຕົວຢ່າງປະມານ 0.4 ວິນາທີເພື່ອເຂົ້າໂໝດເລືອກແບບແອັບ Gallery.','ໃນໂໝດເລືອກ ແຕະຮູບອື່ນເພື່ອເພີ່ມ ຫຼື ຍົກເລີກ.','ສາມາດເລືອກທັງໝົດ ຫຼື ຍົກເລີກທັງໝົດໄດ້.','ຮູບທີ່ເລືອກສາມາດບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບພ້ອມກັນໄດ້.']},
+    {title:'ບັນທຶກ ແລະ ແບ່ງປັນ',items:['ຮູບດຽວໃຊ້ປຸ່ມດາວໂຫຼດ ຫຼື ແບ່ງປັນໃນໜ້າຮູບຕົ້ນສະບັບ.','ການບັນທຶກຫຼາຍຮູບຈະກຽມໄຟລ໌ຕົ້ນສະບັບແລ້ວເປີດໜ້າບັນທຶກ/ແບ່ງປັນຂອງໂທລະສັບ.','ໃນ iPhone ໃຫ້ເລືອກບັນທຶກຮູບຈາກໜ້າ Share; ໃນ Android ໃຫ້ໃຊ້ລາຍການບັນທຶກ/ແບ່ງປັນຂອງເຄື່ອງ.','ຖ້າມີຮູບຈຳນວນຫຼາຍ ແນະນຳໃຫ້ແບ່ງບັນທຶກເປັນຫຼາຍຄັ້ງ.']},
+    {title:'ອັບໂຫຼດ',items:['ປຸ່ມ ＋ ອັບໂຫຼດ ສາມາດເລືອກຫຼາຍຮູບໄດ້.','ຈະສະແດງຄວາມຄືບໜ້າຂອງຮູບປັດຈຸບັນ ແລະ ຄວາມຄືບໜ້າລວມແຍກກັນ.','ຫຼັງສົ່ງໄຟລ໌ແລ້ວຈະສະແດງຂັ້ນຕອນກຳລັງບັນທຶກເຂົ້າ Google Drive ແລະ ຈະໂຫຼດລາຍການໃໝ່ຫຼັງສຳເລັດ.']},
+    {title:'ລຶບ ແລະ ກູ້ຄືນ',items:['ການລຶບຮູບ, ຫຼາຍຮູບ ແລະ ໂຟນເດີຈະຕ້ອງຜ່ານໜ້າຢືນຢັນກ່ອນ.','ລາຍການທີ່ລຶບຈະບໍ່ຖືກລຶບຖາວອນທັນທີ ແຕ່ຈະຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.','ຖ້າລຶບຜິດ ສາມາດກູ້ຄືນໄດ້ຈາກຖັງຂີ້ເຫຍື້ອ Google Drive.']},
+    {title:'ອັບເດດ',items:['ອະລະບໍ້າຮູບຈະກວດຫາເວີຊັນໃໝ່ອັດຕະໂນມັດ.','ລະຫວ່າງອັບໂຫຼດ, ບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບ ຈະບໍ່ບັງຄັບໂຫຼດໃໝ່; ຈະອັບເດດຫຼັງວຽກສຳເລັດ.','ຫຼັງອັບເດດຈະມີປັອບອັບແຈ້ງການໜຶ່ງຄັ້ງ ແລະ ສາມາດເບິ່ງລາຍລະອຽດຈາກແຖບປະຫວັດອັບເດດ.']}
+  ]
 };
 
 const routeCandidates=[
@@ -121,6 +145,7 @@ let state={
 let thumbObserver=null;
 const thumbQueue=[];
 const thumbUrls=new Set();
+const thumbUrlCache=new Map();
 let thumbActive=0;
 let viewerLoadSeq=0;
 let uploadBusy=false;
@@ -128,6 +153,8 @@ let downloadBusy=false;
 let deleteBusy=false;
 let pendingAppUpdate=false;
 let lastUpdateCheck=0;
+let versionInfoCache=null;
+let manualTab='guide';
 let selectionMode=false;
 const selectedMediaIds=new Set();
 let viewerScale=1;
@@ -203,11 +230,105 @@ function showAlbumHome(){
   folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
 }
 function appBusyForUpdate(){return uploadBusy||downloadBusy||deleteBusy}
+function reloadForVersion(version){
+  const u=new URL(location.href);
+  u.searchParams.set('__album_v',String(version||Date.now()));
+  location.replace(u.toString());
+}
 function applyPendingAppUpdate(){
   if(!pendingAppUpdate||appBusyForUpdate())return false;
   pendingAppUpdate=false;
-  location.reload();
+  checkForAppUpdate(true);
   return true;
+}
+async function loadVersionInfo(force=false){
+  if(versionInfoCache&&!force)return versionInfoCache;
+  const res=await fetch('./version.json?ts='+Date.now(),{cache:'no-store'});
+  if(!res.ok)throw new Error('version_load_failed');
+  versionInfoCache=await res.json();
+  return versionInfoCache;
+}
+function localizedValue(value){
+  if(value&&typeof value==='object'&&!Array.isArray(value))return String(value[uiLang()]??value.ko??Object.values(value)[0]??'');
+  return String(value??'');
+}
+function localizedList(value){
+  if(value&&typeof value==='object'&&!Array.isArray(value))value=value[uiLang()]??value.ko??[];
+  return Array.isArray(value)?value.map(x=>String(x)):value?[String(value)]:[];
+}
+function renderManualGuide(){
+  const rows=MANUAL_CONTENT[uiLang()]||MANUAL_CONTENT.ko;
+  $('manualContent').innerHTML=`<div class="manual-version">${escapeHtml(t('currentVersion',cfg.version))}</div>`+rows.map(section=>`
+    <section class="manual-section"><h3>${escapeHtml(section.title)}</h3><ul>${section.items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul></section>`).join('');
+}
+async function renderManualUpdates(){
+  $('manualContent').innerHTML='<div class="loading-line"></div>';
+  try{
+    const info=await loadVersionInfo(true),historyRows=Array.isArray(info.history)?info.history:[];
+    $('manualContent').innerHTML=historyRows.length?historyRows.map(row=>{
+      const title=localizedValue(row.title||row.summary||'');
+      const changes=localizedList(row.changes);
+      return `<article class="release-card"><div class="release-head"><strong>${escapeHtml(row.version||'')}</strong><span>${escapeHtml(row.date||'')}</span></div>${title?`<h3>${escapeHtml(title)}</h3>`:''}<ul>${changes.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></article>`;
+    }).join(''):`<div class="manual-empty">${escapeHtml(t('updateHistoryLoadFailed'))}</div>`;
+  }catch(_){
+    $('manualContent').innerHTML=`<div class="manual-empty">${escapeHtml(t('updateHistoryLoadFailed'))}</div>`;
+  }
+}
+function renderManual(){
+  $('manualTitle').textContent=t('manualTitle');
+  $('manualGuideTab').textContent=t('manualGuideTab');
+  $('manualUpdatesTab').textContent=t('manualUpdatesTab');
+  $('replayUpdateBtn').textContent=t('replayUpdate');
+  $('manualGuideTab').classList.toggle('active',manualTab==='guide');
+  $('manualUpdatesTab').classList.toggle('active',manualTab==='updates');
+  $('replayUpdateBtn').hidden=manualTab!=='updates';
+  if(manualTab==='updates')renderManualUpdates();else renderManualGuide();
+}
+function openManual(tab='guide',pushHistory=true){
+  manualTab=tab==='updates'?'updates':'guide';
+  if(!$('updateModal').hidden){
+    $('updateModal').hidden=true;
+    if(history.state?.overlay==='update')history.replaceState({...history.state,overlay:'manual'},'',location.href);
+    pushHistory=false;
+  }
+  $('manualModal').hidden=false;body.classList.add('modal-open');renderManual();
+  if(pushHistory&&history.state?.overlay!=='manual')history.pushState({...history.state,[ALBUM_HISTORY_KEY]:true,overlay:'manual'},'',location.href);
+}
+function closeManual(fromHistory=false){
+  if(!fromHistory&&history.state?.overlay==='manual'){history.back();return}
+  $('manualModal').hidden=true;
+  if($('updateModal').hidden)body.classList.remove('modal-open');
+}
+function renderUpdatePopup(info){
+  const version=String(info?.version||cfg.version);
+  $('updateVersionBadge').textContent=version;
+  $('updateTitle').textContent=t('updateTitle');
+  $('updateSummary').textContent=localizedValue(info?.summary||info?.notes||'');
+  const current=Array.isArray(info?.history)?info.history.find(x=>String(x.version)===version):null;
+  const changes=localizedList(current?.changes||info?.changes||[]);
+  $('updateHighlights').innerHTML=changes.slice(0,5).map(x=>`<li>${escapeHtml(x)}</li>`).join('');
+  $('updateDetailsBtn').textContent=t('updateDetail');
+  $('updateConfirmBtn').textContent=t('updateConfirm');
+}
+function showUpdatePopup(info,force=false,pushHistory=true){
+  const version=String(info?.version||cfg.version||'');
+  if(!force&&lsGet(UPDATE_SEEN_KEY)===version)return false;
+  renderUpdatePopup(info);lsSet(UPDATE_SEEN_KEY,version);
+  $('updateModal').hidden=false;body.classList.add('modal-open');
+  if(pushHistory&&history.state?.overlay!=='update')history.pushState({...history.state,[ALBUM_HISTORY_KEY]:true,overlay:'update'},'',location.href);
+  return true;
+}
+function closeUpdatePopup(fromHistory=false){
+  if(!fromHistory&&history.state?.overlay==='update'){history.back();return}
+  $('updateModal').hidden=true;
+  if($('manualModal').hidden)body.classList.remove('modal-open');
+}
+async function showUpdatePopupIfNeeded(force=false){
+  try{
+    const info=await loadVersionInfo(true);
+    if(String(info?.version||'')!==String(cfg.version||''))return false;
+    return showUpdatePopup(info,force,true);
+  }catch(_){return false}
 }
 async function checkForAppUpdate(force=false){
   if(document.visibilityState!=='visible')return false;
@@ -215,14 +336,12 @@ async function checkForAppUpdate(force=false){
   if(!force&&now-lastUpdateCheck<UPDATE_CHECK_MIN_MS)return false;
   lastUpdateCheck=now;
   try{
-    const res=await fetch('./version.json?ts='+now,{cache:'no-store'});
-    if(!res.ok)return false;
-    const remote=await res.json();
+    const remote=await loadVersionInfo(true);
     const remoteVersion=String(remote?.version||'').trim();
     const currentVersion=String(cfg.version||'').trim();
     if(!remoteVersion||!currentVersion||remoteVersion===currentVersion)return false;
     if(appBusyForUpdate()){pendingAppUpdate=true;return true}
-    location.reload();
+    reloadForVersion(remoteVersion);
     return true;
   }catch(_){return false}
 }
@@ -230,15 +349,18 @@ function normalizeModeInUrl(){
   try{
     const u=new URL(location.href);
     const incoming=String(u.searchParams.get('mode')||'').toLowerCase();
-    if(incoming!=='husband'&&incoming!=='wife')return;
-    u.searchParams.delete('mode');u.searchParams.delete('from');u.searchParams.delete('bridge');
-    history.replaceState(history.state,'',u.pathname+(u.search?u.search:'')+u.hash);
+    let changed=false;
+    if(incoming==='husband'||incoming==='wife'){
+      u.searchParams.delete('mode');u.searchParams.delete('from');u.searchParams.delete('bridge');changed=true;
+    }
+    if(u.searchParams.has('__album_v')){u.searchParams.delete('__album_v');changed=true}
+    if(changed)history.replaceState(history.state,'',u.pathname+(u.search?u.search:'')+u.hash);
   }catch(_){}
 }
 function applyLanguage(){
   const lo=uiLang()==='lo';
   document.documentElement.lang=lo?'lo':'ko';document.title=t('appTitle');
-  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
+  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('manualBtn').textContent=t('manual');$('manualBtn').setAttribute('aria-label',t('manual'));$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
   $('refreshFoldersBtn').textContent=t('refresh');$('folderEmptyTitle').textContent=t('folderEmptyTitle');$('folderEmptyText').textContent=t('folderEmptyText');
   $('uploadHomeTitle').textContent=t('upload');$('uploadHomeText').textContent=t('uploadHint');$('recentTitle').textContent=t('recent');$('recentText').textContent=t('recentHint');
   $('createFolderTitle').textContent=t('createFolder');$('createFolderText').textContent=t('createFolderHint');
@@ -444,34 +566,30 @@ async function downloadSelectedPhotos(){
       const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});
       files.push(new File([data.blob],item.name||('photo-'+(i+1)),{type:data.blob.type||item.mimeType||'image/jpeg'}));
     }
-    downloadBusy=false;$('closeSheet').disabled=false;
-    const shareSupported=!!navigator.share&&(!navigator.canShare||navigator.canShare({files}));
-    if(shareSupported){
-      closeSheet();
-      try{
-        await navigator.share({files,title:t('savePrepared',files.length)});
-        setSelectionMode(false);applyPendingAppUpdate();return;
-      }catch(e){
-        if(e?.name==='AbortError'){applyPendingAppUpdate();return}
-      }
-      openPreparedSaveSheet(files);return;
-    }
-    closeSheet();saveFilesByDownload(files);setSelectionMode(false);applyPendingAppUpdate();
+    downloadBusy=false;$('closeSheet').disabled=false;closeSheet();
+    openPreparedSaveSheet(files);applyPendingAppUpdate();
   }catch(e){
     downloadBusy=false;$('closeSheet').disabled=false;handleApiError(e,t('downloadFailed'));applyPendingAppUpdate();
   }
 }
+function canShareFiles(files){
+  if(typeof navigator.share!=='function')return false;
+  if(typeof navigator.canShare!=='function')return true;
+  try{return !!navigator.canShare({files})}catch(_){return false}
+}
 function openPreparedSaveSheet(files){
+  const shareSupported=canShareFiles(files);
   openSheet(t('savePrepared',files.length),'',[],t('cancel'));
-  const b=document.createElement('button');b.type='button';b.className='sheet-choice save-files-choice';b.innerHTML='<strong>'+escapeHtml(t('saveToPhotos'))+'</strong>';
+  const b=document.createElement('button');b.type='button';b.className='sheet-choice save-files-choice';
+  b.innerHTML='<strong>'+escapeHtml(shareSupported?t('saveToPhotos'):t('saveFiles'))+'</strong>';
   b.addEventListener('click',async()=>{
-    try{
-      await navigator.share({files,title:t('savePrepared',files.length)});
-      closeSheet();setSelectionMode(false);
-    }catch(e){
-      if(e?.name!=='AbortError'){closeSheet();saveFilesByDownload(files);setSelectionMode(false)}
+    if(shareSupported){
+      try{
+        await navigator.share({files,title:t('savePrepared',files.length)});
+        closeSheet();setSelectionMode(false);return;
+      }catch(e){if(e?.name==='AbortError')return}
     }
-    applyPendingAppUpdate();
+    closeSheet();saveFilesByDownload(files);setSelectionMode(false);
   });
   sheetActions.appendChild(b);
 }
@@ -532,18 +650,23 @@ function pumpThumbQueue(){
 }
 async function loadThumb(img){
   const id=img.dataset.fileId;if(!id)return;
-  const version=String(img.dataset.thumbVersion||'');
-  const path='/api/thumb?id='+encodeURIComponent(id)+(version?'&v='+encodeURIComponent(version):'');
-  try{
-    const {blob}=await apiBlob(path,{cache:'force-cache'});
+  const version=String(img.dataset.thumbVersion||''),cacheKey=id+'|'+version;
+  const cached=thumbUrlCache.get(cacheKey);
+  const applyUrl=url=>{
     if(!img.isConnected)return;
-    const url=URL.createObjectURL(blob);
-    thumbUrls.add(url);
     img.addEventListener('load',()=>{
       const placeholder=img.closest('.photo-tile')?.querySelector('.photo-placeholder');
       if(placeholder)placeholder.remove();
     },{once:true});
     img.src=url;img.classList.add('loaded');img.dataset.loaded='1';
+  };
+  if(cached){applyUrl(cached);return}
+  const path='/api/thumb?id='+encodeURIComponent(id)+(version?'&v='+encodeURIComponent(version):'');
+  try{
+    const {blob}=await apiBlob(path,{cache:'force-cache'});
+    if(!img.isConnected)return;
+    const url=URL.createObjectURL(blob);
+    thumbUrls.add(url);thumbUrlCache.set(cacheKey,url);applyUrl(url);
   }catch(_){img.alt=''}
 }
 async function openRecent(pushHistory=true){
@@ -972,6 +1095,16 @@ function syncFromHash(){
 }
 function handleAlbumPopState(e){
   const h=e.state;
+  if(h?.overlay==='update'){
+    if($('updateModal').hidden&&versionInfoCache)showUpdatePopup(versionInfoCache,true,false);
+    return;
+  }
+  if(!$('updateModal').hidden){closeUpdatePopup(true);if(h?.overlay==='manual')return}
+  if(h?.overlay==='manual'){
+    if($('manualModal').hidden)openManual(manualTab,false);
+    return;
+  }
+  if(!$('manualModal').hidden){closeManual(true);return}
   if(!h?.[ALBUM_HISTORY_KEY])return;
   const wasViewer=!viewer.hidden;if(wasViewer)closeViewer(true);
   if(h.view==='recent'){
@@ -985,7 +1118,17 @@ function handleAlbumPopState(e){
   showAlbumHome();
 }
 
+$('manualBtn').addEventListener('click',()=>openManual('guide',true));
 $('mainAppBtn').addEventListener('click',returnToMainApp);
+$('manualCloseBtn').addEventListener('click',()=>closeManual(false));
+$('manualGuideTab').addEventListener('click',()=>{manualTab='guide';renderManual()});
+$('manualUpdatesTab').addEventListener('click',()=>{manualTab='updates';renderManual()});
+$('replayUpdateBtn').addEventListener('click',async()=>{try{showUpdatePopup(await loadVersionInfo(true),true,true)}catch(_){}});
+$('updateConfirmBtn').addEventListener('click',()=>closeUpdatePopup(false));
+$('updateDetailsBtn').addEventListener('click',()=>{
+  if(history.state?.overlay==='update')history.replaceState({...history.state,overlay:'manual'},'',location.href);
+  $('updateModal').hidden=true;openManual('updates',false);
+});
 $('themeBtn').addEventListener('click',e=>{body.classList.toggle('light');e.currentTarget.textContent=body.classList.contains('light')?'☀':'☾'});
 $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEventListener('click',closeFolder);$('refreshFoldersBtn').addEventListener('click',()=>loadFolders(true));
 $('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',openRecent);$('createFolderBtn').addEventListener('click',()=>openCreateFolderSheet(''));
@@ -1007,6 +1150,8 @@ for(const type of ['gesturestart','gesturechange','gestureend']){
 window.addEventListener('resize',()=>{if(!viewer.hidden)applyViewerTransform()});
 window.addEventListener('popstate',handleAlbumPopState);
 backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy&&!downloadBusy&&!deleteBusy)closeSheet()});
+$('manualModal').addEventListener('click',e=>{if(e.target===$('manualModal'))closeManual(false)});
+$('updateModal').addEventListener('click',e=>{if(e.target===$('updateModal'))closeUpdatePopup(false)});
 window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
 window.addEventListener('storage',e=>{if(routeCandidates.some(c=>e.key===c.modeKey||e.key===c.statsKey)){renderSharedRoute();refreshCurrent()}});
 document.addEventListener('visibilitychange',()=>{
@@ -1015,6 +1160,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('focus',()=>checkForAppUpdate(false));
 setInterval(()=>{if(document.visibilityState==='visible')checkForAppUpdate(false)},UPDATE_CHECK_INTERVAL_MS);
-window.addEventListener('beforeunload',()=>{for(const url of thumbUrls)URL.revokeObjectURL(url);thumbUrls.clear()});
+window.addEventListener('beforeunload',()=>{for(const url of thumbUrls)URL.revokeObjectURL(url);thumbUrls.clear();thumbUrlCache.clear()});
 
-applyLanguage();renderSharedRoute();normalizeModeInUrl();initAlbumHistory();loadFolders(false);setTimeout(()=>checkForAppUpdate(true),1800);
+applyLanguage();renderSharedRoute();normalizeModeInUrl();initAlbumHistory();loadFolders(false);
+setTimeout(async()=>{const updating=await checkForAppUpdate(true);if(!updating)showUpdatePopupIfNeeded(false)},1200);
