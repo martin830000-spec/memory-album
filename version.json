@@ -1,5 +1,5 @@
 {
-  "version": "V0.5.0",
-  "build": "20261005-MULTISELECT-DOWNLOAD-R1",
-  "notes": "Adds thumbnail multi-select with ZIP download, including Android and iPhone Safari-friendly single-file ZIP delivery. Also makes viewer Back return to the current album before leaving the app."
+  "version": "V0.5.1",
+  "build": "20261005-AUTO-UPDATE-R1",
+  "notes": "Adds safe automatic update detection. The album checks version.json when reopened, refocused, or periodically while visible and reloads only when no upload or multi-photo download is in progress."
 }
