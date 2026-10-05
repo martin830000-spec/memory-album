@@ -27,6 +27,7 @@ const viewerCounter=$('viewerCounter');
 const viewerLoading=$('viewerLoading');
 
 const MODE_STORAGE='memory_album_user_mode_v1';
+const MAIN_BRIDGE_STORAGE='memory_album_bridge_v1';
 const ACCESS_KEY_STORAGE='translator_primary_password';
 const ACCESS_KEY_FALLBACK_STORAGE='memory_album_access_key_v1';
 const ROUTE_TTL_MS=30*60*1000;
@@ -34,7 +35,7 @@ const AUTO_REFRESH_MS=30*1000;
 
 const I18N={
   ko:{
-    appTitle:'우리의 추억사진첩',appSubtitle:'우리 둘의 소중한 순간을 한곳에',albums:'앨범',refresh:'↻ 새로고침',
+    appTitle:'우리의 추억사진첩',appSubtitle:'우리 둘의 소중한 순간을 한곳에',mainApp:'← 본앱',albums:'앨범',refresh:'↻ 새로고침',
     folderEmptyTitle:'Google Drive 연결 대기',folderEmptyText:'사진첩 전용 연결이 완료되면 Drive 폴더가 그대로 여기에 표시됩니다.',
     upload:'사진 올리기',uploadHint:'폴더를 선택한 뒤 여러 장을 올릴 수 있어요',recent:'최근 사진',recentHint:'새로 추가된 사진 보기',
     folderSubtitle:'Google Drive의 현재 폴더',loadingPhotos:'사진 불러오는 중',sortNewest:'최신순',sortOldest:'오래된순',sortName:'이름순',
@@ -50,7 +51,7 @@ const I18N={
     folderLoadFailed:'폴더 내용을 불러오지 못했습니다.',footer:'For Husband & Wife · Private Memory Album'
   },
   lo:{
-    appTitle:'ອະລະບໍ້າຄວາມຊົງຈຳຂອງເຮົາ',appSubtitle:'ເກັບຮູບແລະຄວາມຊົງຈຳຂອງເຮົາໄວ້ບ່ອນດຽວ',albums:'ອະລະບໍ້າ',refresh:'↻ ໂຫຼດໃໝ່',
+    appTitle:'ອະລະບໍ້າຄວາມຊົງຈຳຂອງເຮົາ',appSubtitle:'ເກັບຮູບແລະຄວາມຊົງຈຳຂອງເຮົາໄວ້ບ່ອນດຽວ',mainApp:'← ແອັບຫຼັກ',albums:'ອະລະບໍ້າ',refresh:'↻ ໂຫຼດໃໝ່',
     folderEmptyTitle:'ລໍຖ້າເຊື່ອມ Google Drive',folderEmptyText:'ເມື່ອເຊື່ອມລະບົບຮູບແລ້ວ ໂຟນເດີໃນ Drive ຈະສະແດງຢູ່ນີ້ຕາມທີ່ມີ.',
     upload:'ອັບໂຫຼດຮູບ',uploadHint:'ເລືອກໂຟນເດີແລ້ວອັບໂຫຼດຫຼາຍຮູບໄດ້',recent:'ຮູບຫຼ້າສຸດ',recentHint:'ເບິ່ງຮູບທີ່ເພີ່ມໃໝ່',
     folderSubtitle:'ໂຟນເດີປັດຈຸບັນໃນ Google Drive',loadingPhotos:'ກຳລັງໂຫຼດຮູບ',sortNewest:'ໃໝ່ສຸດ',sortOldest:'ເກົ່າສຸດ',sortName:'ຕາມຊື່',
@@ -104,6 +105,24 @@ function readIncomingMode(){
   const saved=String(lsGet(MODE_STORAGE)||'').toLowerCase();
   return saved==='wife'?'wife':'husband';
 }
+function readMainBridge(){
+  try{
+    const value=JSON.parse(lsGet(MAIN_BRIDGE_STORAGE)||'{}');
+    return value&&typeof value==='object'?value:{};
+  }catch(_){return{}}
+}
+function returnToMainApp(){
+  const bridge=readMainBridge();
+  let target=String(bridge.returnPath||cfg.mainAppBase||'/wife/');
+  try{
+    const u=new URL(target,location.origin);
+    if(u.origin!==location.origin)throw new Error('cross_origin');
+    if(u.pathname.startsWith('/memory-album'))u.pathname='/wife/';
+    location.href=u.pathname+u.search+u.hash;
+  }catch(_){
+    location.href=String(cfg.mainAppBase||'/wife/');
+  }
+}
 function normalizeModeInUrl(){
   try{
     const u=new URL(location.href);
@@ -116,7 +135,7 @@ function normalizeModeInUrl(){
 function applyLanguage(){
   const lo=uiLang()==='lo';
   document.documentElement.lang=lo?'lo':'ko';document.title=t('appTitle');
-  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('albumSectionTitle').textContent=t('albums');
+  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
   $('refreshFoldersBtn').textContent=t('refresh');$('folderEmptyTitle').textContent=t('folderEmptyTitle');$('folderEmptyText').textContent=t('folderEmptyText');
   $('uploadHomeTitle').textContent=t('upload');$('uploadHomeText').textContent=t('uploadHint');$('recentTitle').textContent=t('recent');$('recentText').textContent=t('recentHint');
   $('folderSubtitle').textContent=t('folderSubtitle');$('folderCount').textContent=t('loadingPhotos');$('uploadFolderBtn').textContent=t('uploadShort');
@@ -365,6 +384,7 @@ function syncFromHash(){
   const f=state.folders.find(x=>String(x.id)===id);if(f)openFolderById(id,true);
 }
 
+$('mainAppBtn').addEventListener('click',returnToMainApp);
 $('themeBtn').addEventListener('click',e=>{body.classList.toggle('light');e.currentTarget.textContent=body.classList.contains('light')?'☀':'☾'});
 $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEventListener('click',closeFolder);$('refreshFoldersBtn').addEventListener('click',()=>loadFolders(true));
 $('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',()=>openSheet(t('recent'),t('recentPending')));
