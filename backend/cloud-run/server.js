@@ -39,7 +39,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.3.2' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.3.3' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -214,7 +214,14 @@ async function getGoogleToken(force = false) {
 
 async function fetchGoogle(url, init = {}, retry = true) {
   let res = await fetch(url, init);
-  if (res.status === 401 && retry) {
+  let firstErrorBody = '';
+  if (!res.ok) firstErrorBody = await res.clone().text().catch(() => '');
+
+  const scopeError =
+    res.status === 403 &&
+    /insufficient authentication scopes|insufficient permission/i.test(firstErrorBody);
+
+  if ((res.status === 401 || scopeError) && retry) {
     tokenCache = { token: '', expiresAt: 0 };
     const token = await getGoogleToken(true);
     const headers = new Headers(init.headers || {});
@@ -222,7 +229,7 @@ async function fetchGoogle(url, init = {}, retry = true) {
     res = await fetch(url, { ...init, headers });
   }
   if (!res.ok) {
-    const body = await res.text().catch(() => '');
+    const body = await res.text().catch(() => firstErrorBody);
     const error = new Error(`google_${res.status}: ${body.slice(0, 300)}`);
     error.status = res.status >= 500 ? 502 : res.status;
     throw error;
