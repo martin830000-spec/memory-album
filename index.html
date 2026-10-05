@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101217" />
+  <title>우리의 추억사진첩</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <p class="kicker">OUR MEMORY</p>
+        <h1>우리의 추억사진첩</h1>
+        <p class="sub">우리 둘의 소중한 순간을 한곳에</p>
+      </div>
+      <button class="round-btn" id="themeBtn" aria-label="테마 변경">☾</button>
+    </header>
+
+    <section class="hero">
+      <div>
+        <span class="live-dot"></span>
+        <strong>사진첩 준비 완료</strong>
+        <p>현재는 UI 미리보기 단계예요. 다음 단계에서 Google Drive를 연결합니다.</p>
+      </div>
+      <span class="badge">UI v0.1</span>
+    </section>
+
+    <section class="section-title">
+      <div>
+        <p class="kicker">ALBUMS</p>
+        <h2>앨범</h2>
+      </div>
+      <button class="link-btn" data-coming="새 앨범 만들기">＋ 새 앨범</button>
+    </section>
+
+    <main class="album-list">
+      <button class="album-card" data-album="결혼사진">
+        <div class="cover wedding"><span>💍</span></div>
+        <div class="album-copy">
+          <div>
+            <h3>결혼사진</h3>
+            <p>우리의 결혼식과 웨딩 촬영</p>
+          </div>
+          <span class="meta">Drive 연결 후 표시</span>
+        </div>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="album-card" data-album="아내 졸업사진">
+        <div class="cover graduation"><span>🎓</span></div>
+        <div class="album-copy">
+          <div>
+            <h3>아내 졸업사진</h3>
+            <p>졸업식과 기념 촬영</p>
+          </div>
+          <span class="meta">Drive 연결 후 표시</span>
+        </div>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="album-card" data-album="우리의 추억">
+        <div class="cover memory"><span>❤️</span></div>
+        <div class="album-copy">
+          <div>
+            <h3>우리의 추억</h3>
+            <p>여행과 일상의 사진 모음</p>
+          </div>
+          <span class="meta">준비 중</span>
+        </div>
+        <span class="chev">›</span>
+      </button>
+    </main>
+
+    <section class="actions">
+      <button class="action-card" data-coming="사진 올리기">
+        <span class="action-icon">＋</span>
+        <div><strong>사진 올리기</strong><small>Drive 연동 후 사용 가능</small></div>
+      </button>
+      <button class="action-card" data-coming="최근 사진">
+        <span class="action-icon">◷</span>
+        <div><strong>최근 사진</strong><small>새로 추가된 사진 보기</small></div>
+      </button>
+    </section>
+
+    <footer>For Husband & Wife · Private Memory Album</footer>
+  </div>
+
+  <div class="backdrop" id="backdrop" hidden>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="handle"></div>
+      <h2 id="sheetTitle">준비 중</h2>
+      <p id="sheetText">Google Drive 연동 후 사용할 수 있어요.</p>
+      <button class="primary" id="closeSheet">확인</button>
+    </section>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
