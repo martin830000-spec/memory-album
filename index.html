@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#101217" />
   <title>우리의 추억사진첩</title>
-  <link rel="stylesheet" href="./style.css?v=0.5.5" />
+  <link rel="stylesheet" href="./style.css?v=0.6.0" />
 </head>
 <body>
   <div class="app">
@@ -16,7 +16,7 @@
         <p class="sub" id="appSubtitle">우리 둘의 소중한 순간을 한곳에</p>
       </div>
       <div class="top-actions">
-        <button class="main-app-btn manual-btn" id="manualBtn" type="button">? 설명서</button>
+        <button class="main-app-btn manual-btn" id="manualBtn" type="button">📖 설명서</button>
         <button class="main-app-btn" id="mainAppBtn" type="button">← 본앱</button>
         <button class="round-btn" id="themeBtn" aria-label="테마 변경">☾</button>
       </div>
@@ -123,32 +123,35 @@
     </section>
   </div>
 
-  <div class="manual-modal" id="manualModal" hidden>
-    <section class="manual-panel" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
-      <header class="manual-head">
-        <div><p class="kicker">GUIDE</p><h2 id="manualTitle">사용설명서</h2></div>
-        <button class="manual-close" id="manualCloseBtn" type="button" aria-label="닫기">×</button>
-      </header>
-      <div class="manual-tabs">
-        <button type="button" id="manualGuideTab">사용법</button>
-        <button type="button" id="manualUpdatesTab">업데이트 내역</button>
-      </div>
-      <div class="manual-content" id="manualContent"></div>
-      <button class="replay-update-btn" id="replayUpdateBtn" type="button" hidden>업데이트 팝업 다시 보기</button>
-    </section>
+  <div id="releaseNoticeOverlay" class="release-notice-overlay" role="dialog" aria-modal="true" aria-labelledby="releaseNoticeTitle" hidden>
+    <div class="release-notice-card"><div class="release-modal-body">
+      <div id="releaseNoticeKo"><h2 id="releaseNoticeTitle">✨ 새 버전으로 업데이트되었습니다</h2><p id="releaseNoticeSubKo" class="release-notice-sub"></p><ul id="releaseNoticeListKo" class="release-notice-list"></ul><div class="release-notice-guide">자세한 내용은 사용설명서의 ‘업데이트 내역’에서 확인하세요.</div></div>
+      <div id="releaseNoticeLo" hidden><h2>✨ ແອັບຮູບໄດ້ອັບເດດເປັນເວີຊັນໃໝ່ແລ້ວ</h2><p id="releaseNoticeSubLo" class="release-notice-sub"></p><ul id="releaseNoticeListLo" class="release-notice-list"></ul><div class="release-notice-guide">ເບິ່ງລາຍລະອຽດໃນ ‘ປະຫວັດອັບເດດ’ ຂອງຄູ່ມື.</div></div>
+    </div><div class="release-modal-footer"><button id="releaseNoticeOk" class="release-notice-ok" type="button">확인</button></div></div>
   </div>
 
-  <div class="update-modal" id="updateModal" hidden>
-    <section class="update-card" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
-      <span class="update-version" id="updateVersionBadge">V0.0.0</span>
-      <h2 id="updateTitle">사진첩이 업데이트됐어요</h2>
-      <p id="updateSummary"></p>
-      <ul id="updateHighlights"></ul>
-      <div class="update-actions">
-        <button type="button" id="updateDetailsBtn">업데이트 내역 상세</button>
-        <button type="button" id="updateConfirmBtn" class="primary">확인</button>
-      </div>
-    </section>
+  <div id="manualUpdateHistoryOverlay" class="release-history-overlay" role="dialog" aria-modal="true" aria-labelledby="manualUpdateHistoryTitle" hidden>
+    <div class="release-history-card"><div class="release-modal-body">
+      <button id="manualUpdateHistoryPreview" class="release-preview-btn" type="button" title="업데이트 팝업 보기" aria-label="업데이트 팝업 보기">🔔</button>
+      <div id="manualUpdateHistoryKo" class="release-history-pane"><h2 id="manualUpdateHistoryTitle">🆕 업데이트 내역</h2><div class="release-history-version">현재 버전: <b data-release-version>--</b></div><div id="manualUpdateHistoryDetailsKo"></div></div>
+      <div id="manualUpdateHistoryLo" class="release-history-pane" hidden><h2>🆕 ປະຫວັດອັບເດດ</h2><div class="release-history-version">ເວີຊັນປັດຈຸບັນ: <b data-release-version>--</b></div><div id="manualUpdateHistoryDetailsLo"></div></div>
+    </div><div class="release-modal-footer"><button id="manualUpdateHistoryClose" class="release-history-close" type="button">닫기</button></div></div>
+  </div>
+
+  <div id="manualLanguagePicker" class="manual-language-picker" role="dialog" aria-modal="true" aria-labelledby="manualLanguagePickerTitle" hidden>
+    <div class="manual-language-card"><div class="manual-language-icon">📖</div><h2 id="manualLanguagePickerTitle">설명서 언어를 선택하세요</h2><p>ເລືອກພາສາສຳລັບຄູ່ມື · Choose the manual language</p>
+      <button id="manualPickerKo" class="manual-language-choice ko" type="button"><span class="flag">🇰🇷</span><span class="choice-copy">한국어 설명서<small>한국어로 사진첩 사용방법 보기</small></span></button>
+      <button id="manualPickerLo" class="manual-language-choice lo" type="button"><span class="flag">🇱🇦</span><span class="choice-copy">ຄູ່ມືພາສາລາວ<small>ເບິ່ງວິທີໃຊ້ອະລະບໍ້າເປັນພາສາລາວ</small></span></button>
+      <button id="manualLanguageCancel" class="manual-language-cancel" type="button">취소 · ຍົກເລີກ</button>
+    </div>
+  </div>
+
+  <div id="unifiedManual" class="manual-overlay" role="dialog" aria-modal="true" aria-label="상세 사용설명서">
+    <div class="manual-wrap"><div class="manual-top"><div class="manual-toprow">
+      <button id="manualCloseBtn" class="manual-close" type="button">← 사진첩으로</button>
+      <button id="manualKoBtn" class="manual-lang active" type="button">🇰🇷 한국어</button>
+      <button id="manualLoBtn" class="manual-lang" type="button">🇱🇦 ພາສາລາວ</button>
+    </div></div><div id="manualContent" class="manual-pane"></div></div>
   </div>
 
   <div class="viewer" id="viewer" hidden>
@@ -181,7 +184,7 @@
     <button class="viewer-nav viewer-next" id="viewerNextBtn" type="button" aria-label="다음 사진">›</button>
   </div>
 
-  <script src="./config.js?v=0.5.5"></script>
-  <script src="./app.js?v=0.5.5"></script>
+  <script src="./config.js?v=0.6.0"></script>
+  <script src="./app.js?v=0.6.0"></script>
 </body>
 </html>

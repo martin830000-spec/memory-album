@@ -40,7 +40,7 @@ const UPDATE_SEEN_KEY='memory_album_update_seen_v1';
 
 const I18N={
   ko:{
-    appTitle:'우리의 추억사진첩',appSubtitle:'우리 둘의 소중한 순간을 한곳에',mainApp:'← 본앱',manual:'? 설명서',manualTitle:'사용설명서',manualGuideTab:'사용법',manualUpdatesTab:'업데이트 내역',replayUpdate:'업데이트 팝업 다시 보기',albums:'앨범',refresh:'↻ 새로고침',
+    appTitle:'우리의 추억사진첩',appSubtitle:'우리 둘의 소중한 순간을 한곳에',mainApp:'← 본앱',manual:'📖 설명서',manualTitle:'사용설명서',manualGuideTab:'사용법',manualUpdatesTab:'업데이트 내역',replayUpdate:'업데이트 팝업 다시 보기',albums:'앨범',refresh:'↻ 새로고침',
     updateTitle:'사진첩이 업데이트됐어요',updateDetail:'업데이트 내역 상세',updateConfirm:'확인',updateHistoryLoadFailed:'업데이트 내역을 불러오지 못했습니다.',currentVersion:v=>`현재 버전 ${v}`,
     folderEmptyTitle:'Google Drive 연결 대기',folderEmptyText:'사진첩 전용 연결이 완료되면 Drive 폴더가 그대로 여기에 표시됩니다.',
     upload:'사진 올리기',uploadHint:'폴더를 선택한 뒤 여러 장을 올릴 수 있어요',recent:'최근 사진',recentHint:'새로 추가된 사진 보기',
@@ -70,7 +70,7 @@ const I18N={
     folderLoadFailed:'폴더 내용을 불러오지 못했습니다.',footer:'For Husband & Wife · Private Memory Album'
   },
   lo:{
-    appTitle:'ອະລະບໍ້າຄວາມຊົງຈຳຂອງເຮົາ',appSubtitle:'ເກັບຮູບແລະຄວາມຊົງຈຳຂອງເຮົາໄວ້ບ່ອນດຽວ',mainApp:'← ແອັບຫຼັກ',manual:'? ຄູ່ມື',manualTitle:'ຄູ່ມືການໃຊ້ງານ',manualGuideTab:'ວິທີໃຊ້',manualUpdatesTab:'ປະຫວັດອັບເດດ',replayUpdate:'ເບິ່ງປັອບອັບອັບເດດອີກຄັ້ງ',albums:'ອະລະບໍ້າ',refresh:'↻ ໂຫຼດໃໝ່',
+    appTitle:'ອະລະບໍ້າຄວາມຊົງຈຳຂອງເຮົາ',appSubtitle:'ເກັບຮູບແລະຄວາມຊົງຈຳຂອງເຮົາໄວ້ບ່ອນດຽວ',mainApp:'← ແອັບຫຼັກ',manual:'📖 ຄູ່ມື',manualTitle:'ຄູ່ມືການໃຊ້ງານ',manualGuideTab:'ວິທີໃຊ້',manualUpdatesTab:'ປະຫວັດອັບເດດ',replayUpdate:'ເບິ່ງປັອບອັບອັບເດດອີກຄັ້ງ',albums:'ອະລະບໍ້າ',refresh:'↻ ໂຫຼດໃໝ່',
     updateTitle:'ອະລະບໍ້າຮູບຖືກອັບເດດແລ້ວ',updateDetail:'ເບິ່ງລາຍລະອຽດອັບເດດ',updateConfirm:'ຕົກລົງ',updateHistoryLoadFailed:'ບໍ່ສາມາດໂຫຼດປະຫວັດອັບເດດໄດ້.',currentVersion:v=>`ເວີຊັນປັດຈຸບັນ ${v}`,
     folderEmptyTitle:'ລໍຖ້າເຊື່ອມ Google Drive',folderEmptyText:'ເມື່ອເຊື່ອມລະບົບຮູບແລ້ວ ໂຟນເດີໃນ Drive ຈະສະແດງຢູ່ນີ້ຕາມທີ່ມີ.',
     upload:'ອັບໂຫຼດຮູບ',uploadHint:'ເລືອກໂຟນເດີແລ້ວອັບໂຫຼດຫຼາຍຮູບໄດ້',recent:'ຮູບຫຼ້າສຸດ',recentHint:'ເບິ່ງຮູບທີ່ເພີ່ມໃໝ່',
@@ -230,8 +230,12 @@ function showAlbumHome(){
   state.currentFolder=null;state.folderStack=[];state.childFolders=[];state.media=[];
   folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
 }
+function manualPickerOpen(){return $('manualLanguagePicker').classList.contains('show')}
+function manualOpen(){return $('unifiedManual').classList.contains('show')}
+function updateHistoryOpen(){return !$('manualUpdateHistoryOverlay').hidden}
+function releaseNoticeOpen(){return !$('releaseNoticeOverlay').hidden}
 function appBusyForUpdate(){
-  return uploadBusy||downloadBusy||deleteBusy||preparedSaveActive||selectionMode||!viewer.hidden||!backdrop.hidden||!$('manualModal').hidden||!$('updateModal').hidden;
+  return uploadBusy||downloadBusy||deleteBusy||preparedSaveActive||selectionMode||!viewer.hidden||!backdrop.hidden||manualPickerOpen()||manualOpen()||updateHistoryOpen()||releaseNoticeOpen();
 }
 function reloadForVersion(version){
   const u=new URL(location.href);
@@ -240,114 +244,161 @@ function reloadForVersion(version){
 }
 function applyPendingAppUpdate(){
   if(!pendingAppUpdate||appBusyForUpdate())return false;
-  pendingAppUpdate=false;
-  checkForAppUpdate(true);
-  return true;
+  pendingAppUpdate=false;checkForAppUpdate(true);return true;
 }
 async function loadVersionInfo(force=false){
   if(versionInfoCache&&!force)return versionInfoCache;
   const res=await fetch('./version.json?ts='+Date.now(),{cache:'no-store'});
   if(!res.ok)throw new Error('version_load_failed');
-  versionInfoCache=await res.json();
-  return versionInfoCache;
+  versionInfoCache=await res.json();return versionInfoCache;
 }
-function localizedValue(value){
-  if(value&&typeof value==='object'&&!Array.isArray(value))return String(value[uiLang()]??value.ko??Object.values(value)[0]??'');
+function localizedValue(value,lang=uiLang()){
+  if(value&&typeof value==='object'&&!Array.isArray(value))return String(value[lang]??value.ko??Object.values(value)[0]??'');
   return String(value??'');
 }
-function localizedList(value){
-  if(value&&typeof value==='object'&&!Array.isArray(value))value=value[uiLang()]??value.ko??[];
+function localizedList(value,lang=uiLang()){
+  if(value&&typeof value==='object'&&!Array.isArray(value))value=value[lang]??value.ko??[];
   return Array.isArray(value)?value.map(x=>String(x)):value?[String(value)]:[];
 }
-function renderManualGuide(){
-  const rows=MANUAL_CONTENT[uiLang()]||MANUAL_CONTENT.ko;
-  $('manualContent').innerHTML=`<div class="manual-version">${escapeHtml(t('currentVersion',cfg.version))}</div>`+rows.map(section=>`
-    <section class="manual-section"><h3>${escapeHtml(section.title)}</h3><ul>${section.items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul></section>`).join('');
+function manualCopy(lang){
+  return lang==='lo'?{
+    heroBanner:'🇱🇦 ຄູ່ມືພາສາລາວ',title:'💑 ອະລະບໍ້າຄວາມຊົງຈຳ',lead:'ເບິ່ງໂຟນເດີ → ເລືອກຮູບ → ເບິ່ງ/ຊູມ → ບັນທຶກ ຫຼື ແບ່ງປັນ. ຈື່ພຽງຂັ້ນຕອນນີ້ກໍໃຊ້ໄດ້.',
+    update:'🆕 ປະຫວັດອັບເດດ',flow:['📁 ໂຟນເດີ','🖼️ ເລືອກຮູບ','🔎 ເບິ່ງ/ຊູມ','💾 ບັນທຶກ'],
+    shotKicker:'ເບິ່ງໜ້າຈໍແລ້ວເຮັດຕາມ',shotTitle:'🚀 1. ໜ້າຈໍຫຼັກ ແລະ ໂຟນເດີ',homeCap:'ໜ້າຫຼັກ · ເລືອກອະລະບໍ້າ, ຮູບຫຼ້າສຸດ, ອັບໂຫຼດ ແລະ ສ້າງໂຟນເດີ',folderCap:'ໜ້າໂຟນເດີ · ເບິ່ງຮູບ, ຈັດລຽງ, ເລືອກຫຼາຍຮູບ',
+    folderTitle:'📁 2. ໂຟນເດີ · ຮູບຫຼ້າສຸດ',folderItems:['ໜ້າຫຼັກສະແດງໂຟນເດີ Google Drive ຂອງອະລະບໍ້າ.','ປຸ່ມ “ຮູບຫຼ້າສຸດ” ຮວບຮວມຮູບທີ່ເພີ່ມໃໝ່ໂດຍບໍ່ຈຳກັດໂຟນເດີ.','ສາມາດສ້າງໂຟນເດີຈາກໜ້າຫຼັກ ຫຼື ພາຍໃນໂຟນເດີ.'],
+    selectTitle:'☑️ 3. ເລືອກຫຼາຍຮູບ',selectItems:['ກົດຄ້າງຮູບຕົວຢ່າງປະມານ 0.4 ວິນາທີ ເພື່ອເຂົ້າໂໝດເລືອກແບບ Gallery.','ແຕະຮູບອື່ນເພື່ອເພີ່ມ/ຍົກເລີກ ແລະ ໃຊ້ “ເລືອກທັງໝົດ” ໄດ້.','ຫຼັງເລືອກ ສາມາດບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບພ້ອມກັນ.'],
+    viewerKicker:'ຮູບຕົ້ນສະບັບ',viewerTitle:'🔎 4. ເບິ່ງ · ຊູມ · ປັດປ່ຽນຮູບ',viewerCap:'ໜ້າຮູບຕົ້ນສະບັບ · ແບ່ງປັນ, ດາວໂຫຼດ, ລຶບ ແລະ ປັດປ່ຽນຮູບ',
+    viewerItems:['ເມື່ອບໍ່ຊູມ ປັດຊ້າຍ/ຂວາເພື່ອໄປຮູບກ່ອນ ຫຼື ຮູບຖັດໄປ.','ໃຊ້ສອງນິ້ວເພື່ອຊູມ; ເມື່ອຊູມແລ້ວໃຊ້ນິ້ວດຽວເລື່ອນຊ້າຍ·ຂວາ·ເທິງ·ລຸ່ມ.','ປຸ່ມດ້ານເທິງມີ ແບ່ງປັນ, ດາວໂຫຼດ ແລະ ລຶບ.'],
+    uploadTitle:'⬆️ 5. ອັບໂຫຼດຮູບ',uploadItems:['ປຸ່ມ ＋ ອັບໂຫຼດ ສາມາດເລືອກຫຼາຍຮູບພ້ອມກັນ.','ຈະສະແດງຄວາມຄືບໜ້າຮູບປັດຈຸບັນ ແລະ ຄວາມຄືບໜ້າລວມ.','ຫຼັງສົ່ງໄຟລ໌ ຈະສະແດງຂັ້ນ “ກຳລັງບັນທຶກເຂົ້າ Google Drive”.'],
+    saveTitle:'💾 6. ບັນທຶກ · ແບ່ງປັນ',saveItems:['ຮູບດຽວໃຊ້ປຸ່ມດາວໂຫຼດ ຫຼື ແບ່ງປັນໃນໜ້າຮູບ.','ຫຼາຍຮູບຈະກຽມໄຟລ໌ຕົ້ນສະບັບ ແລ້ວເປີດໜ້າບັນທຶກ/Share ຂອງໂທລະສັບ.','iPhone Safari ໃຫ້ເລືອກ “Save Images”; Android ໃຫ້ໃຊ້ລາຍການບັນທຶກ/ແບ່ງປັນຂອງເຄື່ອງ.'],
+    deleteTitle:'🗑️ 7. ລຶບ · ກູ້ຄືນ',deleteItems:['ການລຶບຮູບ, ຫຼາຍຮູບ ແລະ ໂຟນເດີຈະສະແດງ ຍົກເລີກ / ຢືນຢັນ ກ່ອນ.','ລາຍການທີ່ລຶບຈະຍ້າຍໄປ Google Drive Trash ແລະ ສາມາດກູ້ຄືນໄດ້.'],
+    updateTitle:'🔄 8. ອັບເດດອັດຕະໂນມັດ',updateItems:['ອະລະບໍ້າຈະກວດຫາເວີຊັນໃໝ່ອັດຕະໂນມັດ.','ຖ້າກຳລັງເບິ່ງຮູບ, ເລືອກຮູບ, ອັບໂຫຼດ ຫຼື ບັນທຶກ ຈະລໍຖ້າໃຫ້ວຽກຈົບກ່ອນອັບເດດ.','ຫຼັງອັບເດດຈະມີປັອບອັບແຈ້ງການໜຶ່ງຄັ້ງ.'],
+    tip:'TIP · ຖ້າຮູບມີຈຳນວນຫຼາຍ ໃຫ້ແບ່ງບັນທຶກ/ອັບໂຫຼດເປັນຫຼາຍຄັ້ງ ເພື່ອໃຫ້ Safari/Chrome ເຮັດວຽກສະຖຽນ.',
+    footer:'ຄູ່ມືຢູ່ໃນແອັບ ແລະ ບໍ່ຕ້ອງເປີດເວັບພາຍນອກ.'
+  }:{
+    heroBanner:'🇰🇷 한국어 사용 가이드',title:'💑 우리의 추억사진첩',lead:'폴더 보기 → 사진 선택 → 원본 보기/확대 → 저장·공유. 이 흐름만 알면 바로 사용할 수 있습니다.',
+    update:'🆕 업데이트 내역',flow:['📁 폴더','🖼️ 사진 선택','🔎 보기/확대','💾 저장'],
+    shotKicker:'화면을 보면서 따라 하기',shotTitle:'🚀 1. 메인 화면과 폴더',homeCap:'메인 화면 · 앨범 선택, 최근 사진, 업로드와 새 폴더',folderCap:'폴더 화면 · 사진 보기, 정렬, 여러 장 선택',
+    folderTitle:'📁 2. 폴더 · 최근 사진',folderItems:['메인 화면에는 Google Drive의 사진첩 폴더가 그대로 표시됩니다.','‘최근 사진’에서는 폴더와 관계없이 최근 추가한 사진을 모아서 볼 수 있습니다.','새 폴더는 메인 화면 또는 폴더 안의 ＋ 폴더 버튼으로 만들 수 있습니다.'],
+    selectTitle:'☑️ 3. 여러 장 선택',selectItems:['썸네일 한 장을 약 0.4초 길게 누르면 삼성 갤러리처럼 선택 모드가 시작됩니다.','선택 모드에서 다른 사진을 눌러 추가·해제할 수 있고 ‘전체 선택’도 사용할 수 있습니다.','선택한 사진은 여러 장 저장하거나 한 번에 삭제할 수 있습니다.'],
+    viewerKicker:'원본 사진 보기',viewerTitle:'🔎 4. 보기 · 확대 · 좌우 스와이프',viewerCap:'원본 사진 화면 · 공유, 다운로드, 삭제와 좌우 스와이프',
+    viewerItems:['확대하지 않은 상태에서는 좌우로 스와이프해 이전·다음 사진으로 이동합니다.','두 손가락으로 확대·축소하고, 확대된 상태에서는 한 손가락으로 좌우·상하 이동합니다.','상단의 공유·다운로드·삭제 버튼으로 현재 사진을 바로 처리할 수 있습니다.'],
+    uploadTitle:'⬆️ 5. 사진 업로드',uploadItems:['＋ 업로드에서 여러 사진을 한 번에 선택할 수 있습니다.','현재 사진 진행률과 전체 진행률을 따로 표시합니다.','전송이 끝난 뒤 ‘Google Drive에 저장 중’ 단계가 표시되고 완료 후 목록을 갱신합니다.'],
+    saveTitle:'💾 6. 저장 · 공유',saveItems:['한 장은 원본 화면의 다운로드 또는 공유 버튼을 사용합니다.','여러 장은 원본을 준비한 뒤 휴대폰의 시스템 저장/공유 화면을 엽니다.','iPhone Safari에서는 공유 화면의 ‘이미지 저장’, Android에서는 기기의 저장/공유 항목을 사용하면 됩니다.'],
+    deleteTitle:'🗑️ 7. 삭제 · 복구',deleteItems:['사진·여러 사진·폴더 삭제는 모두 취소 / 확인 화면을 거친 뒤 실행됩니다.','삭제된 항목은 Google Drive 휴지통으로 이동하므로 실수로 삭제했으면 휴지통에서 복구할 수 있습니다.'],
+    updateTitle:'🔄 8. 자동 업데이트',updateItems:['사진첩은 새 버전을 자동으로 확인합니다.','사진 보기·선택·업로드·저장 중에는 강제로 새로고침하지 않고 작업이 끝난 뒤 업데이트합니다.','업데이트 후에는 본앱처럼 주요 변경점을 한 번 팝업으로 알려줍니다.'],
+    tip:'TIP · 사진이 아주 많을 때는 Safari/Chrome 안정성을 위해 저장·업로드를 여러 번에 나누면 더 좋습니다.',
+    footer:'상세 설명서는 사진첩 안에 포함되어 있으며 별도 인터넷 페이지를 열지 않습니다.'
+  };
 }
-async function renderManualUpdates(){
-  $('manualContent').innerHTML='<div class="loading-line"></div>';
-  try{
-    const info=await loadVersionInfo(true),historyRows=Array.isArray(info.history)?info.history:[];
-    $('manualContent').innerHTML=historyRows.length?historyRows.map(row=>{
-      const title=localizedValue(row.title||row.summary||'');
-      const changes=localizedList(row.changes);
-      return `<article class="release-card"><div class="release-head"><strong>${escapeHtml(row.version||'')}</strong><span>${escapeHtml(row.date||'')}</span></div>${title?`<h3>${escapeHtml(title)}</h3>`:''}<ul>${changes.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></article>`;
-    }).join(''):`<div class="manual-empty">${escapeHtml(t('updateHistoryLoadFailed'))}</div>`;
-  }catch(_){
-    $('manualContent').innerHTML=`<div class="manual-empty">${escapeHtml(t('updateHistoryLoadFailed'))}</div>`;
-  }
+function manualShotSvg(kind,lang){
+  const lo=lang==='lo';
+  const label=kind==='home'?(lo?'ອະລະບໍ້າ':'앨범'):kind==='folder'?(lo?'ໂຟນເດີຮູບ':'졸업사진'):lo?'ຮູບ 12 / 105':'12 / 105';
+  const sub=kind==='home'?(lo?'ຮູບຫຼ້າສຸດ · ອັບໂຫຼດ · ໂຟນເດີ':'최근 사진 · 업로드 · 새 폴더'):kind==='folder'?(lo?'ເລືອກຮູບ · ຈັດລຽງ':'사진 선택 · 최신순'):lo?'ແບ່ງປັນ   ດາວໂຫຼດ   ລຶບ':'공유   다운로드   삭제';
+  const tiles=kind==='home'
+    ?'<rect x="26" y="150" width="308" height="82" rx="17" fill="#1d212a" stroke="#343946"/><rect x="40" y="163" width="58" height="56" rx="13" fill="#9d5872"/><text x="116" y="184" fill="#fff" font-size="15" font-weight="700">🎓 Graduation</text><text x="116" y="205" fill="#9aa2ad" font-size="10">Google Drive</text><rect x="26" y="246" width="148" height="70" rx="15" fill="#1d212a" stroke="#343946"/><rect x="186" y="246" width="148" height="70" rx="15" fill="#1d212a" stroke="#343946"/><rect x="26" y="328" width="308" height="70" rx="15" fill="#1d212a" stroke="#343946"/>'
+    :kind==='folder'
+    ?Array.from({length:9},(_,i)=>{const x=26+(i%3)*104,y=155+Math.floor(i/3)*104;return '<rect x="'+x+'" y="'+y+'" width="96" height="96" rx="8" fill="'+(i%2?'#b8788e':'#795d67')+'"/><circle cx="'+(x+78)+'" cy="'+(y+18)+'" r="10" fill="#ffffff33"/>';}).join('')
+    :'<rect x="18" y="118" width="324" height="445" rx="10" fill="#342c31"/><circle cx="180" cy="340" r="105" fill="#7e5965"/><circle cx="180" cy="340" r="72" fill="#b07688"/><path d="M32 340h28M300 340h28" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M48 330l-10 10 10 10M312 330l10 10-10 10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="360" height="640" viewBox="0 0 360 640"><rect width="360" height="640" rx="28" fill="#101217"/><rect x="14" y="14" width="332" height="52" rx="14" fill="#171a21" stroke="#343946"/><text x="28" y="35" fill="#ff9ab2" font-size="9" font-family="Arial,sans-serif" font-weight="700">OUR MEMORY</text><text x="28" y="55" fill="#fff" font-size="16" font-family="Arial,sans-serif" font-weight="700">'+label+'</text><text x="330" y="46" text-anchor="end" fill="#fff" font-size="11" font-family="Arial,sans-serif">☾</text><text x="26" y="104" fill="#f7f8fa" font-size="18" font-family="Arial,sans-serif" font-weight="700">'+label+'</text><text x="26" y="126" fill="#9aa2ad" font-size="10" font-family="Arial,sans-serif">'+sub+'</text>'+tiles+'<rect x="22" y="592" width="316" height="28" rx="12" fill="#171a21"/><text x="180" y="610" text-anchor="middle" fill="#9aa2ad" font-size="9" font-family="Arial,sans-serif">For Husband &amp; Wife · Private Memory Album</text></svg>';
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
-function renderManual(){
-  $('manualTitle').textContent=t('manualTitle');
-  $('manualGuideTab').textContent=t('manualGuideTab');
-  $('manualUpdatesTab').textContent=t('manualUpdatesTab');
-  $('replayUpdateBtn').textContent=t('replayUpdate');
-  $('manualGuideTab').classList.toggle('active',manualTab==='guide');
-  $('manualUpdatesTab').classList.toggle('active',manualTab==='updates');
-  $('replayUpdateBtn').hidden=manualTab!=='updates';
-  if(manualTab==='updates')renderManualUpdates();else renderManualGuide();
+function syncManualScreenshots(lang){
+  document.querySelectorAll('[data-manual-shot]').forEach(img=>{img.src=manualShotSvg(img.dataset.manualShot,lang)});
 }
-function openManual(tab='guide',pushHistory=true){
-  manualTab=tab==='updates'?'updates':'guide';
-  if(!$('updateModal').hidden){
-    $('updateModal').hidden=true;
-    if(history.state?.overlay==='update')history.replaceState({...history.state,overlay:'manual'},'',location.href);
-    pushHistory=false;
-  }
-  $('manualModal').hidden=false;body.classList.add('modal-open');renderManual();
+function manualCard(title,items){
+  return '<section class="manual-card manual-renew-card"><h2>'+escapeHtml(title)+'</h2><div class="manual-do-grid">'+items.map(x=>'<div class="manual-do">'+escapeHtml(x)+'</div>').join('')+'</div></section>';
+}
+function renderUnifiedManual(lang=manualLanguage){
+  manualLanguage=lang==='lo'?'lo':'ko';
+  const c=manualCopy(manualLanguage),pane=$('manualContent');
+  $('manualKoBtn').classList.toggle('active',manualLanguage==='ko');$('manualLoBtn').classList.toggle('active',manualLanguage==='lo');
+  $('manualCloseBtn').textContent=manualLanguage==='lo'?'← ກັບອະລະບໍ້າ':'← 사진첩으로';
+  pane.innerHTML='<section class="manual-hero manual-renew"><div class="manual-language-banner">'+c.heroBanner+'</div><h1>'+c.title+'</h1><div class="manual-sub">'+escapeHtml(cfg.version)+' · Android / iPhone / PC</div><p class="manual-lead">'+c.lead+'</p><button class="manual-update-history-btn" type="button" id="manualUpdateHistoryBtn">'+c.update+'</button><div class="manual-fastflow">'+c.flow.map(x=>'<div><b>'+x.split(' ')[0]+'</b>'+escapeHtml(x.split(' ').slice(1).join(' '))+'</div>').join('')+'</div></section>'+
+    '<section class="manual-card manual-renew-card"><div class="manual-kicker2">'+c.shotKicker+'</div><h2>'+c.shotTitle+'</h2><div class="manual-shot-two"><figure class="manual-shot-clean"><img data-manual-shot="home" alt=""><figcaption>'+c.homeCap+'</figcaption></figure><figure class="manual-shot-clean"><img data-manual-shot="folder" alt=""><figcaption>'+c.folderCap+'</figcaption></figure></div></section>'+
+    manualCard(c.folderTitle,c.folderItems)+manualCard(c.selectTitle,c.selectItems)+
+    '<section class="manual-card manual-renew-card"><div class="manual-kicker2">'+c.viewerKicker+'</div><h2>'+c.viewerTitle+'</h2><div class="manual-shot-one"><figure class="manual-shot-clean"><img data-manual-shot="viewer" alt=""><figcaption>'+c.viewerCap+'</figcaption></figure></div><div class="manual-do-grid">'+c.viewerItems.map(x=>'<div class="manual-do">'+escapeHtml(x)+'</div>').join('')+'</div></section>'+
+    manualCard(c.uploadTitle,c.uploadItems)+manualCard(c.saveTitle,c.saveItems)+manualCard(c.deleteTitle,c.deleteItems)+manualCard(c.updateTitle,c.updateItems)+
+    '<div class="manual-mini-tip"><b>TIP</b> '+escapeHtml(c.tip.replace(/^TIP\s*·?\s*/i,''))+'</div><div class="manual-footer">'+escapeHtml(cfg.version)+' · '+escapeHtml(c.footer)+'</div>';
+  syncManualScreenshots(manualLanguage);
+  $('manualUpdateHistoryBtn')?.addEventListener('click',()=>openManualUpdateHistory(manualLanguage,true));
+}
+function openManualLanguagePicker(pushHistory=true){
+  $('manualLanguagePicker').hidden=false;requestAnimationFrame(()=>$('manualLanguagePicker').classList.add('show'));body.classList.add('modal-open');
+  if(pushHistory&&history.state?.overlay!=='manual-picker')history.pushState({...history.state,[ALBUM_HISTORY_KEY]:true,overlay:'manual-picker'},'',location.href);
+}
+function closeManualLanguagePicker(fromHistory=false){
+  if(!fromHistory&&history.state?.overlay==='manual-picker'){history.back();return}
+  $('manualLanguagePicker').classList.remove('show');
+  setTimeout(()=>{$('manualLanguagePicker').hidden=true;if(!manualOpen()&&!updateHistoryOpen()&&!releaseNoticeOpen())body.classList.remove('modal-open')},160);
+  if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),180);
+}
+function chooseManualLanguage(lang){
+  manualLanguage=lang==='lo'?'lo':'ko';$('manualLanguagePicker').classList.remove('show');$('manualLanguagePicker').hidden=true;
+  if(history.state?.overlay==='manual-picker')history.replaceState({...history.state,overlay:'manual'},'',location.href);
+  openUnifiedManual(manualLanguage,false);
+}
+function setManualLanguage(lang){renderUnifiedManual(lang)}
+function openUnifiedManual(lang=uiLang(),pushHistory=true){
+  manualLanguage=lang==='lo'?'lo':'ko';$('unifiedManual').classList.add('show');body.classList.add('modal-open');renderUnifiedManual(manualLanguage);$('unifiedManual').scrollTop=0;
   if(pushHistory&&history.state?.overlay!=='manual')history.pushState({...history.state,[ALBUM_HISTORY_KEY]:true,overlay:'manual'},'',location.href);
 }
-function closeManual(fromHistory=false){
+function closeUnifiedManual(fromHistory=false){
   if(!fromHistory&&history.state?.overlay==='manual'){history.back();return}
-  $('manualModal').hidden=true;
-  if($('updateModal').hidden)body.classList.remove('modal-open');
+  $('unifiedManual').classList.remove('show');if(!manualPickerOpen()&&!updateHistoryOpen()&&!releaseNoticeOpen())body.classList.remove('modal-open');
   if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
-function renderUpdatePopup(info){
-  const version=String(info?.version||cfg.version);
-  $('updateVersionBadge').textContent=version;
-  $('updateTitle').textContent=t('updateTitle');
-  $('updateSummary').textContent=localizedValue(info?.summary||info?.notes||'');
-  const current=Array.isArray(info?.history)?info.history.find(x=>String(x.version)===version):null;
-  const changes=localizedList(current?.changes||info?.changes||[]);
-  $('updateHighlights').innerHTML=changes.slice(0,5).map(x=>`<li>${escapeHtml(x)}</li>`).join('');
-  $('updateDetailsBtn').textContent=t('updateDetail');
-  $('updateConfirmBtn').textContent=t('updateConfirm');
+async function renderUpdateHistory(lang=manualLanguage){
+  try{
+    const info=await loadVersionInfo(true),rows=Array.isArray(info.history)?info.history:[];
+    document.querySelectorAll('[data-release-version]').forEach(el=>el.textContent=String(info.version||cfg.version));
+    const target=lang==='lo'?$('manualUpdateHistoryDetailsLo'):$('manualUpdateHistoryDetailsKo');
+    target.innerHTML=rows.map((row,i)=>{const title=localizedValue(row.title||row.summary||'',lang),changes=localizedList(row.changes,lang);return '<section class="release-history-section"><h3>'+escapeHtml((i===0?'✨ ':'')+(row.version||'')+(title?' · '+title:''))+'</h3><div class="release-history-date">'+escapeHtml(row.date||'')+'</div><ul>'+changes.map(x=>'<li>'+escapeHtml(x)+'</li>').join('')+'</ul></section>';}).join('');
+  }catch(_){const target=lang==='lo'?$('manualUpdateHistoryDetailsLo'):$('manualUpdateHistoryDetailsKo');target.innerHTML='<div class="manual-empty">'+escapeHtml(t('updateHistoryLoadFailed'))+'</div>'}
 }
-function showUpdatePopup(info,force=false,pushHistory=true){
-  const version=String(info?.version||cfg.version||'');
-  if(!force&&lsGet(UPDATE_SEEN_KEY)===version)return false;
-  renderUpdatePopup(info);lsSet(UPDATE_SEEN_KEY,version);
-  $('updateModal').hidden=false;body.classList.add('modal-open');
-  if(pushHistory&&history.state?.overlay!=='update')history.pushState({...history.state,[ALBUM_HISTORY_KEY]:true,overlay:'update'},'',location.href);
-  return true;
+async function openManualUpdateHistory(lang=manualLanguage,pushHistory=true){
+  manualLanguage=lang==='lo'?'lo':'ko';$('manualUpdateHistoryKo').hidden=manualLanguage!=='ko';$('manualUpdateHistoryLo').hidden=manualLanguage!=='lo';
+  $('manualUpdateHistoryClose').textContent=manualLanguage==='lo'?'ປິດ':'닫기';$('manualUpdateHistoryPreview').title=manualLanguage==='lo'?'ເບິ່ງປັອບອັບອັບເດດ':'업데이트 팝업 보기';$('manualUpdateHistoryPreview').setAttribute('aria-label',$('manualUpdateHistoryPreview').title);
+  await renderUpdateHistory(manualLanguage);$('manualUpdateHistoryOverlay').hidden=false;body.classList.add('modal-open');
+  if(pushHistory&&history.state?.overlay!=='history')history.pushState({...history.state,[ALBUM_HISTORY_KEY]:true,overlay:'history'},'',location.href);
 }
-function closeUpdatePopup(fromHistory=false){
-  if(!fromHistory&&history.state?.overlay==='update'){history.back();return}
-  $('updateModal').hidden=true;
-  if($('manualModal').hidden)body.classList.remove('modal-open');
+function closeManualUpdateHistory(fromHistory=false){
+  if(!fromHistory&&history.state?.overlay==='history'){history.back();return}
+  $('manualUpdateHistoryOverlay').hidden=true;if(!manualOpen()&&!manualPickerOpen()&&!releaseNoticeOpen())body.classList.remove('modal-open');
+  if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
+}
+function renderReleaseNotice(info,lang=uiLang()){
+  const version=String(info?.version||cfg.version),current=Array.isArray(info?.history)?info.history.find(x=>String(x.version)===version):null;
+  const summary=localizedValue(info?.summary||current?.title||'',lang),changes=localizedList(current?.changes||info?.changes||[],lang).slice(0,5);
+  $('releaseNoticeKo').hidden=lang!=='ko';$('releaseNoticeLo').hidden=lang!=='lo';
+  $('releaseNoticeSubKo').textContent=lang==='ko'?version+(summary?' · '+summary:''):'';
+  $('releaseNoticeSubLo').textContent=lang==='lo'?version+(summary?' · '+summary:''):'';
+  $('releaseNoticeListKo').innerHTML=lang==='ko'?changes.map(x=>'<li>'+escapeHtml(x)+'</li>').join(''):'';
+  $('releaseNoticeListLo').innerHTML=lang==='lo'?changes.map(x=>'<li>'+escapeHtml(x)+'</li>').join(''):'';
+  $('releaseNoticeOk').textContent=lang==='lo'?'ຕົກລົງ':'확인';
+}
+function showReleaseNotice(info,force=false,pushHistory=true,lang=uiLang(),preview=false){
+  const version=String(info?.version||cfg.version||'');if(!force&&lsGet(UPDATE_SEEN_KEY)===version)return false;if(!preview)lsSet(UPDATE_SEEN_KEY,version);
+  renderReleaseNotice(info,lang);$('releaseNoticeOverlay').hidden=false;body.classList.add('modal-open');
+  const overlayName=preview?'update-preview':'update';if(pushHistory&&history.state?.overlay!==overlayName)history.pushState({...history.state,[ALBUM_HISTORY_KEY]:true,overlay:overlayName},'',location.href);return true;
+}
+function closeReleaseNotice(fromHistory=false){
+  const ov=history.state?.overlay;if(!fromHistory&&(ov==='update'||ov==='update-preview')){history.back();return}
+  $('releaseNoticeOverlay').hidden=true;if(!manualOpen()&&!manualPickerOpen()&&!updateHistoryOpen())body.classList.remove('modal-open');
   if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
 async function showUpdatePopupIfNeeded(force=false){
-  try{
-    const info=await loadVersionInfo(true);
-    if(String(info?.version||'')!==String(cfg.version||''))return false;
-    return showUpdatePopup(info,force,true);
-  }catch(_){return false}
+  try{const info=await loadVersionInfo(true);if(String(info?.version||'')!==String(cfg.version||''))return false;return showReleaseNotice(info,force,true,uiLang(),false)}catch(_){return false}
 }
+async function previewUpdatePopup(){try{showReleaseNotice(await loadVersionInfo(true),true,true,manualLanguage,true)}catch(_){}}
 async function checkForAppUpdate(force=false){
   if(document.visibilityState!=='visible')return false;
-  const now=Date.now();
-  if(!force&&now-lastUpdateCheck<UPDATE_CHECK_MIN_MS)return false;
-  lastUpdateCheck=now;
+  const now=Date.now();if(!force&&now-lastUpdateCheck<UPDATE_CHECK_MIN_MS)return false;lastUpdateCheck=now;
   try{
-    const remote=await loadVersionInfo(true);
-    const remoteVersion=String(remote?.version||'').trim();
-    const currentVersion=String(cfg.version||'').trim();
+    const remote=await loadVersionInfo(true),remoteVersion=String(remote?.version||'').trim(),currentVersion=String(cfg.version||'').trim();
     if(!remoteVersion||!currentVersion||remoteVersion===currentVersion)return false;
     if(appBusyForUpdate()){pendingAppUpdate=true;return true}
-    reloadForVersion(remoteVersion);
-    return true;
+    reloadForVersion(remoteVersion);return true;
   }catch(_){return false}
 }
 function normalizeModeInUrl(){
@@ -365,7 +416,7 @@ function normalizeModeInUrl(){
 function applyLanguage(){
   const lo=uiLang()==='lo';
   document.documentElement.lang=lo?'lo':'ko';document.title=t('appTitle');
-  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('manualBtn').textContent=t('manual');$('manualBtn').setAttribute('aria-label',t('manual'));$('manualCloseBtn').setAttribute('aria-label',t('close'));$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
+  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('manualBtn').textContent=t('manual');$('manualBtn').setAttribute('aria-label',t('manual'));$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
   $('refreshFoldersBtn').textContent=t('refresh');$('folderEmptyTitle').textContent=t('folderEmptyTitle');$('folderEmptyText').textContent=t('folderEmptyText');
   $('uploadHomeTitle').textContent=t('upload');$('uploadHomeText').textContent=t('uploadHint');$('recentTitle').textContent=t('recent');$('recentText').textContent=t('recentHint');
   $('createFolderTitle').textContent=t('createFolder');$('createFolderText').textContent=t('createFolderHint');
@@ -1108,41 +1159,45 @@ function syncFromHash(){
   openFolderById(id,false);
 }
 function handleAlbumPopState(e){
-  const h=e.state;
-  if(h?.overlay==='update'){
-    if($('updateModal').hidden&&versionInfoCache)showUpdatePopup(versionInfoCache,true,false);
+  const h=e.state,overlay=String(h?.overlay||'');
+  if(overlay==='update'||overlay==='update-preview'){
+    if(releaseNoticeOpen())return;
+    if(versionInfoCache)showReleaseNotice(versionInfoCache,true,false,overlay==='update-preview'?manualLanguage:uiLang(),overlay==='update-preview');
     return;
   }
-  if(!$('updateModal').hidden){closeUpdatePopup(true);if(h?.overlay==='manual')return}
-  if(h?.overlay==='manual'){
-    if($('manualModal').hidden)openManual(manualTab,false);
-    return;
+  if(releaseNoticeOpen())$('releaseNoticeOverlay').hidden=true;
+  if(overlay==='history'){
+    $('manualLanguagePicker').classList.remove('show');$('manualLanguagePicker').hidden=true;
+    if(!manualOpen())$('unifiedManual').classList.add('show');
+    body.classList.add('modal-open');openManualUpdateHistory(manualLanguage,false);return;
   }
-  if(!$('manualModal').hidden){closeManual(true);return}
+  if(updateHistoryOpen())$('manualUpdateHistoryOverlay').hidden=true;
+  if(overlay==='manual'){
+    $('manualLanguagePicker').classList.remove('show');$('manualLanguagePicker').hidden=true;
+    if(!manualOpen())openUnifiedManual(manualLanguage,false);return;
+  }
+  if(manualOpen())$('unifiedManual').classList.remove('show');
+  if(overlay==='manual-picker'){openManualLanguagePicker(false);return}
+  if(manualPickerOpen()){$('manualLanguagePicker').classList.remove('show');$('manualLanguagePicker').hidden=true}
+  body.classList.remove('modal-open');if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
   if(!h?.[ALBUM_HISTORY_KEY])return;
   const wasViewer=!viewer.hidden;if(wasViewer)closeViewer(true);
-  if(h.view==='recent'){
-    if(state.currentFolder?.isRecent){window.scrollTo({top:0,behavior:'smooth'});return}
-    openRecent(false);return;
-  }
-  if(h.view==='folder'&&h.id){
-    if(String(state.currentFolder?.id||'')===String(h.id)&&!state.currentFolder?.isRecent){window.scrollTo({top:0,behavior:'smooth'});return}
-    openFolderById(h.id,false);return;
-  }
+  if(h.view==='recent'){if(state.currentFolder?.isRecent){window.scrollTo({top:0,behavior:'smooth'});return}openRecent(false);return}
+  if(h.view==='folder'&&h.id){if(String(state.currentFolder?.id||'')===String(h.id)&&!state.currentFolder?.isRecent){window.scrollTo({top:0,behavior:'smooth'});return}openFolderById(h.id,false);return}
   showAlbumHome();
 }
 
-$('manualBtn').addEventListener('click',()=>openManual('guide',true));
+$('manualBtn').addEventListener('click',()=>openManualLanguagePicker(true));
 $('mainAppBtn').addEventListener('click',returnToMainApp);
-$('manualCloseBtn').addEventListener('click',()=>closeManual(false));
-$('manualGuideTab').addEventListener('click',()=>{manualTab='guide';renderManual()});
-$('manualUpdatesTab').addEventListener('click',()=>{manualTab='updates';renderManual()});
-$('replayUpdateBtn').addEventListener('click',async()=>{try{showUpdatePopup(await loadVersionInfo(true),true,true)}catch(_){}});
-$('updateConfirmBtn').addEventListener('click',()=>closeUpdatePopup(false));
-$('updateDetailsBtn').addEventListener('click',()=>{
-  if(history.state?.overlay==='update')history.replaceState({...history.state,overlay:'manual'},'',location.href);
-  $('updateModal').hidden=true;openManual('updates',false);
-});
+$('manualPickerKo').addEventListener('click',()=>chooseManualLanguage('ko'));
+$('manualPickerLo').addEventListener('click',()=>chooseManualLanguage('lo'));
+$('manualLanguageCancel').addEventListener('click',()=>closeManualLanguagePicker(false));
+$('manualCloseBtn').addEventListener('click',()=>closeUnifiedManual(false));
+$('manualKoBtn').addEventListener('click',()=>setManualLanguage('ko'));
+$('manualLoBtn').addEventListener('click',()=>setManualLanguage('lo'));
+$('manualUpdateHistoryClose').addEventListener('click',()=>closeManualUpdateHistory(false));
+$('manualUpdateHistoryPreview').addEventListener('click',previewUpdatePopup);
+$('releaseNoticeOk').addEventListener('click',()=>closeReleaseNotice(false));
 $('themeBtn').addEventListener('click',e=>{body.classList.toggle('light');e.currentTarget.textContent=body.classList.contains('light')?'☀':'☾'});
 $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEventListener('click',closeFolder);$('refreshFoldersBtn').addEventListener('click',()=>loadFolders(true));
 $('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',openRecent);$('createFolderBtn').addEventListener('click',()=>openCreateFolderSheet(''));
@@ -1164,12 +1219,13 @@ for(const type of ['gesturestart','gesturechange','gestureend']){
 window.addEventListener('resize',()=>{if(!viewer.hidden)applyViewerTransform()});
 window.addEventListener('popstate',handleAlbumPopState);
 backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy&&!downloadBusy&&!deleteBusy)closeSheet()});
-$('manualModal').addEventListener('click',e=>{if(e.target===$('manualModal'))closeManual(false)});
-$('updateModal').addEventListener('click',e=>{if(e.target===$('updateModal'))closeUpdatePopup(false)});
+$('manualLanguagePicker').addEventListener('click',e=>{if(e.target===$('manualLanguagePicker'))closeManualLanguagePicker(false)});
 window.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
-    if(!$('updateModal').hidden){closeUpdatePopup(false);return}
-    if(!$('manualModal').hidden){closeManual(false);return}
+    if(releaseNoticeOpen()){closeReleaseNotice(false);return}
+    if(updateHistoryOpen()){closeManualUpdateHistory(false);return}
+    if(manualOpen()){closeUnifiedManual(false);return}
+    if(manualPickerOpen()){closeManualLanguagePicker(false);return}
     if(!viewer.hidden){closeViewer();return}
   }
   if(viewer.hidden)return;
