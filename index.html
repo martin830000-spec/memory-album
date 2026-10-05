@@ -59,7 +59,7 @@
     <section id="folderView" class="album-view" hidden>
       <div class="album-view-head">
         <button class="back-btn" id="folderBackBtn" type="button" aria-label="앨범 목록으로 돌아가기">‹</button>
-        <div>
+        <div class="folder-heading-copy">
           <p class="kicker">FOLDER</p>
           <h2 id="folderTitle">폴더</h2>
           <p class="album-view-sub" id="folderSubtitle">Google Drive의 현재 폴더 내용</p>
@@ -69,17 +69,19 @@
       <div class="album-toolbar">
         <span id="folderCount">사진 불러오는 중</span>
         <div class="album-toolbar-actions">
-          <button type="button" id="sortBtn">정렬</button>
+          <button type="button" id="sortBtn">최신순</button>
           <button type="button" id="uploadFolderBtn">＋ 업로드</button>
-          <button type="button" id="refreshFolderBtn">↻</button>
+          <button type="button" id="refreshFolderBtn" aria-label="새로고침">↻</button>
         </div>
       </div>
+
+      <div class="subfolder-list" id="subfolderList"></div>
 
       <div class="photo-grid" id="photoGrid" aria-live="polite">
         <div class="empty-state">
           <div class="empty-icon">📷</div>
-          <strong id="photoEmptyTitle">Google Drive 연결 준비 중</strong>
-          <p id="photoEmptyText">연결 후에는 이 폴더의 사진 썸네일이 여기에 표시됩니다.</p>
+          <strong id="photoEmptyTitle">사진을 불러오는 중</strong>
+          <p id="photoEmptyText">잠시만 기다려주세요.</p>
         </div>
       </div>
     </section>
@@ -87,15 +89,39 @@
     <footer id="footerText">For Husband & Wife · Private Memory Album</footer>
   </div>
 
+  <input id="photoInput" type="file" accept="image/*,.heic,.heif" multiple hidden />
+
   <div class="backdrop" id="backdrop" hidden>
     <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
       <div class="handle"></div>
       <h2 id="sheetTitle">준비 중</h2>
-      <p id="sheetText">Google Drive 연동 후 사용할 수 있어요.</p>
+      <p id="sheetText">잠시만 기다려주세요.</p>
+      <div class="sheet-actions" id="sheetActions"></div>
       <button class="primary" id="closeSheet">확인</button>
     </section>
   </div>
 
+  <div class="viewer" id="viewer" hidden>
+    <header class="viewer-top">
+      <button class="viewer-icon-btn" id="viewerCloseBtn" type="button" aria-label="닫기">×</button>
+      <div class="viewer-title-wrap">
+        <strong id="viewerName">사진</strong>
+        <small id="viewerCounter"></small>
+      </div>
+      <div class="viewer-tools">
+        <button class="viewer-icon-btn" id="viewerShareBtn" type="button" aria-label="공유">↗</button>
+        <button class="viewer-icon-btn" id="viewerDownloadBtn" type="button" aria-label="저장">↓</button>
+      </div>
+    </header>
+    <button class="viewer-nav viewer-prev" id="viewerPrevBtn" type="button" aria-label="이전 사진">‹</button>
+    <div class="viewer-stage" id="viewerStage">
+      <div class="viewer-loading" id="viewerLoading">불러오는 중…</div>
+      <img id="viewerImage" alt="" draggable="false" />
+    </div>
+    <button class="viewer-nav viewer-next" id="viewerNextBtn" type="button" aria-label="다음 사진">›</button>
+  </div>
+
+  <script src="./config.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
