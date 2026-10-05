@@ -151,6 +151,7 @@ let viewerLoadSeq=0;
 let uploadBusy=false;
 let downloadBusy=false;
 let deleteBusy=false;
+let preparedSaveActive=false;
 let pendingAppUpdate=false;
 let lastUpdateCheck=0;
 let versionInfoCache=null;
@@ -229,7 +230,7 @@ function showAlbumHome(){
   state.currentFolder=null;state.folderStack=[];state.childFolders=[];state.media=[];
   folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
 }
-function appBusyForUpdate(){return uploadBusy||downloadBusy||deleteBusy}
+function appBusyForUpdate(){return uploadBusy||downloadBusy||deleteBusy||preparedSaveActive}
 function reloadForVersion(version){
   const u=new URL(location.href);
   u.searchParams.set('__album_v',String(version||Date.now()));
@@ -360,7 +361,7 @@ function normalizeModeInUrl(){
 function applyLanguage(){
   const lo=uiLang()==='lo';
   document.documentElement.lang=lo?'lo':'ko';document.title=t('appTitle');
-  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('manualBtn').textContent=t('manual');$('manualBtn').setAttribute('aria-label',t('manual'));$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
+  $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('manualBtn').textContent=t('manual');$('manualBtn').setAttribute('aria-label',t('manual'));$('manualCloseBtn').setAttribute('aria-label',t('close'));$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
   $('refreshFoldersBtn').textContent=t('refresh');$('folderEmptyTitle').textContent=t('folderEmptyTitle');$('folderEmptyText').textContent=t('folderEmptyText');
   $('uploadHomeTitle').textContent=t('upload');$('uploadHomeText').textContent=t('uploadHint');$('recentTitle').textContent=t('recent');$('recentText').textContent=t('recentHint');
   $('createFolderTitle').textContent=t('createFolder');$('createFolderText').textContent=t('createFolderHint');
@@ -567,7 +568,7 @@ async function downloadSelectedPhotos(){
       files.push(new File([data.blob],item.name||('photo-'+(i+1)),{type:data.blob.type||item.mimeType||'image/jpeg'}));
     }
     downloadBusy=false;$('closeSheet').disabled=false;closeSheet();
-    openPreparedSaveSheet(files);applyPendingAppUpdate();
+    openPreparedSaveSheet(files);
   }catch(e){
     downloadBusy=false;$('closeSheet').disabled=false;handleApiError(e,t('downloadFailed'));applyPendingAppUpdate();
   }
@@ -578,6 +579,7 @@ function canShareFiles(files){
   try{return !!navigator.canShare({files})}catch(_){return false}
 }
 function openPreparedSaveSheet(files){
+  preparedSaveActive=true;
   const shareSupported=canShareFiles(files);
   openSheet(t('savePrepared',files.length),'',[],t('cancel'));
   const b=document.createElement('button');b.type='button';b.className='sheet-choice save-files-choice';
@@ -586,10 +588,11 @@ function openPreparedSaveSheet(files){
     if(shareSupported){
       try{
         await navigator.share({files,title:t('savePrepared',files.length)});
-        closeSheet();setSelectionMode(false);return;
+        closeSheet();setSelectionMode(false);applyPendingAppUpdate();return;
       }catch(e){if(e?.name==='AbortError')return}
     }
     closeSheet();saveFilesByDownload(files);setSelectionMode(false);
+    setTimeout(()=>applyPendingAppUpdate(),Math.max(1200,files.length*220+500));
   });
   sheetActions.appendChild(b);
 }
@@ -735,7 +738,7 @@ function openConfirmSheet(title,text,onConfirm,confirmLabel=t('confirm')){
   cancel.addEventListener('click',closeSheet);ok.addEventListener('click',()=>{closeSheet();onConfirm?.()});
   row.append(cancel,ok);sheetActions.appendChild(row);backdrop.hidden=false;
 }
-function closeSheet(){if(uploadBusy||downloadBusy||deleteBusy)return;backdrop.hidden=true;sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok')}
+function closeSheet(){if(uploadBusy||downloadBusy||deleteBusy)return;preparedSaveActive=false;backdrop.hidden=true;sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok')}
 function apiErrorDetail(e){
   const parts=[];
   if(e?.status)parts.push('HTTP '+e.status);
@@ -1152,7 +1155,15 @@ window.addEventListener('popstate',handleAlbumPopState);
 backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy&&!downloadBusy&&!deleteBusy)closeSheet()});
 $('manualModal').addEventListener('click',e=>{if(e.target===$('manualModal'))closeManual(false)});
 $('updateModal').addEventListener('click',e=>{if(e.target===$('updateModal'))closeUpdatePopup(false)});
-window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
+window.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(!$('updateModal').hidden){closeUpdatePopup(false);return}
+    if(!$('manualModal').hidden){closeManual(false);return}
+    if(!viewer.hidden){closeViewer();return}
+  }
+  if(viewer.hidden)return;
+  if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1);
+});
 window.addEventListener('storage',e=>{if(routeCandidates.some(c=>e.key===c.modeKey||e.key===c.statsKey)){renderSharedRoute();refreshCurrent()}});
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState!=='visible')return;
