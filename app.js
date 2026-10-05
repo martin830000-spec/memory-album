@@ -21,6 +21,7 @@ const folderCount=$('folderCount');
 const photoGrid=$('photoGrid');
 const photoInput=$('photoInput');
 const viewer=$('viewer');
+const viewerStage=$('viewerStage');
 const viewerImage=$('viewerImage');
 const viewerName=$('viewerName');
 const viewerCounter=$('viewerCounter');
@@ -93,6 +94,19 @@ const thumbQueue=[];
 const thumbUrls=new Set();
 let thumbActive=0;
 let viewerLoadSeq=0;
+let viewerScale=1;
+let viewerPanX=0;
+let viewerPanY=0;
+const viewerPointers=new Map();
+let gestureStartDistance=0;
+let gestureStartScale=1;
+let gestureStartMidX=0;
+let gestureStartMidY=0;
+let gestureStartPanX=0;
+let gestureStartPanY=0;
+let gestureStartPointerX=0;
+let gestureStartPointerY=0;
+const VIEWER_MAX_SCALE=5;
 const THUMB_CONCURRENCY=(navigator.connection&&navigator.connection.saveData)?4:8;
 const THUMB_EAGER_COUNT=window.innerWidth<=600?10:16;
 
@@ -405,8 +419,94 @@ async function uploadOne(file,folderId,onProgress){
   onProgress?.(100);
   return res.text();
 }
+function clamp(value,min,max){return Math.min(max,Math.max(min,value))}
+function viewerDistance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function viewerMidpoint(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
+function clampViewerPan(){
+  if(viewerScale<=1){
+    viewerPanX=0;viewerPanY=0;return;
+  }
+  const stageW=viewerStage.clientWidth||window.innerWidth;
+  const stageH=viewerStage.clientHeight||window.innerHeight;
+  const imageW=viewerImage.clientWidth||stageW;
+  const imageH=viewerImage.clientHeight||stageH;
+  const maxX=Math.max(0,(imageW*viewerScale-stageW)/2);
+  const maxY=Math.max(0,(imageH*viewerScale-stageH)/2);
+  viewerPanX=clamp(viewerPanX,-maxX,maxX);
+  viewerPanY=clamp(viewerPanY,-maxY,maxY);
+}
+function applyViewerTransform(){
+  clampViewerPan();
+  viewerImage.style.transform=`translate3d(${viewerPanX}px,${viewerPanY}px,0) scale(${viewerScale})`;
+  viewerImage.classList.toggle('is-zoomed',viewerScale>1.01);
+}
+function resetViewerZoom(){
+  viewerScale=1;viewerPanX=0;viewerPanY=0;viewerPointers.clear();
+  gestureStartDistance=0;gestureStartScale=1;
+  viewerImage.style.transform='translate3d(0,0,0) scale(1)';
+  viewerImage.classList.remove('is-zoomed');
+}
+function startSinglePointerGesture(point){
+  gestureStartPointerX=point.x;
+  gestureStartPointerY=point.y;
+  gestureStartPanX=viewerPanX;
+  gestureStartPanY=viewerPanY;
+}
+function startPinchGesture(){
+  const pts=[...viewerPointers.values()].slice(0,2);
+  if(pts.length<2)return;
+  const mid=viewerMidpoint(pts[0],pts[1]);
+  gestureStartDistance=Math.max(1,viewerDistance(pts[0],pts[1]));
+  gestureStartScale=viewerScale;
+  gestureStartMidX=mid.x;
+  gestureStartMidY=mid.y;
+  gestureStartPanX=viewerPanX;
+  gestureStartPanY=viewerPanY;
+}
+function onViewerPointerDown(e){
+  if(viewer.hidden)return;
+  viewerPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  try{viewerStage.setPointerCapture(e.pointerId)}catch(_){}
+  if(viewerPointers.size===1)startSinglePointerGesture({x:e.clientX,y:e.clientY});
+  else if(viewerPointers.size===2)startPinchGesture();
+  if(e.pointerType==='touch')e.preventDefault();
+}
+function onViewerPointerMove(e){
+  if(!viewerPointers.has(e.pointerId))return;
+  viewerPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(viewerPointers.size>=2){
+    const pts=[...viewerPointers.values()].slice(0,2);
+    const mid=viewerMidpoint(pts[0],pts[1]);
+    const distance=Math.max(1,viewerDistance(pts[0],pts[1]));
+    viewerScale=clamp(gestureStartScale*(distance/gestureStartDistance),1,VIEWER_MAX_SCALE);
+    viewerPanX=gestureStartPanX+(mid.x-gestureStartMidX);
+    viewerPanY=gestureStartPanY+(mid.y-gestureStartMidY);
+    applyViewerTransform();
+    e.preventDefault();
+    return;
+  }
+  if(viewerScale>1.01){
+    const point=[...viewerPointers.values()][0];
+    viewerPanX=gestureStartPanX+(point.x-gestureStartPointerX);
+    viewerPanY=gestureStartPanY+(point.y-gestureStartPointerY);
+    applyViewerTransform();
+    e.preventDefault();
+  }
+}
+function onViewerPointerEnd(e){
+  viewerPointers.delete(e.pointerId);
+  try{viewerStage.releasePointerCapture(e.pointerId)}catch(_){}
+  if(viewerPointers.size===1){
+    const point=[...viewerPointers.values()][0];
+    startSinglePointerGesture(point);
+  }else if(viewerPointers.size===0&&viewerScale<=1.01){
+    resetViewerZoom();
+  }
+}
 async function openViewer(index){
-  const rows=state.media;if(!rows[index])return;state.viewerIndex=index;viewer.hidden=false;body.classList.add('viewer-open');await renderViewer();
+  const rows=state.media;if(!rows[index])return;
+  resetViewerZoom();
+  state.viewerIndex=index;viewer.hidden=false;body.classList.add('viewer-open');await renderViewer();
 }
 function loadedThumbUrl(fileId){
   const id=String(fileId||'');
@@ -415,6 +515,7 @@ function loadedThumbUrl(fileId){
 }
 async function renderViewer(){
   const item=state.media[state.viewerIndex];if(!item)return closeViewer();
+  resetViewerZoom();
   const loadSeq=++viewerLoadSeq;
   releaseViewerBlob();
   viewerName.textContent=item.name||'';
@@ -449,7 +550,7 @@ async function renderViewer(){
   }
 }
 function releaseViewerBlob(){if(state.viewerUrl)URL.revokeObjectURL(state.viewerUrl);state.viewerUrl='';state.viewerBlob=null}
-function closeViewer(){viewerLoadSeq++;releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.removeAttribute('src');viewerLoading.textContent=t('viewerLoading')}
+function closeViewer(){viewerLoadSeq++;resetViewerZoom();releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.removeAttribute('src');viewerLoading.textContent=t('viewerLoading')}
 async function moveViewer(delta){if(!state.media.length)return;state.viewerIndex=(state.viewerIndex+delta+state.media.length)%state.media.length;await renderViewer()}
 async function ensureViewerBlob(){if(state.viewerBlob)return state.viewerBlob;const item=state.media[state.viewerIndex];if(!item)return null;const version=String(item.modifiedTime||'');const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});state.viewerBlob=data.blob;return data.blob}
 async function downloadCurrent(){
@@ -476,6 +577,11 @@ $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEvent
 $('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',()=>openSheet(t('recent'),t('recentPending')));
 $('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder?beginUploadTo(state.currentFolder.id):chooseUploadFolder());photoInput.addEventListener('change',uploadSelectedFiles);
 $('viewerCloseBtn').addEventListener('click',closeViewer);$('viewerPrevBtn').addEventListener('click',()=>moveViewer(-1));$('viewerNextBtn').addEventListener('click',()=>moveViewer(1));$('viewerDownloadBtn').addEventListener('click',downloadCurrent);$('viewerShareBtn').addEventListener('click',shareCurrent);
+viewerStage.addEventListener('pointerdown',onViewerPointerDown,{passive:false});
+viewerStage.addEventListener('pointermove',onViewerPointerMove,{passive:false});
+viewerStage.addEventListener('pointerup',onViewerPointerEnd,{passive:false});
+viewerStage.addEventListener('pointercancel',onViewerPointerEnd,{passive:false});
+window.addEventListener('resize',()=>{if(!viewer.hidden)applyViewerTransform()});
 backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeSheet()});
 window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
 window.addEventListener('storage',e=>{if(routeCandidates.some(c=>e.key===c.modeKey||e.key===c.statsKey)){renderSharedRoute();refreshCurrent()}});
