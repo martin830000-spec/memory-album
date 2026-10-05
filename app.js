@@ -43,7 +43,15 @@ const I18N={
     uploadShort:'＋ 업로드',photoEmptyTitle:'사진이 없습니다',photoEmptyText:'Drive에서 사진을 추가하거나 이 폴더에 업로드하세요.',
     ok:'확인',close:'닫기',ready:'준비 중',apiPending:'사진첩 전용 Google Drive 연결 설정이 아직 완료되지 않았어요.',
     apiMissing:'사진 API 주소가 아직 설정되지 않았어요. 백엔드 연결 후 자동으로 표시됩니다.',authMissing:'본앱에서 사진첩을 열어주세요. 본앱의 접근 정보가 필요합니다.',
-    loadFailed:'사진을 불러오지 못했습니다.',uploading:'업로드 중',uploadDone:'업로드 완료',uploadFailed:'업로드 실패',chooseFolder:'업로드할 폴더 선택',
+    loadFailed:'사진을 불러오지 못했습니다.',uploading:'업로드 중',uploadingTitle:'사진 업로드 중',uploadDone:'업로드 완료',uploadFailed:'업로드 실패',chooseFolder:'업로드할 폴더 선택',
+    uploadCount:(current,total)=>`${current} / ${total}장`,uploadOverall:p=>`전체 진행률 ${p}%`,uploadCurrent:p=>`현재 사진 ${p}%`,
+    createFolder:'새 폴더',createFolderHint:'사진을 정리할 새 앨범 폴더 만들기',createSubfolder:'＋ 폴더',folderName:'폴더 이름',folderNamePlaceholder:'새 폴더 이름',
+    folderCreated:'폴더를 만들었습니다.',folderCreateFailed:'폴더를 만들지 못했습니다.',folderExists:'같은 이름의 폴더가 이미 있습니다.',
+    delete:'삭제',deletePhoto:'사진 삭제',deleteFolder:'폴더 삭제',deleting:'삭제 중',deleteDone:'삭제 완료',deleteFailed:'삭제 실패',
+    deletePhotoConfirm:name=>`"${name}" 사진을 삭제할까요? Google Drive 휴지통으로 이동합니다.`,
+    deleteFolderConfirm:name=>`"${name}" 폴더를 삭제할까요? 폴더 안의 사진과 하위 폴더도 함께 Google Drive 휴지통으로 이동합니다.`,
+    deleteRecoverHint:'실수로 삭제해도 Google Drive 휴지통에서 복구할 수 있습니다.',cancel:'취소',
+    recentTitle:'최근 사진',recentSubtitle:'최근 추가된 사진',recentEmpty:'최근 추가된 사진이 없습니다.',
     directTitle:'직접 연결 경로 사용',cloudflareTitle:'Cloudflare 우회 경로 사용',sourceHusband:'부부대화 · 남편앱',sourceWife:'부부대화 · 아내앱',sourceGeneral:'일상대화',
     routeManual:'본앱의 연결 방식 설정을 그대로 사용',routeSuccess:'본앱에서 최근 성공한 경로를 사용',routeWife:'아내앱 기본 정책에 따라 Cloudflare 사용',routeTimezone:'본앱의 지역 자동 선택 규칙 사용',routeFallback:'본앱 연결 설정을 사용',
     folderMeta:'Google Drive 폴더',backLabel:'이전 화면',subfolders:'하위 폴더',photosCount:n=>`사진 ${n}장`,foldersCount:n=>`폴더 ${n}개`,
@@ -59,7 +67,15 @@ const I18N={
     uploadShort:'＋ ອັບໂຫຼດ',photoEmptyTitle:'ຍັງບໍ່ມີຮູບ',photoEmptyText:'ເພີ່ມຮູບໃນ Drive ຫຼື ອັບໂຫຼດເຂົ້າໂຟນເດີນີ້.',
     ok:'ຕົກລົງ',close:'ປິດ',ready:'ກຳລັງກຽມ',apiPending:'ຍັງບໍ່ທັນເຊື່ອມລະບົບ Google Drive ສຳລັບອະລະບໍ້າ.',
     apiMissing:'ຍັງບໍ່ໄດ້ຕັ້ງທີ່ຢູ່ API ຮູບ. ຫຼັງເຊື່ອມ backend ແລ້ວຈະສະແດງອັດຕະໂນມັດ.',authMissing:'ກະລຸນາເປີດອະລະບໍ້າຈາກແອັບຫຼັກ. ຕ້ອງໃຊ້ຂໍ້ມູນເຂົ້າເຖິງຈາກແອັບຫຼັກ.',
-    loadFailed:'ບໍ່ສາມາດໂຫຼດຮູບໄດ້.',uploading:'ກຳລັງອັບໂຫຼດ',uploadDone:'ອັບໂຫຼດສຳເລັດ',uploadFailed:'ອັບໂຫຼດບໍ່ສຳເລັດ',chooseFolder:'ເລືອກໂຟນເດີທີ່ຈະອັບໂຫຼດ',
+    loadFailed:'ບໍ່ສາມາດໂຫຼດຮູບໄດ້.',uploading:'ກຳລັງອັບໂຫຼດ',uploadingTitle:'ກຳລັງອັບໂຫຼດຮູບ',uploadDone:'ອັບໂຫຼດສຳເລັດ',uploadFailed:'ອັບໂຫຼດບໍ່ສຳເລັດ',chooseFolder:'ເລືອກໂຟນເດີທີ່ຈະອັບໂຫຼດ',
+    uploadCount:(current,total)=>`${current} / ${total} ຮູບ`,uploadOverall:p=>`ຄວາມຄືບໜ້າລວມ ${p}%`,uploadCurrent:p=>`ຮູບປັດຈຸບັນ ${p}%`,
+    createFolder:'ສ້າງໂຟນເດີ',createFolderHint:'ສ້າງໂຟນເດີອະລະບໍ້າໃໝ່',createSubfolder:'＋ ໂຟນເດີ',folderName:'ຊື່ໂຟນເດີ',folderNamePlaceholder:'ຊື່ໂຟນເດີໃໝ່',
+    folderCreated:'ສ້າງໂຟນເດີແລ້ວ.',folderCreateFailed:'ສ້າງໂຟນເດີບໍ່ສຳເລັດ.',folderExists:'ມີໂຟນເດີຊື່ນີ້ແລ້ວ.',
+    delete:'ລຶບ',deletePhoto:'ລຶບຮູບ',deleteFolder:'ລຶບໂຟນເດີ',deleting:'ກຳລັງລຶບ',deleteDone:'ລຶບສຳເລັດ',deleteFailed:'ລຶບບໍ່ສຳເລັດ',
+    deletePhotoConfirm:name=>`ລຶບຮູບ "${name}" ບໍ? ຮູບຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.`,
+    deleteFolderConfirm:name=>`ລຶບໂຟນເດີ "${name}" ບໍ? ຮູບ ແລະ ໂຟນເດີຍ່ອຍຂ້າງໃນຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive ນຳ.`,
+    deleteRecoverHint:'ຖ້າລຶບຜິດ ສາມາດກູ້ຄືນຈາກຖັງຂີ້ເຫຍື້ອ Google Drive.',cancel:'ຍົກເລີກ',
+    recentTitle:'ຮູບຫຼ້າສຸດ',recentSubtitle:'ຮູບທີ່ເພີ່ມຫຼ້າສຸດ',recentEmpty:'ຍັງບໍ່ມີຮູບທີ່ເພີ່ມໃໝ່.',
     directTitle:'ໃຊ້ການເຊື່ອມຕໍ່ໂດຍກົງ',cloudflareTitle:'ໃຊ້ເສັ້ທາງ Cloudflare',sourceHusband:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍຜົວ',sourceWife:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍເມຍ',sourceGeneral:'ແອັບສົນທະນາທົ່ວໄປ',
     routeManual:'ໃຊ້ຄ່າການເຊື່ອມຕໍ່ຈາກແອັບຫຼັກ',routeSuccess:'ໃຊ້ເສັ້ທາງທີ່ສຳເລັດຫຼ້າສຸດ',routeWife:'ແອັບຝ່າຍເມຍໃຊ້ Cloudflare ເປັນຄ່າເລີ່ມຕົ້ນ',routeTimezone:'ໃຊ້ກົດເລືອກເສັ້ນທາງຕາມພື້ນທີ່ຂອງແອັບຫຼັກ',routeFallback:'ໃຊ້ຄ່າເຊື່ອມຕໍ່ຂອງແອັບຫຼັກ',
     folderMeta:'ໂຟນເດີ Google Drive',backLabel:'ກັບໄປ',subfolders:'ໂຟນເດີຍ່ອຍ',photosCount:n=>`ຮູບ ${n}`,foldersCount:n=>`ໂຟນເດີ ${n}`,
@@ -94,6 +110,7 @@ const thumbQueue=[];
 const thumbUrls=new Set();
 let thumbActive=0;
 let viewerLoadSeq=0;
+let uploadBusy=false;
 let viewerScale=1;
 let viewerPanX=0;
 let viewerPanY=0;
@@ -156,11 +173,13 @@ function applyLanguage(){
   $('appTitle').textContent=t('appTitle');$('appSubtitle').textContent=t('appSubtitle');$('mainAppBtn').textContent=t('mainApp');$('mainAppBtn').setAttribute('aria-label',t('mainApp'));$('albumSectionTitle').textContent=t('albums');
   $('refreshFoldersBtn').textContent=t('refresh');$('folderEmptyTitle').textContent=t('folderEmptyTitle');$('folderEmptyText').textContent=t('folderEmptyText');
   $('uploadHomeTitle').textContent=t('upload');$('uploadHomeText').textContent=t('uploadHint');$('recentTitle').textContent=t('recent');$('recentText').textContent=t('recentHint');
-  $('folderSubtitle').textContent=t('folderSubtitle');$('folderCount').textContent=t('loadingPhotos');$('uploadFolderBtn').textContent=t('uploadShort');
+  $('createFolderTitle').textContent=t('createFolder');$('createFolderText').textContent=t('createFolderHint');
+  $('folderSubtitle').textContent=t('folderSubtitle');$('folderCount').textContent=t('loadingPhotos');$('uploadFolderBtn').textContent=t('uploadShort');$('createSubfolderBtn').textContent=t('createSubfolder');$('deleteFolderBtn').textContent=t('deleteFolder');
   $('closeSheet').textContent=t('ok');$('folderBackBtn').setAttribute('aria-label',t('backLabel'));$('footerText').textContent=t('footer');
   $('viewerLoading').textContent=t('viewerLoading');
   $('viewerShareBtn').setAttribute('aria-label',t('share'));$('viewerShareBtn').setAttribute('title',t('share'));$('viewerShareLabel').textContent=t('share');
   $('viewerDownloadBtn').setAttribute('aria-label',t('download'));$('viewerDownloadBtn').setAttribute('title',t('download'));$('viewerDownloadLabel').textContent=t('download');
+  $('viewerDeleteBtn').setAttribute('aria-label',t('delete'));$('viewerDeleteBtn').setAttribute('title',t('delete'));$('viewerDeleteLabel').textContent=t('delete');
   updateSortLabel();
 }
 function parseStats(raw){try{const value=JSON.parse(raw||'{}');return value&&typeof value==='object'?value:{}}catch(_){return{}}}
@@ -221,6 +240,7 @@ async function apiFetch(path,options={}){
   throw lastError||new Error('API_FAILED');
 }
 async function apiJson(path,options={}){const res=await apiFetch(path,options);return res.json()}
+async function apiPostJson(path,value){return apiJson(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(value),cache:'no-store'})}
 async function apiBlob(path,options={}){const res=await apiFetch(path,options);return {blob:await res.blob(),name:decodeURIComponent(res.headers.get('X-File-Name')||''),type:res.headers.get('Content-Type')||''}}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function escapeAttr(v){return escapeHtml(v)}
@@ -265,10 +285,13 @@ function sortedMedia(){
   else rows.sort((a,b)=>dateOf(b)-dateOf(a));
   return rows;
 }
-function dateOf(item){return Date.parse(item.imageTime||item.createdTime||item.modifiedTime||0)||0}
+function dateOf(item){
+  if(state.currentFolder?.isRecent)return Date.parse(item.createdTime||item.modifiedTime||item.imageTime||0)||0;
+  return Date.parse(item.imageTime||item.createdTime||item.modifiedTime||0)||0;
+}
 function renderMedia(){
   const rows=sortedMedia();state.media=rows;
-  folderCount.textContent=[t('foldersCount',state.childFolders.length),t('photosCount',rows.length)].join(' · ');
+  folderCount.textContent=state.currentFolder?.isRecent?t('photosCount',rows.length):[t('foldersCount',state.childFolders.length),t('photosCount',rows.length)].join(' · ');
   if(!rows.length){
     photoGrid.innerHTML=`<div class="empty-state"><div class="empty-icon">📷</div><strong>${escapeHtml(t('photoEmptyTitle'))}</strong><p>${escapeHtml(t('photoEmptyText'))}</p></div>`;return;
   }
@@ -320,12 +343,33 @@ async function loadThumb(img){
     img.src=url;img.classList.add('loaded');img.dataset.loaded='1';
   }catch(_){img.alt=''}
 }
+async function openRecent(){
+  state.folderStack=[];
+  state.currentFolder={id:'__recent__',name:t('recentTitle'),displayName:t('recentTitle'),isRecent:true};
+  state.childFolders=[];state.media=[];homeView.hidden=true;folderView.hidden=false;
+  folderTitle.textContent=t('recentTitle');folderSubtitle.textContent=t('recentSubtitle');folderCount.textContent=t('loadingPhotos');
+  $('uploadFolderBtn').hidden=true;$('createSubfolderBtn').hidden=true;$('deleteFolderBtn').hidden=true;
+  subfolderList.innerHTML='';photoGrid.innerHTML='<div class="loading-line"></div>';
+  history.replaceState(null,'','#recent');window.scrollTo({top:0,behavior:'smooth'});
+  try{
+    const data=await apiJson('/api/recent?limit=120');
+    state.media=Array.isArray(data.media)?data.media:[];
+    if(!state.media.length){
+      photoGrid.innerHTML=`<div class="empty-state"><div class="empty-icon">◷</div><strong>${escapeHtml(t('recentEmpty'))}</strong></div>`;
+      folderCount.textContent=t('photosCount',0);
+    }else renderMedia();
+    state.lastRefresh=Date.now();
+  }catch(e){
+    state.media=[];photoGrid.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><strong>${escapeHtml(t('loadFailed'))}</strong></div>`;handleApiError(e,t('loadFailed'));
+  }
+}
 async function openFolderById(id,push){
   const rootItem=state.folders.find(x=>String(x.id)===String(id));
   if(rootItem&&push)state.folderStack=[];
   const folder=rootItem||state.childFolders.find(x=>String(x.id)===String(id))||{id,name:''};
   if(push&&state.currentFolder)state.folderStack.push(state.currentFolder);
   state.currentFolder=folder;homeView.hidden=true;folderView.hidden=false;
+  $('uploadFolderBtn').hidden=false;$('createSubfolderBtn').hidden=false;$('deleteFolderBtn').hidden=false;
   folderTitle.textContent=displayName(folder)||t('loadingPhotos');folderSubtitle.textContent=t('folderSubtitle');folderCount.textContent=t('loadingPhotos');
   subfolderList.innerHTML='';photoGrid.innerHTML='<div class="loading-line"></div>';history.replaceState(null,'','#folder='+encodeURIComponent(id));window.scrollTo({top:0,behavior:'smooth'});
   try{
@@ -344,19 +388,20 @@ function closeFolder(){
   state.currentFolder=null;state.childFolders=[];state.media=[];folderView.hidden=true;homeView.hidden=false;history.replaceState(null,'',location.pathname+location.search);window.scrollTo({top:0,behavior:'smooth'});
 }
 async function refreshCurrent(){
+  if(state.currentFolder?.isRecent)return openRecent();
   if(state.currentFolder)return openFolderById(state.currentFolder.id,false);
   return loadFolders(false);
 }
 function updateSortLabel(){$('sortBtn').textContent=state.sort==='oldest'?t('sortOldest'):state.sort==='name'?t('sortName'):t('sortNewest')}
 function cycleSort(){state.sort=state.sort==='newest'?'oldest':state.sort==='oldest'?'name':'newest';updateSortLabel();renderMedia()}
-function openSheet(title,text,choices=[]){
-  sheetTitle.textContent=title;sheetText.textContent=text||'';sheetActions.innerHTML='';
+function openSheet(title,text,choices=[],closeLabel=t('ok')){
+  sheetTitle.textContent=title;sheetText.textContent=text||'';sheetActions.innerHTML='';$('closeSheet').textContent=closeLabel;$('closeSheet').disabled=false;
   for(const c of choices){
-    const b=document.createElement('button');b.type='button';b.className='sheet-choice';b.innerHTML=`<strong>${escapeHtml(c.label)}</strong>${c.note?`<small>${escapeHtml(c.note)}</small>`:''}`;b.addEventListener('click',()=>{closeSheet();c.onClick?.()});sheetActions.appendChild(b);
+    const b=document.createElement('button');b.type='button';b.className='sheet-choice'+(c.danger?' danger':'');b.innerHTML=`<strong>${escapeHtml(c.label)}</strong>${c.note?`<small>${escapeHtml(c.note)}</small>`:''}`;b.addEventListener('click',()=>{closeSheet();c.onClick?.()});sheetActions.appendChild(b);
   }
   backdrop.hidden=false;
 }
-function closeSheet(){backdrop.hidden=true;sheetActions.innerHTML=''}
+function closeSheet(){if(uploadBusy)return;backdrop.hidden=true;sheetActions.innerHTML='';$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok')}
 function apiErrorDetail(e){
   const parts=[];
   if(e?.status)parts.push('HTTP '+e.status);
@@ -386,6 +431,56 @@ function handleUploadError(e,fileName=''){
   const label=t('uploadFailed')+(fileName?' · '+fileName:'');
   openSheet(t('ready'),label+(detail?'\n\n'+detail:''));
 }
+function showUploadProgress(file,index,total,filePercent,overallPercent){
+  sheetTitle.textContent=t('uploadingTitle');
+  sheetText.textContent=`${t('uploadCount',index,total)} · ${file.name}`;
+  sheetActions.innerHTML=`<div class="upload-progress-wrap">
+    <div class="upload-progress-row"><strong>${escapeHtml(t('uploadCurrent',filePercent))}</strong><span>${filePercent}%</span></div>
+    <div class="upload-progress-track"><span style="width:${filePercent}%"></span></div>
+    <div class="upload-progress-row overall"><strong>${escapeHtml(t('uploadOverall',overallPercent))}</strong><span>${overallPercent}%</span></div>
+    <div class="upload-progress-track overall"><span style="width:${overallPercent}%"></span></div>
+  </div>`;
+  $('closeSheet').textContent=t('uploading');$('closeSheet').disabled=true;backdrop.hidden=false;
+}
+function openCreateFolderSheet(parentId){
+  openSheet(t('createFolder'),'',[],t('cancel'));
+  sheetActions.innerHTML=`<label class="sheet-input-label">${escapeHtml(t('folderName'))}<input id="folderNameInput" class="sheet-input" type="text" maxlength="100" placeholder="${escapeAttr(t('folderNamePlaceholder'))}" autocomplete="off"></label><button id="createFolderConfirmBtn" class="primary" type="button">${escapeHtml(t('createFolder'))}</button>`;
+  const input=$('folderNameInput'),button=$('createFolderConfirmBtn');
+  const submit=async()=>{
+    const name=String(input.value||'').trim();if(!name){input.focus();return}
+    button.disabled=true;
+    try{
+      await apiPostJson('/api/folders',{parentId:parentId||'',name});
+      closeSheet();
+      if(state.currentFolder&&!state.currentFolder.isRecent)await openFolderById(state.currentFolder.id,false);else await loadFolders(false);
+    }catch(e){
+      button.disabled=false;
+      const detail=apiErrorDetail(e);
+      const msg=e?.status===409?t('folderExists'):t('folderCreateFailed');
+      sheetText.textContent=msg+(detail?' · '+detail:'');
+    }
+  };
+  button.addEventListener('click',submit);
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
+  setTimeout(()=>input.focus(),0);
+}
+function confirmDeleteCurrentFolder(){
+  const folder=state.currentFolder;if(!folder||folder.isRecent)return;
+  openSheet(t('deleteFolder'),t('deleteFolderConfirm',displayName(folder)),[
+    {label:t('deleteFolder'),note:t('deleteRecoverHint'),danger:true,onClick:()=>deleteCurrentFolder()}
+  ],t('cancel'));
+}
+async function deleteCurrentFolder(){
+  const folder=state.currentFolder;if(!folder||folder.isRecent)return;
+  try{
+    await apiPostJson('/api/folder/delete',{id:folder.id});
+    if(state.folderStack.length){
+      const parent=state.folderStack.pop();state.currentFolder=null;await openFolderById(parent.id,false);
+    }else{
+      state.currentFolder=null;folderView.hidden=true;homeView.hidden=false;history.replaceState(null,'',location.pathname+location.search);await loadFolders(false);
+    }
+  }catch(e){handleApiError(e,t('deleteFailed'))}
+}
 function chooseUploadFolder(){
   if(!state.folders.length)return openSheet(t('chooseFolder'),t('noFolders'));
   const choices=state.folders.map(f=>({label:displayName(f),note:t('folderMeta'),onClick:()=>beginUploadTo(f.id)}));
@@ -397,27 +492,43 @@ async function uploadSelectedFiles(){
   const files=[...photoInput.files],bases=apiBases(),key=accessKey();
   if(!bases.length)return handleUploadError({code:'API_NOT_CONFIGURED'});
   if(!key)return handleUploadError({code:'ACCESS_KEY_MISSING'});
-  let done=0;
-  for(const file of files){
+  uploadBusy=true;let done=0;
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
     try{
-      await uploadOne(file,folderId,(p)=>openSheet(t('uploading'),t('uploadProgress',file.name,p)));
+      await uploadOne(file,folderId,p=>{
+        const overall=Math.round(((done+p/100)/files.length)*100);
+        showUploadProgress(file,i+1,files.length,p,overall);
+      });
       done++;
-    }catch(e){handleUploadError(e,file.name);return}
+    }catch(e){
+      uploadBusy=false;$('closeSheet').disabled=false;
+      handleUploadError(e,file.name);return;
+    }
   }
-  openSheet(t('uploadDone'),`${done}/${files.length}`);
-  setTimeout(()=>{closeSheet();refreshCurrent()},700);
+  uploadBusy=false;
+  openSheet(t('uploadDone'),`${done} / ${files.length}`);
+  setTimeout(()=>{closeSheet();refreshCurrent()},900);
 }
-async function uploadOne(file,folderId,onProgress){
-  const fd=new FormData();
-  fd.append('file',file,file.name);
-  onProgress?.(0);
-  const res=await apiFetch('/api/upload?folder='+encodeURIComponent(folderId),{
-    method:'POST',
-    body:fd,
-    cache:'no-store'
+function uploadOne(file,folderId,onProgress){
+  const bases=apiBases(),key=accessKey();
+  return new Promise((resolve,reject)=>{
+    const tryAt=i=>{
+      if(i>=bases.length)return reject(new Error('UPLOAD_FAILED'));
+      const xhr=new XMLHttpRequest();
+      xhr.open('POST',bases[i]+'/api/upload?folder='+encodeURIComponent(folderId));
+      xhr.setRequestHeader('X-Album-Key',key);
+      xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress?.(Math.max(0,Math.min(100,Math.round(e.loaded/e.total*100))))};
+      xhr.onload=()=>{
+        if(xhr.status>=200&&xhr.status<300){onProgress?.(100);return resolve(xhr.responseText)}
+        if((xhr.status>=500||xhr.status===404)&&i+1<bases.length)return tryAt(i+1);
+        const err=new Error('HTTP_'+xhr.status);err.status=xhr.status;err.body=xhr.responseText||'';reject(err);
+      };
+      xhr.onerror=()=>i+1<bases.length?tryAt(i+1):reject(new Error('NETWORK'));
+      const fd=new FormData();fd.append('file',file,file.name);xhr.send(fd);
+    };
+    tryAt(0);
   });
-  onProgress?.(100);
-  return res.text();
 }
 function clamp(value,min,max){return Math.min(max,Math.max(min,value))}
 function viewerDistance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
@@ -565,7 +676,22 @@ async function shareCurrent(){
   }
   openSheet(t('share'),t('shareUnsupported'));downloadCurrent();
 }
+function confirmDeleteCurrentPhoto(){
+  const item=state.media[state.viewerIndex];if(!item)return;
+  openSheet(t('deletePhoto'),t('deletePhotoConfirm',item.name||''),[
+    {label:t('deletePhoto'),note:t('deleteRecoverHint'),danger:true,onClick:()=>deleteCurrentPhoto(item.id)}
+  ],t('cancel'));
+}
+async function deleteCurrentPhoto(id){
+  try{
+    await apiPostJson('/api/media/delete',{id});
+    const idx=state.media.findIndex(x=>String(x.id)===String(id));
+    if(idx>=0)state.media.splice(idx,1);
+    closeViewer();renderMedia();
+  }catch(e){handleApiError(e,t('deleteFailed'))}
+}
 function syncFromHash(){
+  if(location.hash==='#recent'){openRecent();return}
   if(!location.hash.startsWith('#folder='))return;
   const id=decodeURIComponent(location.hash.slice(8));if(!id||state.currentFolder?.id===id)return;
   const f=state.folders.find(x=>String(x.id)===id);if(f)openFolderById(id,true);
@@ -574,9 +700,9 @@ function syncFromHash(){
 $('mainAppBtn').addEventListener('click',returnToMainApp);
 $('themeBtn').addEventListener('click',e=>{body.classList.toggle('light');e.currentTarget.textContent=body.classList.contains('light')?'☀':'☾'});
 $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEventListener('click',closeFolder);$('refreshFoldersBtn').addEventListener('click',()=>loadFolders(true));
-$('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',()=>openSheet(t('recent'),t('recentPending')));
-$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder?beginUploadTo(state.currentFolder.id):chooseUploadFolder());photoInput.addEventListener('change',uploadSelectedFiles);
-$('viewerCloseBtn').addEventListener('click',closeViewer);$('viewerPrevBtn').addEventListener('click',()=>moveViewer(-1));$('viewerNextBtn').addEventListener('click',()=>moveViewer(1));$('viewerDownloadBtn').addEventListener('click',downloadCurrent);$('viewerShareBtn').addEventListener('click',shareCurrent);
+$('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',openRecent);$('createFolderBtn').addEventListener('click',()=>openCreateFolderSheet(''));
+$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent?beginUploadTo(state.currentFolder.id):chooseUploadFolder());$('createSubfolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent&&openCreateFolderSheet(state.currentFolder.id));$('deleteFolderBtn').addEventListener('click',confirmDeleteCurrentFolder);photoInput.addEventListener('change',uploadSelectedFiles);
+$('viewerCloseBtn').addEventListener('click',closeViewer);$('viewerPrevBtn').addEventListener('click',()=>moveViewer(-1));$('viewerNextBtn').addEventListener('click',()=>moveViewer(1));$('viewerDownloadBtn').addEventListener('click',downloadCurrent);$('viewerShareBtn').addEventListener('click',shareCurrent);$('viewerDeleteBtn').addEventListener('click',confirmDeleteCurrentPhoto);
 viewerStage.addEventListener('pointerdown',onViewerPointerDown,{passive:false});
 viewerStage.addEventListener('pointermove',onViewerPointerMove,{passive:false});
 viewerStage.addEventListener('pointerup',onViewerPointerEnd,{passive:false});
@@ -587,7 +713,7 @@ for(const type of ['gesturestart','gesturechange','gestureend']){
   viewerStage.addEventListener(type,e=>e.preventDefault(),{passive:false});
 }
 window.addEventListener('resize',()=>{if(!viewer.hidden)applyViewerTransform()});
-backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeSheet()});
+backdrop.addEventListener('click',e=>{if(e.target===backdrop&&!uploadBusy)closeSheet()});
 window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
 window.addEventListener('storage',e=>{if(routeCandidates.some(c=>e.key===c.modeKey||e.key===c.statsKey)){renderSharedRoute();refreshCurrent()}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-state.lastRefresh>AUTO_REFRESH_MS)refreshCurrent()});
