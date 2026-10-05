@@ -1,5 +1,11 @@
 const DEFAULT_ROOT_FOLDER_ID = '1W0J9IWs_MKtZiLLBxB9NeXTpWzOVvooV';
 
+// Keep a write-capable Drive OAuth scope in Apps Script's automatic scope scan.
+// This branch never runs; the explicit appsscript.json oauthScopes remains the source of truth.
+function _declareDriveWriteScope_() {
+  if (false) DriveApp.createFile('memory-album-write-scope-probe.txt', '');
+}
+
 function setup() {
   const props = PropertiesService.getScriptProperties();
   let brokerKey = String(props.getProperty('BROKER_KEY') || '');
