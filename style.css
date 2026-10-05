@@ -220,3 +220,7 @@ body.light .trash-panel{background:#f8fafc}body.light .trash-item{background:#ff
 .release-history-overlay{z-index:1900}
 .release-notice-overlay{z-index:2050}
 @media(max-width:520px){.trash-overlay{padding:8px}.trash-panel{border-radius:20px;max-height:calc(100dvh - 16px)}.trash-head{padding:16px 14px 11px}.trash-toolbar{padding:0 14px 10px}.trash-list{padding:0 14px calc(16px + env(safe-area-inset-bottom))}.trash-item{grid-template-columns:56px minmax(0,1fr) auto;gap:9px}.trash-preview{width:56px;height:56px}.trash-restore-btn{padding:8px 9px}}
+
+/* V0.6.5 · current manual marker */
+.manual-current-badge{display:inline-flex;align-items:center;gap:5px;margin:10px 0 0;padding:6px 9px;border-radius:999px;background:#e8f7ef;border:1px solid #bfe4cf;color:#287a4e;font-size:10.5px;font-weight:900}
+@media(min-width:760px){.manual-quick-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.manual-quick-item{display:block}.manual-quick-icon{margin-bottom:8px}.manual-quick-item strong{font-size:12px}.manual-quick-item p{font-size:10.5px}}
