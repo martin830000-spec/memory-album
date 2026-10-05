@@ -15,8 +15,12 @@ h1{margin:0 0 6px;font-size:30px;line-height:1.15;letter-spacing:-.045em}
 .round-btn{width:44px;height:44px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.05);cursor:pointer;font-size:19px}
 .hero{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));box-shadow:var(--shadow);margin-bottom:30px}
 .hero strong{font-size:14px}.hero p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
-.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6bdc8b;margin-right:8px;box-shadow:0 0 0 5px rgba(107,220,139,.11)}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e7b85b;margin-right:8px;box-shadow:0 0 0 5px rgba(231,184,91,.11)}
+.live-dot.direct{background:#6bdc8b;box-shadow:0 0 0 5px rgba(107,220,139,.11)}
+.live-dot.cloudflare{background:#f39a62;box-shadow:0 0 0 5px rgba(243,154,98,.12)}
 .badge{white-space:nowrap;padding:7px 9px;border-radius:999px;background:rgba(255,255,255,.07);font-size:11px;color:#ccd1d8}
+.badge.direct{color:#86e7a0;background:rgba(107,220,139,.10)}
+.badge.cloudflare{color:#ffb485;background:rgba(243,154,98,.11)}
 .section-title{display:flex;align-items:end;justify-content:space-between;margin-bottom:13px}
 .section-title h2{margin:0;font-size:22px;letter-spacing:-.03em}.link-btn{border:0;background:none;color:#ff9ab2;font-weight:750;font-size:13px;cursor:pointer;padding:8px 0}
 .album-list{display:grid;gap:14px}
