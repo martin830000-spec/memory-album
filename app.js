@@ -177,7 +177,14 @@ function apiBases(){
   const direct=cleanBase(cfg.directApiBase),cloudflare=cleanBase(cfg.cloudflareApiBase),preferred=state.route?.route==='cloudflare'?[cloudflare,direct]:[direct,cloudflare];
   return [...new Set(preferred.filter(Boolean))];
 }
-function accessKey(){return String(lsGet(ACCESS_KEY_STORAGE)||lsGet(ACCESS_KEY_FALLBACK_STORAGE)||'').trim()}
+function accessKey(){
+  const primary=String(lsGet(ACCESS_KEY_STORAGE)||'').trim();
+  if(primary){
+    if(lsGet(ACCESS_KEY_FALLBACK_STORAGE)!==primary)lsSet(ACCESS_KEY_FALLBACK_STORAGE,primary);
+    return primary;
+  }
+  return String(lsGet(ACCESS_KEY_FALLBACK_STORAGE)||'').trim();
+}
 function apiReady(){return apiBases().length>0}
 async function apiFetch(path,options={}){
   const bases=apiBases();if(!bases.length)throw Object.assign(new Error('API_NOT_CONFIGURED'),{code:'API_NOT_CONFIGURED'});
@@ -352,6 +359,13 @@ function handleApiError(e,fallback){
   const detail=apiErrorDetail(e);
   openSheet(t('ready'),(fallback||t('loadFailed'))+(detail?'\n\n'+detail:''));
 }
+function handleUploadError(e,fileName=''){
+  if(e?.code==='API_NOT_CONFIGURED')return openSheet(t('ready'),t('apiMissing'));
+  if(e?.code==='ACCESS_KEY_MISSING'||e?.status===401)return openSheet(t('ready'),t('authMissing'));
+  const detail=apiErrorDetail(e);
+  const label=t('uploadFailed')+(fileName?' · '+fileName:'');
+  openSheet(t('ready'),label+(detail?'\n\n'+detail:''));
+}
 function chooseUploadFolder(){
   if(!state.folders.length)return openSheet(t('chooseFolder'),t('noFolders'));
   const choices=state.folders.map(f=>({label:displayName(f),note:t('folderMeta'),onClick:()=>beginUploadTo(f.id)}));
@@ -361,30 +375,29 @@ function beginUploadTo(folderId){photoInput.dataset.targetFolder=folderId;photoI
 async function uploadSelectedFiles(){
   const folderId=photoInput.dataset.targetFolder||state.currentFolder?.id;if(!folderId||!photoInput.files?.length)return;
   const files=[...photoInput.files],bases=apiBases(),key=accessKey();
-  if(!bases.length)return handleApiError({code:'API_NOT_CONFIGURED'});
-  if(!key)return handleApiError({code:'ACCESS_KEY_MISSING'});
+  if(!bases.length)return handleUploadError({code:'API_NOT_CONFIGURED'});
+  if(!key)return handleUploadError({code:'ACCESS_KEY_MISSING'});
   let done=0;
   for(const file of files){
     try{
       await uploadOne(file,folderId,(p)=>openSheet(t('uploading'),t('uploadProgress',file.name,p)));
       done++;
-    }catch(e){handleApiError(e,t('uploadFailed')+' · '+file.name);return}
+    }catch(e){handleUploadError(e,file.name);return}
   }
   openSheet(t('uploadDone'),`${done}/${files.length}`);
   setTimeout(()=>{closeSheet();refreshCurrent()},700);
 }
-function uploadOne(file,folderId,onProgress){
-  const bases=apiBases(),key=accessKey();
-  return new Promise((resolve,reject)=>{
-    const tryAt=i=>{
-      if(i>=bases.length)return reject(new Error('UPLOAD_FAILED'));
-      const xhr=new XMLHttpRequest();xhr.open('POST',bases[i]+'/api/upload?folder='+encodeURIComponent(folderId));xhr.setRequestHeader('X-Album-Key',key);
-      xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress?.(Math.round(e.loaded/e.total*100))};
-      xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve(xhr.responseText);else if((xhr.status>=500||xhr.status===404)&&i+1<bases.length)tryAt(i+1);else{const err=new Error('HTTP_'+xhr.status);err.status=xhr.status;reject(err)}};
-      xhr.onerror=()=>i+1<bases.length?tryAt(i+1):reject(new Error('NETWORK'));
-      const fd=new FormData();fd.append('file',file,file.name);xhr.send(fd);
-    };tryAt(0);
+async function uploadOne(file,folderId,onProgress){
+  const fd=new FormData();
+  fd.append('file',file,file.name);
+  onProgress?.(0);
+  const res=await apiFetch('/api/upload?folder='+encodeURIComponent(folderId),{
+    method:'POST',
+    body:fd,
+    cache:'no-store'
   });
+  onProgress?.(100);
+  return res.text();
 }
 async function openViewer(index){
   const rows=state.media;if(!rows[index])return;state.viewerIndex=index;viewer.hidden=false;body.classList.add('viewer-open');await renderViewer();
