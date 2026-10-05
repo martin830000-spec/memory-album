@@ -334,7 +334,7 @@ async function localizeFolders(rows, lang) {
 
 async function translateFolderBatch(rows) {
   const out = new Map();
-  const apiKey = String(process.env.GEMINI_API_KEY || '');
+  const apiKey = String(process.env.GEMINI_API_KEY || process.env.ALBUM_ACCESS_KEY || '');
   if (!apiKey || !rows.length) return out;
   const model = String(process.env.GEMINI_MODEL || 'gemini-2.5-flash');
 
