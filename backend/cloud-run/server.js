@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.2' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.3' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -130,6 +130,40 @@ app.get('/api/recent', async (req, res, next) => {
     const limit = Math.max(1, Math.min(200, Number(req.query.limit || 120)));
     const media = await listRecentMedia(limit);
     res.json({ ok: true, media });
+  } catch (e) { next(e); }
+});
+
+
+app.get('/api/trash', async (req, res, next) => {
+  try {
+    const limit = Math.max(1, Math.min(300, Number(req.query.limit || 200)));
+    const items = await listAlbumTrash(limit);
+    res.json({ ok: true, items });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/trash/restore', async (req, res, next) => {
+  try {
+    const id = String(req.body?.id || '');
+    if (!id) return res.status(400).json({ ok: false, error: 'file_id_required' });
+    insideRootCache.delete(id);
+    await assertInsideRoot(id);
+    const meta = await getMeta(id, 'id,name,mimeType,parents,trashed,modifiedTime');
+    const isFolder = meta.mimeType === 'application/vnd.google-apps.folder';
+    const isImage = String(meta.mimeType || '').startsWith('image/');
+    if (!isFolder && !isImage) return res.status(415).json({ ok: false, error: 'unsupported_trash_item' });
+    if (!meta.trashed) return res.json({ ok: true, item: meta, alreadyRestored: true });
+
+    const restored = await driveJsonRequest(`files/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      params: { fields: 'id,name,mimeType,parents,trashed,modifiedTime' },
+      body: { trashed: false }
+    });
+
+    insideRootCache.clear();
+    fileMetaCache.clear();
+    recentCache = { data: [], expiresAt: 0 };
+    res.json({ ok: true, item: restored });
   } catch (e) { next(e); }
 });
 
@@ -488,6 +522,57 @@ async function listRecentMedia(limit) {
   });
   recentCache = { data: media.slice(0, 200), expiresAt: Date.now() + 30000 };
   return recentCache.data.slice(0, limit);
+}
+
+async function listAlbumTrash(limit = 200) {
+  const queue = [ROOT_ID];
+  const seen = new Set();
+  const out = [];
+  let scannedFolders = 0;
+
+  while (queue.length && out.length < limit && scannedFolders < 250) {
+    const parentId = queue.shift();
+    if (!parentId || seen.has(parentId)) continue;
+    seen.add(parentId);
+    scannedFolders++;
+
+    const rows = await driveListAll({
+      q: `'${escapeQuery(parentId)}' in parents`,
+      orderBy: 'modifiedTime desc',
+      pageSize: '1000',
+      fields: 'nextPageToken,files(id,name,mimeType,size,createdTime,modifiedTime,parents,trashed,trashedTime,thumbnailLink)'
+    }, 2000);
+
+    for (const item of rows) {
+      if (!item?.id) continue;
+      const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+      const isImage = String(item.mimeType || '').startsWith('image/');
+      if (item.trashed) {
+        if (isFolder || isImage) {
+          out.push({
+            id: item.id,
+            name: item.name,
+            mimeType: item.mimeType,
+            size: item.size || '',
+            createdTime: item.createdTime || '',
+            modifiedTime: item.modifiedTime || '',
+            trashedTime: item.trashedTime || '',
+            parents: item.parents || []
+          });
+          if (out.length >= limit) break;
+        }
+        continue;
+      }
+      if (isFolder) queue.push(String(item.id));
+    }
+  }
+
+  out.sort((a,b)=>{
+    const ad=Date.parse(a.trashedTime||a.modifiedTime||0)||0;
+    const bd=Date.parse(b.trashedTime||b.modifiedTime||0)||0;
+    return bd-ad;
+  });
+  return out.slice(0,limit);
 }
 
 function normalizeFolderName(name) {

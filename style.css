@@ -202,3 +202,21 @@ body.light .manual-panel,body.light .update-card{background:#fff}body.light .man
   .manual-step-row{grid-template-columns:31px minmax(0,1fr);padding:10px}
   .manual-shot-rich{padding:7px}
 }
+
+/* V0.6.4 · in-app Google Drive trash + popup layer fix */
+.trash-home-card .trash-action-icon{background:rgba(118,178,255,.14);color:#9cc9ff}
+.trash-overlay{position:fixed;inset:0;z-index:1725;display:flex;justify-content:center;align-items:stretch;padding:12px;background:rgba(10,14,20,.68);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.trash-overlay[hidden]{display:none!important}
+.trash-panel{width:min(100%,720px);max-height:calc(100dvh - 24px);margin:auto;background:var(--bg);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.48);display:grid;grid-template-rows:auto auto minmax(0,1fr);overflow:hidden}
+.trash-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:20px 20px 13px}.trash-head h2{margin:3px 0 5px;font-size:23px}.trash-head p:last-child{margin:0;color:var(--muted);font-size:12px;line-height:1.55}.trash-close-btn{flex:0 0 auto;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:9px 12px;font-weight:850;cursor:pointer}
+.trash-toolbar{display:flex;justify-content:space-between;align-items:center;padding:0 20px 12px;color:var(--muted);font-size:12px}.trash-toolbar b{color:var(--text);font-size:15px}.trash-toolbar button{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:7px 9px;font-size:11px;cursor:pointer}
+.trash-list{overflow:auto;padding:0 20px calc(20px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+.trash-item{display:grid;grid-template-columns:66px minmax(0,1fr) auto;gap:11px;align-items:center;padding:10px;margin-bottom:8px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.trash-preview{width:66px;height:66px;border-radius:12px;overflow:hidden;background:rgba(255,255,255,.05);display:grid;place-items:center;position:relative}.trash-thumb{width:100%;height:100%;object-fit:cover;display:block}.trash-folder-icon,.trash-image-fallback{font-size:30px}.trash-image-fallback{position:absolute}
+.trash-copy{min-width:0}.trash-copy strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trash-copy small{display:block;margin-top:5px;color:var(--muted);font-size:10.5px;line-height:1.4}
+.trash-restore-btn{border:1px solid rgba(90,145,235,.45);border-radius:11px;background:rgba(90,145,235,.13);color:#a8c9ff;padding:9px 11px;font-size:11px;font-weight:900;cursor:pointer}.trash-restore-btn:disabled{opacity:.55;cursor:wait}
+.trash-empty,.trash-loading{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:var(--muted)}.trash-empty>div{font-size:38px}.trash-empty strong{color:var(--text)}.trash-empty small{max-width:420px;line-height:1.5}
+body.light .trash-panel{background:#f8fafc}body.light .trash-item{background:#fff}
+.release-history-overlay{z-index:1900}
+.release-notice-overlay{z-index:2050}
+@media(max-width:520px){.trash-overlay{padding:8px}.trash-panel{border-radius:20px;max-height:calc(100dvh - 16px)}.trash-head{padding:16px 14px 11px}.trash-toolbar{padding:0 14px 10px}.trash-list{padding:0 14px calc(16px + env(safe-area-inset-bottom))}.trash-item{grid-template-columns:56px minmax(0,1fr) auto;gap:9px}.trash-preview{width:56px;height:56px}.trash-restore-btn{padding:8px 9px}}
