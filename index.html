@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#101217" />
   <title>우리의 추억사진첩</title>
-  <link rel="stylesheet" href="./style.css?v=0.4.2" />
+  <link rel="stylesheet" href="./style.css?v=0.5.0" />
 </head>
 <body>
   <div class="app">
@@ -69,6 +69,7 @@
         <span id="folderCount">사진 불러오는 중</span>
         <div class="album-toolbar-actions">
           <button type="button" id="sortBtn">최신순</button>
+          <button type="button" id="selectPhotosBtn">사진 선택</button>
           <button type="button" id="createSubfolderBtn">＋ 폴더</button>
           <button type="button" id="uploadFolderBtn">＋ 업로드</button>
           <button type="button" id="deleteFolderBtn" class="toolbar-danger">폴더 삭제</button>
@@ -83,6 +84,14 @@
           <div class="empty-icon">📷</div>
           <strong id="photoEmptyTitle">사진을 불러오는 중</strong>
           <p id="photoEmptyText">잠시만 기다려주세요.</p>
+        </div>
+      </div>
+      <div class="selection-bar" id="selectionBar" hidden>
+        <strong id="selectionCount">0장 선택</strong>
+        <div class="selection-actions">
+          <button type="button" id="selectAllBtn">전체 선택</button>
+          <button type="button" id="downloadSelectedBtn" class="selection-download" disabled>0장 다운로드</button>
+          <button type="button" id="cancelSelectionBtn">취소</button>
         </div>
       </div>
     </section>
@@ -142,7 +151,7 @@
     <button class="viewer-nav viewer-next" id="viewerNextBtn" type="button" aria-label="다음 사진">›</button>
   </div>
 
-  <script src="./config.js?v=0.4.2"></script>
-  <script src="./app.js?v=0.4.2"></script>
+  <script src="./config.js?v=0.5.0"></script>
+  <script src="./app.js?v=0.5.0"></script>
 </body>
 </html>
