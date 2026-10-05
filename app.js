@@ -53,6 +53,8 @@ const I18N={
     deleteFolderConfirm:name=>`"${name}" 폴더를 삭제할까요? 폴더 안의 사진과 하위 폴더도 함께 Google Drive 휴지통으로 이동합니다.`,
     deleteRecoverHint:'실수로 삭제해도 Google Drive 휴지통에서 복구할 수 있습니다.',cancel:'취소',
     recentTitle:'최근 사진',recentSubtitle:'최근 추가된 사진',recentEmpty:'최근 추가된 사진이 없습니다.',
+    selectPhotos:'사진 선택',selectedCount:n=>`${n}장 선택`,selectAll:'전체 선택',clearAll:'전체 해제',
+    downloadSelected:n=>`${n}장 다운로드`,downloadPreparing:'선택한 사진 묶는 중…',downloadFailed:'선택 사진을 다운로드하지 못했습니다.',selectAtLeastOne:'다운로드할 사진을 선택해주세요.',
     directTitle:'직접 연결 경로 사용',cloudflareTitle:'Cloudflare 우회 경로 사용',sourceHusband:'부부대화 · 남편앱',sourceWife:'부부대화 · 아내앱',sourceGeneral:'일상대화',
     routeManual:'본앱의 연결 방식 설정을 그대로 사용',routeSuccess:'본앱에서 최근 성공한 경로를 사용',routeWife:'아내앱 기본 정책에 따라 Cloudflare 사용',routeTimezone:'본앱의 지역 자동 선택 규칙 사용',routeFallback:'본앱 연결 설정을 사용',
     folderMeta:'Google Drive 폴더',backLabel:'이전 화면',subfolders:'하위 폴더',photosCount:n=>`사진 ${n}장`,foldersCount:n=>`폴더 ${n}개`,
@@ -77,6 +79,8 @@ const I18N={
     deleteFolderConfirm:name=>`ລຶບໂຟນເດີ "${name}" ບໍ? ຮູບ ແລະ ໂຟນເດີຍ່ອຍຂ້າງໃນຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive ນຳ.`,
     deleteRecoverHint:'ຖ້າລຶບຜິດ ສາມາດກູ້ຄືນຈາກຖັງຂີ້ເຫຍື້ອ Google Drive.',cancel:'ຍົກເລີກ',
     recentTitle:'ຮູບຫຼ້າສຸດ',recentSubtitle:'ຮູບທີ່ເພີ່ມຫຼ້າສຸດ',recentEmpty:'ຍັງບໍ່ມີຮູບທີ່ເພີ່ມໃໝ່.',
+    selectPhotos:'ເລືອກຮູບ',selectedCount:n=>`ເລືອກ ${n} ຮູບ`,selectAll:'ເລືອກທັງໝົດ',clearAll:'ຍົກເລີກທັງໝົດ',
+    downloadSelected:n=>`ດາວໂຫຼດ ${n} ຮູບ`,downloadPreparing:'ກຳລັງຮວບຮວມຮູບທີ່ເລືອກ…',downloadFailed:'ດາວໂຫຼດຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະດາວໂຫຼດ.',
     directTitle:'ໃຊ້ການເຊື່ອມຕໍ່ໂດຍກົງ',cloudflareTitle:'ໃຊ້ເສັ້ທາງ Cloudflare',sourceHusband:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍຜົວ',sourceWife:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍເມຍ',sourceGeneral:'ແອັບສົນທະນາທົ່ວໄປ',
     routeManual:'ໃຊ້ຄ່າການເຊື່ອມຕໍ່ຈາກແອັບຫຼັກ',routeSuccess:'ໃຊ້ເສັ້ທາງທີ່ສຳເລັດຫຼ້າສຸດ',routeWife:'ແອັບຝ່າຍເມຍໃຊ້ Cloudflare ເປັນຄ່າເລີ່ມຕົ້ນ',routeTimezone:'ໃຊ້ກົດເລືອກເສັ້ນທາງຕາມພື້ນທີ່ຂອງແອັບຫຼັກ',routeFallback:'ໃຊ້ຄ່າເຊື່ອມຕໍ່ຂອງແອັບຫຼັກ',
     folderMeta:'ໂຟນເດີ Google Drive',backLabel:'ກັບໄປ',subfolders:'ໂຟນເດີຍ່ອຍ',photosCount:n=>`ຮູບ ${n}`,foldersCount:n=>`ໂຟນເດີ ${n}`,
@@ -112,6 +116,8 @@ const thumbUrls=new Set();
 let thumbActive=0;
 let viewerLoadSeq=0;
 let uploadBusy=false;
+let selectionMode=false;
+const selectedMediaIds=new Set();
 let viewerScale=1;
 let viewerPanX=0;
 let viewerPanY=0;
@@ -174,6 +180,7 @@ function initAlbumHistory(){
 }
 function pushAlbumHistory(view,id=''){history.pushState(albumHistoryState(view,id),'',albumUrl(view,id))}
 function showAlbumHome(){
+  resetSelection();
   state.currentFolder=null;state.folderStack=[];state.childFolders=[];state.media=[];
   folderView.hidden=true;homeView.hidden=false;window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -193,7 +200,8 @@ function applyLanguage(){
   $('refreshFoldersBtn').textContent=t('refresh');$('folderEmptyTitle').textContent=t('folderEmptyTitle');$('folderEmptyText').textContent=t('folderEmptyText');
   $('uploadHomeTitle').textContent=t('upload');$('uploadHomeText').textContent=t('uploadHint');$('recentTitle').textContent=t('recent');$('recentText').textContent=t('recentHint');
   $('createFolderTitle').textContent=t('createFolder');$('createFolderText').textContent=t('createFolderHint');
-  $('folderSubtitle').textContent=t('folderSubtitle');$('folderCount').textContent=t('loadingPhotos');$('uploadFolderBtn').textContent=t('uploadShort');$('createSubfolderBtn').textContent=t('createSubfolder');$('deleteFolderBtn').textContent=t('deleteFolder');
+  $('folderSubtitle').textContent=t('folderSubtitle');$('folderCount').textContent=t('loadingPhotos');$('uploadFolderBtn').textContent=t('uploadShort');$('createSubfolderBtn').textContent=t('createSubfolder');$('deleteFolderBtn').textContent=t('deleteFolder');$('selectPhotosBtn').textContent=t('selectPhotos');
+  $('selectAllBtn').textContent=t('selectAll');$('cancelSelectionBtn').textContent=t('cancel');updateSelectionBar();
   $('closeSheet').textContent=t('ok');$('folderBackBtn').setAttribute('aria-label',t('backLabel'));$('footerText').textContent=t('footer');
   $('viewerLoading').textContent=t('viewerLoading');
   $('viewerShareBtn').setAttribute('aria-label',t('share'));$('viewerShareBtn').setAttribute('title',t('share'));$('viewerShareLabel').textContent=t('share');
@@ -314,15 +322,66 @@ function renderMedia(){
   if(!rows.length){
     photoGrid.innerHTML=`<div class="empty-state"><div class="empty-icon">📷</div><strong>${escapeHtml(t('photoEmptyTitle'))}</strong><p>${escapeHtml(t('photoEmptyText'))}</p></div>`;return;
   }
+  photoGrid.classList.toggle('selection-mode',selectionMode);
   photoGrid.innerHTML=rows.map((m,i)=>`
-    <button class="photo-tile" type="button" data-media-index="${i}">
+    <button class="photo-tile${selectedMediaIds.has(String(m.id))?' selected':''}" type="button" data-media-index="${i}" aria-pressed="${selectedMediaIds.has(String(m.id))?'true':'false'}">
       <span class="photo-placeholder">▧</span>
       <img class="photo-thumb" data-file-id="${escapeAttr(m.id)}" data-thumb-version="${escapeAttr(m.thumbVersion||m.modifiedTime||'')}" alt="${escapeAttr(m.name||'')}" decoding="async" />
+      <span class="photo-select-mark" aria-hidden="true">✓</span>
       <span class="photo-name">${escapeHtml(m.name||'')}</span>
     </button>`).join('');
-  photoGrid.querySelectorAll('[data-media-index]').forEach(btn=>btn.addEventListener('click',()=>openViewer(Number(btn.dataset.mediaIndex))));
+  photoGrid.querySelectorAll('[data-media-index]').forEach(btn=>btn.addEventListener('click',()=>{
+    const i=Number(btn.dataset.mediaIndex);
+    if(selectionMode){togglePhotoSelection(i);return}
+    openViewer(i,true);
+  }));
+  updateSelectionBar();
   setupThumbObserver();
 }
+function updateSelectionBar(){
+  const count=selectedMediaIds.size,total=state.media.length;
+  $('selectionBar').hidden=!selectionMode;
+  $('selectionCount').textContent=t('selectedCount',count);
+  $('downloadSelectedBtn').textContent=t('downloadSelected',count);
+  $('downloadSelectedBtn').disabled=count===0;
+  $('selectAllBtn').textContent=count>0&&count===total?t('clearAll'):t('selectAll');
+}
+function setSelectionMode(enabled){
+  selectionMode=!!enabled;
+  if(!selectionMode)selectedMediaIds.clear();
+  photoGrid.classList.toggle('selection-mode',selectionMode);
+  $('selectPhotosBtn').classList.toggle('active',selectionMode);
+  renderMedia();
+}
+function togglePhotoSelection(index){
+  const item=state.media[index];if(!item)return;
+  const id=String(item.id);
+  if(selectedMediaIds.has(id))selectedMediaIds.delete(id);else selectedMediaIds.add(id);
+  const tile=photoGrid.querySelector(`[data-media-index="${index}"]`);
+  if(tile){const selected=selectedMediaIds.has(id);tile.classList.toggle('selected',selected);tile.setAttribute('aria-pressed',selected?'true':'false')}
+  updateSelectionBar();
+}
+function toggleSelectAll(){
+  if(selectedMediaIds.size===state.media.length&&state.media.length){selectedMediaIds.clear()}
+  else state.media.forEach(x=>selectedMediaIds.add(String(x.id)));
+  renderMedia();
+}
+async function downloadSelectedPhotos(){
+  const ids=state.media.map(x=>String(x.id)).filter(id=>selectedMediaIds.has(id));
+  if(!ids.length)return openSheet(t('download'),t('selectAtLeastOne'));
+  openSheet(t('download'),t('downloadPreparing'));$('closeSheet').disabled=true;
+  try{
+    const res=await apiFetch('/api/download-zip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids}),cache:'no-store'});
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='memory-album-'+new Date().toISOString().slice(0,10)+'.zip';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+    $('closeSheet').disabled=false;closeSheet();setSelectionMode(false);
+  }catch(e){
+    $('closeSheet').disabled=false;handleApiError(e,t('downloadFailed'));
+  }
+}
+function resetSelection(){selectionMode=false;selectedMediaIds.clear();photoGrid.classList.remove('selection-mode');$('selectionBar').hidden=true;$('selectPhotosBtn').classList.remove('active')}
 function setupThumbObserver(){
   if(thumbObserver)thumbObserver.disconnect();
   thumbQueue.length=0;
@@ -363,6 +422,7 @@ async function loadThumb(img){
   }catch(_){img.alt=''}
 }
 async function openRecent(pushHistory=true){
+  resetSelection();
   state.folderStack=[];
   state.currentFolder={id:'__recent__',name:t('recentTitle'),displayName:t('recentTitle'),isRecent:true};
   state.childFolders=[];state.media=[];homeView.hidden=true;folderView.hidden=false;
@@ -383,6 +443,7 @@ async function openRecent(pushHistory=true){
   }
 }
 async function openFolderById(id,push=true){
+  resetSelection();
   const rootItem=state.folders.find(x=>String(x.id)===String(id));
   if(rootItem&&push)state.folderStack=[];
   const folder=rootItem||state.childFolders.find(x=>String(x.id)===String(id))||{id,name:''};
@@ -682,10 +743,12 @@ function onViewerTouchEnd(e){
   }
   e.preventDefault();
 }
-async function openViewer(index){
+async function openViewer(index,pushHistory=true){
   const rows=state.media;if(!rows[index])return;
   resetViewerZoom();
-  state.viewerIndex=index;viewer.hidden=false;body.classList.add('viewer-open');await renderViewer();
+  state.viewerIndex=index;viewer.hidden=false;body.classList.add('viewer-open');
+  if(pushHistory)history.pushState(albumHistoryState('viewer',String(rows[index].id||'')),'',location.href);
+  await renderViewer();
 }
 function loadedThumbUrl(fileId){
   const id=String(fileId||'');
@@ -729,7 +792,10 @@ async function renderViewer(){
   }
 }
 function releaseViewerBlob(){if(state.viewerUrl)URL.revokeObjectURL(state.viewerUrl);state.viewerUrl='';state.viewerBlob=null}
-function closeViewer(){viewerLoadSeq++;resetViewerZoom();releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.removeAttribute('src');viewerLoading.textContent=t('viewerLoading')}
+function closeViewer(fromHistory=false){
+  if(!fromHistory&&history.state?.[ALBUM_HISTORY_KEY]&&history.state.view==='viewer'){history.back();return}
+  viewerLoadSeq++;resetViewerZoom();releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.removeAttribute('src');viewerLoading.textContent=t('viewerLoading');
+}
 async function moveViewer(delta){if(!state.media.length)return;state.viewerIndex=(state.viewerIndex+delta+state.media.length)%state.media.length;await renderViewer()}
 async function ensureViewerBlob(){if(state.viewerBlob)return state.viewerBlob;const item=state.media[state.viewerIndex];if(!item)return null;const version=String(item.modifiedTime||'');const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});state.viewerBlob=data.blob;return data.blob}
 async function downloadCurrent(){
@@ -755,7 +821,8 @@ async function deleteCurrentPhoto(id){
     await apiPostJson('/api/media/delete',{id});
     const idx=state.media.findIndex(x=>String(x.id)===String(id));
     if(idx>=0)state.media.splice(idx,1);
-    closeViewer();renderMedia();
+    if(history.state?.[ALBUM_HISTORY_KEY]&&history.state.view==='viewer')history.back();else closeViewer(true);
+    renderMedia();
   }catch(e){handleApiError(e,t('deleteFailed'))}
 }
 function syncFromHash(){
@@ -767,9 +834,15 @@ function syncFromHash(){
 function handleAlbumPopState(e){
   const h=e.state;
   if(!h?.[ALBUM_HISTORY_KEY])return;
-  if(!viewer.hidden)closeViewer();
-  if(h.view==='recent'){openRecent(false);return}
-  if(h.view==='folder'&&h.id){openFolderById(h.id,false);return}
+  const wasViewer=!viewer.hidden;if(wasViewer)closeViewer(true);
+  if(h.view==='recent'){
+    if(state.currentFolder?.isRecent){window.scrollTo({top:0,behavior:'smooth'});return}
+    openRecent(false);return;
+  }
+  if(h.view==='folder'&&h.id){
+    if(String(state.currentFolder?.id||'')===String(h.id)&&!state.currentFolder?.isRecent){window.scrollTo({top:0,behavior:'smooth'});return}
+    openFolderById(h.id,false);return;
+  }
   showAlbumHome();
 }
 
@@ -777,7 +850,7 @@ $('mainAppBtn').addEventListener('click',returnToMainApp);
 $('themeBtn').addEventListener('click',e=>{body.classList.toggle('light');e.currentTarget.textContent=body.classList.contains('light')?'☀':'☾'});
 $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEventListener('click',closeFolder);$('refreshFoldersBtn').addEventListener('click',()=>loadFolders(true));
 $('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',openRecent);$('createFolderBtn').addEventListener('click',()=>openCreateFolderSheet(''));
-$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent?beginUploadTo(state.currentFolder.id):chooseUploadFolder());$('createSubfolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent&&openCreateFolderSheet(state.currentFolder.id));$('deleteFolderBtn').addEventListener('click',confirmDeleteCurrentFolder);photoInput.addEventListener('change',uploadSelectedFiles);
+$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent?beginUploadTo(state.currentFolder.id):chooseUploadFolder());$('createSubfolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent&&openCreateFolderSheet(state.currentFolder.id));$('deleteFolderBtn').addEventListener('click',confirmDeleteCurrentFolder);$('selectPhotosBtn').addEventListener('click',()=>setSelectionMode(!selectionMode));$('selectAllBtn').addEventListener('click',toggleSelectAll);$('cancelSelectionBtn').addEventListener('click',()=>setSelectionMode(false));$('downloadSelectedBtn').addEventListener('click',downloadSelectedPhotos);photoInput.addEventListener('change',uploadSelectedFiles);
 $('viewerCloseBtn').addEventListener('click',closeViewer);$('viewerPrevBtn').addEventListener('click',()=>moveViewer(-1));$('viewerNextBtn').addEventListener('click',()=>moveViewer(1));$('viewerDownloadBtn').addEventListener('click',downloadCurrent);$('viewerShareBtn').addEventListener('click',shareCurrent);$('viewerDeleteBtn').addEventListener('click',confirmDeleteCurrentPhoto);
 viewerStage.addEventListener('pointerdown',onViewerPointerDown,{passive:false});
 viewerStage.addEventListener('pointermove',onViewerPointerMove,{passive:false});
