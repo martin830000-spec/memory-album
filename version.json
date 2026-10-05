@@ -1,5 +1,5 @@
 {
-  "version": "V0.3.2",
-  "build": "20261005-MAIN-APP-BRIDGE-R1",
-  "notes": "Adds a localized return-to-main-app button and consumes the main app bridge state. Husband mode stays Korean and wife mode stays Lao. Existing same-origin primary password and network route state remain shared; no secrets are placed in navigation URLs."
+  "version": "V0.4.0",
+  "build": "20261005-ALBUM-MANAGEMENT-R1",
+  "notes": "Moves connection-route status to the bottom; adds working recent photos, folder create/delete, photo delete, and clear per-file/overall upload progress. Existing viewer, upload, thumbnail and route behavior are preserved."
 }
