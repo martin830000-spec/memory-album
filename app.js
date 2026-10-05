@@ -146,6 +146,9 @@ let thumbObserver=null;
 const thumbQueue=[];
 const thumbUrls=new Set();
 const thumbUrlCache=new Map();
+const previewUrlCache=new Map();
+const previewInflight=new Map();
+const PREVIEW_CACHE_LIMIT=8;
 let thumbActive=0;
 let viewerLoadSeq=0;
 let uploadBusy=false;
@@ -156,6 +159,7 @@ let pendingAppUpdate=false;
 let lastUpdateCheck=0;
 let versionInfoCache=null;
 let manualTab='guide';
+let manualLanguage=uiLang();
 let selectionMode=false;
 const selectedMediaIds=new Set();
 let viewerScale=1;
@@ -560,6 +564,7 @@ function bindPhotoTile(btn,index){
   btn.addEventListener('pointerdown',e=>{
     if(selectionMode)return;
     if(e.pointerType==='mouse'&&e.button!==0)return;
+    const item=state.media[index];if(item)setTimeout(()=>ensurePreviewUrl(item),40);
     startX=e.clientX;startY=e.clientY;longPressed=false;
     timer=setTimeout(()=>{
       timer=0;longPressed=true;
@@ -727,6 +732,47 @@ async function loadThumb(img){
     const url=URL.createObjectURL(blob);
     thumbUrls.add(url);thumbUrlCache.set(cacheKey,url);applyUrl(url);
   }catch(_){img.alt=''}
+}
+
+function previewCacheKey(item){
+  return String(item?.id||'')+'|'+String(item?.modifiedTime||item?.thumbVersion||'');
+}
+function rememberPreviewUrl(key,url){
+  if(previewUrlCache.has(key)){
+    const old=previewUrlCache.get(key);
+    if(old&&old!==url)URL.revokeObjectURL(old);
+    previewUrlCache.delete(key);
+  }
+  previewUrlCache.set(key,url);
+  while(previewUrlCache.size>PREVIEW_CACHE_LIMIT){
+    const oldest=previewUrlCache.keys().next().value;
+    const oldUrl=previewUrlCache.get(oldest);
+    previewUrlCache.delete(oldest);
+    if(oldUrl)URL.revokeObjectURL(oldUrl);
+  }
+  return url;
+}
+async function ensurePreviewUrl(item){
+  if(!item?.id)return'';
+  const key=previewCacheKey(item);
+  const cached=previewUrlCache.get(key);
+  if(cached){
+    previewUrlCache.delete(key);previewUrlCache.set(key,cached);
+    return cached;
+  }
+  if(previewInflight.has(key))return previewInflight.get(key);
+  const version=String(item.modifiedTime||'');
+  const promise=apiBlob('/api/preview?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'})
+    .then(data=>rememberPreviewUrl(key,URL.createObjectURL(data.blob)))
+    .catch(()=> '')
+    .finally(()=>previewInflight.delete(key));
+  previewInflight.set(key,promise);
+  return promise;
+}
+function prefetchViewerNeighbors(){
+  const rows=state.media,n=rows.length;if(n<2||state.viewerIndex<0)return;
+  const prev=rows[(state.viewerIndex-1+n)%n],next=rows[(state.viewerIndex+1)%n];
+  ensurePreviewUrl(prev);if(next?.id!==prev?.id)ensurePreviewUrl(next);
 }
 async function openRecent(pushHistory=true){
   resetSelection();
@@ -1092,9 +1138,9 @@ async function renderViewer(){
   viewerCounter.textContent=`${state.viewerIndex+1} / ${state.media.length}`;
   viewerImage.alt=item.name||'';
 
-  const previewUrl=loadedThumbUrl(item.id);
-  if(previewUrl){
-    viewerImage.src=previewUrl;
+  const thumbUrl=loadedThumbUrl(item.id);
+  if(thumbUrl){
+    viewerImage.src=thumbUrl;
     viewerLoading.hidden=true;
   }else{
     viewerImage.removeAttribute('src');
@@ -1102,10 +1148,18 @@ async function renderViewer(){
     viewerLoading.hidden=false;
   }
 
+  const version=String(item.modifiedTime||'');
+  let fullApplied=false;
+  const previewPromise=ensurePreviewUrl(item).then(url=>{
+    if(!url||fullApplied||loadSeq!==viewerLoadSeq||viewer.hidden||state.media[state.viewerIndex]?.id!==item.id)return;
+    viewerImage.src=url;viewerLoading.hidden=true;
+  });
+  prefetchViewerNeighbors();
+
   try{
-    const version=String(item.modifiedTime||'');
     const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});
     if(loadSeq!==viewerLoadSeq||viewer.hidden||state.media[state.viewerIndex]?.id!==item.id)return;
+    fullApplied=true;
     const fullUrl=URL.createObjectURL(data.blob);
     state.viewerBlob=data.blob;
     state.viewerUrl=fullUrl;
@@ -1113,7 +1167,8 @@ async function renderViewer(){
     viewerLoading.hidden=true;
   }catch(e){
     if(loadSeq!==viewerLoadSeq)return;
-    if(!previewUrl){
+    await previewPromise;
+    if(!thumbUrl&&!viewerImage.src){
       viewerLoading.textContent=t('loadFailed');
       viewerLoading.hidden=false;
     }
@@ -1187,7 +1242,7 @@ function handleAlbumPopState(e){
   showAlbumHome();
 }
 
-$('manualBtn').addEventListener('click',()=>openManualLanguagePicker(true));
+$('manualBtn').addEventListener('click',()=>openUnifiedManual(uiLang(),true));
 $('mainAppBtn').addEventListener('click',returnToMainApp);
 $('manualPickerKo').addEventListener('click',()=>chooseManualLanguage('ko'));
 $('manualPickerLo').addEventListener('click',()=>chooseManualLanguage('lo'));
@@ -1238,7 +1293,11 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('focus',()=>checkForAppUpdate(false));
 setInterval(()=>{if(document.visibilityState==='visible')checkForAppUpdate(false)},UPDATE_CHECK_INTERVAL_MS);
-window.addEventListener('beforeunload',()=>{for(const url of thumbUrls)URL.revokeObjectURL(url);thumbUrls.clear();thumbUrlCache.clear()});
+window.addEventListener('beforeunload',()=>{
+  for(const url of thumbUrls)URL.revokeObjectURL(url);
+  for(const url of previewUrlCache.values())URL.revokeObjectURL(url);
+  thumbUrls.clear();thumbUrlCache.clear();previewUrlCache.clear();previewInflight.clear();
+});
 
 applyLanguage();renderSharedRoute();normalizeModeInUrl();initAlbumHistory();loadFolders(false);
 setTimeout(async()=>{const updating=await checkForAppUpdate(true);if(!updating)showUpdatePopupIfNeeded(false)},1200);

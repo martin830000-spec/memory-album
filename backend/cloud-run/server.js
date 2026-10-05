@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.1' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.2' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -208,6 +208,22 @@ app.get('/api/thumb', async (req, res, next) => {
     pipeGoogleResponse(upstream, res, meta.name, false);
   } catch (e) { next(e); }
 });
+
+app.get('/api/preview', async (req, res, next) => {
+  try {
+    const id = String(req.query.id || '');
+    if (!id) return res.status(400).json({ ok: false, error: 'file_id_required' });
+    const meta = await getVerifiedImageMeta(id, 'id,name,mimeType,parents,size,modifiedTime,thumbnailLink');
+    const token = await getGoogleToken();
+    let url = meta.thumbnailLink || '';
+    if (url) url = url.replace(/=s\d+(?:-c)?$/, '=s2048');
+    if (!url) url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`;
+    const upstream = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
+    res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
+    pipeGoogleResponse(upstream, res, meta.name, false);
+  } catch (e) { next(e); }
+});
+
 
 app.get('/api/media', async (req, res, next) => {
   try {
