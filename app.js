@@ -581,6 +581,11 @@ viewerStage.addEventListener('pointerdown',onViewerPointerDown,{passive:false});
 viewerStage.addEventListener('pointermove',onViewerPointerMove,{passive:false});
 viewerStage.addEventListener('pointerup',onViewerPointerEnd,{passive:false});
 viewerStage.addEventListener('pointercancel',onViewerPointerEnd,{passive:false});
+// iOS Safari can still emit its native gesture events even when Pointer Events are used.
+// Prevent only inside the photo stage so pinch/pan stays owned by the album viewer.
+for(const type of ['gesturestart','gesturechange','gestureend']){
+  viewerStage.addEventListener(type,e=>e.preventDefault(),{passive:false});
+}
 window.addEventListener('resize',()=>{if(!viewer.hidden)applyViewerTransform()});
 backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeSheet()});
 window.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
