@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.4' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.5' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -188,6 +188,53 @@ app.post('/api/folders', async (req, res, next) => {
     insideRootCache.set(String(created.id), { value: true, at: Date.now() });
     const localized = (await localizeFolders([created], req.query.lang))[0] || created;
     res.status(201).json({ ok: true, folder: localized });
+  } catch (e) { next(e); }
+});
+
+
+app.post('/api/folder/rename', async (req, res, next) => {
+  try {
+    const id = String(req.body?.id || '');
+    const name = normalizeFolderName(req.body?.name);
+    if (!id) return res.status(400).json({ ok: false, error: 'folder_id_required' });
+    if (!name) return res.status(400).json({ ok: false, error: 'folder_name_required' });
+    if (id === ROOT_ID) return res.status(403).json({ ok: false, error: 'root_folder_rename_forbidden' });
+
+    await assertFolderInsideRoot(id);
+    const current = await getMeta(id, 'id,name,mimeType,parents,createdTime,modifiedTime');
+    if (current.mimeType !== 'application/vnd.google-apps.folder') {
+      return res.status(400).json({ ok: false, error: 'not_folder' });
+    }
+
+    if (String(current.name || '') === name) {
+      const localized = (await localizeFolders([current], req.query.lang))[0] || current;
+      return res.json({ ok: true, folder: localized, unchanged: true });
+    }
+
+    const parentId = String(current.parents?.[0] || ROOT_ID);
+    const existing = await driveList({
+      q: `'${escapeQuery(parentId)}' in parents and trashed = false and mimeType = 'application/vnd.google-apps.folder' and name = '${escapeQuery(name)}'`,
+      pageSize: '10',
+      fields: 'files(id)'
+    });
+    if ((existing.files || []).some(x => String(x.id) !== id)) {
+      return res.status(409).json({ ok: false, error: 'folder_name_exists' });
+    }
+
+    const updated = await driveJsonRequest(`files/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      params: { fields: 'id,name,mimeType,parents,createdTime,modifiedTime' },
+      body: { name }
+    });
+
+    fileMetaCache.delete(id);
+    for (const key of [...translationCache.keys()]) {
+      if (String(key).startsWith(id + '\n')) translationCache.delete(key);
+    }
+    insideRootCache.set(id, { value: true, at: Date.now() });
+
+    const localized = (await localizeFolders([updated], req.query.lang))[0] || updated;
+    res.json({ ok: true, folder: localized });
   } catch (e) { next(e); }
 });
 
