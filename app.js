@@ -50,6 +50,7 @@ const I18N={
     ok:'확인',close:'닫기',ready:'준비 중',apiPending:'사진첩 전용 Google Drive 연결 설정이 아직 완료되지 않았어요.',
     apiMissing:'사진 API 주소가 아직 설정되지 않았어요. 백엔드 연결 후 자동으로 표시됩니다.',authMissing:'본앱에서 사진첩을 열어주세요. 본앱의 접근 정보가 필요합니다.',
     loadFailed:'사진을 불러오지 못했습니다.',uploading:'업로드 중',uploadingTitle:'사진 업로드 중',uploadDone:'업로드 완료',uploadFailed:'업로드 실패',chooseFolder:'업로드할 폴더 선택',
+    uploadCancel:'업로드 취소',uploadCancelled:'업로드 취소됨',uploadCancelledDetail:(done,total)=>`${done} / ${total}장 업로드 후 중단했습니다. 이미 완료된 사진은 유지됩니다. 취소 시점에 서버 저장이 끝난 사진은 목록에 남을 수 있습니다.`,
     uploadCount:(current,total)=>`${current} / ${total}장`,uploadOverall:p=>`전체 진행률 ${p}%`,uploadCurrent:p=>`현재 사진 ${p}%`,uploadSaving:'Google Drive에 저장 중…',
     createFolder:'새 폴더',createFolderHint:'사진을 정리할 새 앨범 폴더 만들기',createSubfolder:'＋ 폴더',folderName:'폴더 이름',folderNamePlaceholder:'새 폴더 이름',
     renameFolder:'이름바꾸기',renameFolderTitle:'폴더 이름바꾸기',renameFolderPlaceholder:'새 폴더 이름',folderRenamed:'폴더 이름을 변경했습니다.',folderRenameFailed:'폴더 이름을 변경하지 못했습니다.',folderNameUnchanged:'현재와 같은 이름입니다.',
@@ -82,6 +83,7 @@ const I18N={
     ok:'ຕົກລົງ',close:'ປິດ',ready:'ກຳລັງກຽມ',apiPending:'ຍັງບໍ່ທັນເຊື່ອມລະບົບ Google Drive ສຳລັບອະລະບໍ້າ.',
     apiMissing:'ຍັງບໍ່ໄດ້ຕັ້ງທີ່ຢູ່ API ຮູບ. ຫຼັງເຊື່ອມ backend ແລ້ວຈະສະແດງອັດຕະໂນມັດ.',authMissing:'ກະລຸນາເປີດອະລະບໍ້າຈາກແອັບຫຼັກ. ຕ້ອງໃຊ້ຂໍ້ມູນເຂົ້າເຖິງຈາກແອັບຫຼັກ.',
     loadFailed:'ບໍ່ສາມາດໂຫຼດຮູບໄດ້.',uploading:'ກຳລັງອັບໂຫຼດ',uploadingTitle:'ກຳລັງອັບໂຫຼດຮູບ',uploadDone:'ອັບໂຫຼດສຳເລັດ',uploadFailed:'ອັບໂຫຼດບໍ່ສຳເລັດ',chooseFolder:'ເລືອກໂຟນເດີທີ່ຈະອັບໂຫຼດ',
+    uploadCancel:'ຍົກເລີກອັບໂຫຼດ',uploadCancelled:'ຍົກເລີກການອັບໂຫຼດແລ້ວ',uploadCancelledDetail:(done,total)=>`ຢຸດຫຼັງຈາກອັບໂຫຼດ ${done} / ${total} ຮູບ. ຮູບທີ່ສຳເລັດແລ້ວຈະຍັງຢູ່. ຮູບທີ່ server ບັນທຶກສຳເລັດແລ້ວຕອນກົດຍົກເລີກອາດຍັງສະແດງໃນລາຍການ.`,
     uploadCount:(current,total)=>`${current} / ${total} ຮູບ`,uploadOverall:p=>`ຄວາມຄືບໜ້າລວມ ${p}%`,uploadCurrent:p=>`ຮູບປັດຈຸບັນ ${p}%`,uploadSaving:'ກຳລັງບັນທຶກເຂົ້າ Google Drive…',
     createFolder:'ສ້າງໂຟນເດີ',createFolderHint:'ສ້າງໂຟນເດີອະລະບໍ້າໃໝ່',createSubfolder:'＋ ໂຟນເດີ',folderName:'ຊື່ໂຟນເດີ',folderNamePlaceholder:'ຊື່ໂຟນເດີໃໝ່',
     renameFolder:'ປ່ຽນຊື່',renameFolderTitle:'ປ່ຽນຊື່ໂຟນເດີ',renameFolderPlaceholder:'ຊື່ໂຟນເດີໃໝ່',folderRenamed:'ປ່ຽນຊື່ໂຟນເດີແລ້ວ.',folderRenameFailed:'ປ່ຽນຊື່ໂຟນເດີບໍ່ສຳເລັດ.',folderNameUnchanged:'ຊື່ນີ້ແມ່ນຊື່ປັດຈຸບັນແລ້ວ.',
@@ -111,7 +113,7 @@ const MANUAL_CONTENT={
     {title:'사진 보기와 이동',items:['썸네일을 한 번 누르면 원본 사진 화면이 열립니다.','확대하지 않은 상태에서는 좌우로 스와이프해 이전·다음 사진으로 이동합니다.','두 손가락으로 확대·축소하고, 확대된 상태에서는 한 손가락으로 좌우·상하 이동합니다.','휴대폰 뒤로가기는 원본 사진 → 현재 폴더 → 사진첩 홈 순서로 돌아갑니다.']},
     {title:'여러 장 선택',items:['썸네일 한 장을 약 0.4초 길게 누르면 갤러리처럼 선택 모드가 시작됩니다.','선택 모드에서는 다른 사진을 눌러 여러 장을 추가하거나 해제할 수 있습니다.','전체 선택·전체 해제도 사용할 수 있습니다.','선택 사진은 여러 장 저장하거나 한 번에 삭제할 수 있습니다.']},
     {title:'사진 저장과 공유',items:['한 장은 원본 화면의 다운로드 또는 공유 버튼을 사용합니다.','여러 장 저장은 원본을 준비한 뒤 휴대폰의 시스템 저장/공유 화면을 엽니다.','iPhone에서는 공유 화면의 이미지 저장, Android에서는 기기의 저장/공유 항목을 사용하면 됩니다.','대량 사진은 휴대폰 메모리를 위해 여러 번에 나눠 저장하는 것을 권장합니다.']},
-    {title:'업로드',items:['＋ 업로드에서 여러 사진을 한 번에 선택할 수 있습니다.','현재 사진 진행률과 전체 진행률을 따로 표시합니다.','전송이 끝난 뒤 Google Drive에 저장 중 단계가 표시되고 완료 후 목록을 갱신합니다.']},
+    {title:'업로드',items:['＋ 업로드에서 여러 사진을 한 번에 선택할 수 있습니다.','현재 사진 진행률과 전체 진행률을 따로 표시합니다.','업로드 중에는 업로드 취소 버튼으로 현재 전송과 남은 사진 업로드를 중단할 수 있습니다. 이미 완료된 사진은 유지됩니다.','전송이 끝난 뒤 Google Drive에 저장 중 단계가 표시되고 완료 후 목록을 갱신합니다.']},
     {title:'삭제와 복구',items:['사진·여러 사진·폴더 삭제는 모두 확인 화면을 거친 뒤 실행됩니다.','삭제 항목은 즉시 영구 삭제하지 않고 Google Drive 휴지통으로 이동합니다.','실수로 삭제했다면 Google Drive 휴지통에서 복구할 수 있습니다.']},
     {title:'업데이트',items:['사진첩은 새 버전을 자동 확인합니다.','업로드나 여러 장 저장·삭제 중에는 강제 갱신하지 않고 작업이 끝난 뒤 갱신합니다.','업데이트 후에는 한 번 팝업으로 주요 변경점을 안내하며, 업데이트 내역 탭에서 상세 기록을 다시 볼 수 있습니다.']}
   ],
@@ -120,7 +122,7 @@ const MANUAL_CONTENT={
     {title:'ເບິ່ງຮູບ ແລະ ເລື່ອນຮູບ',items:['ແຕະຮູບຕົວຢ່າງໜຶ່ງຄັ້ງເພື່ອເປີດຮູບຕົ້ນສະບັບ.','ເມື່ອບໍ່ໄດ້ຊູມ ປັດຊ້າຍ/ຂວາເພື່ອໄປຮູບກ່ອນໜ້າ ຫຼື ຮູບຖັດໄປ.','ໃຊ້ສອງນິ້ວເພື່ອຊູມ ແລະ ເມື່ອຊູມແລ້ວໃຊ້ນິ້ວດຽວເລື່ອນຮູບໄດ້ທຸກທິດ.','ປຸ່ມກັບຂອງໂທລະສັບຈະກັບຈາກຮູບ → ໂຟນເດີ → ໜ້າຫຼັກອະລະບໍ້າ.']},
     {title:'ເລືອກຫຼາຍຮູບ',items:['ກົດຄ້າງຮູບຕົວຢ່າງປະມານ 0.4 ວິນາທີເພື່ອເຂົ້າໂໝດເລືອກແບບແອັບ Gallery.','ໃນໂໝດເລືອກ ແຕະຮູບອື່ນເພື່ອເພີ່ມ ຫຼື ຍົກເລີກ.','ສາມາດເລືອກທັງໝົດ ຫຼື ຍົກເລີກທັງໝົດໄດ້.','ຮູບທີ່ເລືອກສາມາດບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບພ້ອມກັນໄດ້.']},
     {title:'ບັນທຶກ ແລະ ແບ່ງປັນ',items:['ຮູບດຽວໃຊ້ປຸ່ມດາວໂຫຼດ ຫຼື ແບ່ງປັນໃນໜ້າຮູບຕົ້ນສະບັບ.','ການບັນທຶກຫຼາຍຮູບຈະກຽມໄຟລ໌ຕົ້ນສະບັບແລ້ວເປີດໜ້າບັນທຶກ/ແບ່ງປັນຂອງໂທລະສັບ.','ໃນ iPhone ໃຫ້ເລືອກບັນທຶກຮູບຈາກໜ້າ Share; ໃນ Android ໃຫ້ໃຊ້ລາຍການບັນທຶກ/ແບ່ງປັນຂອງເຄື່ອງ.','ຖ້າມີຮູບຈຳນວນຫຼາຍ ແນະນຳໃຫ້ແບ່ງບັນທຶກເປັນຫຼາຍຄັ້ງ.']},
-    {title:'ອັບໂຫຼດ',items:['ປຸ່ມ ＋ ອັບໂຫຼດ ສາມາດເລືອກຫຼາຍຮູບໄດ້.','ຈະສະແດງຄວາມຄືບໜ້າຂອງຮູບປັດຈຸບັນ ແລະ ຄວາມຄືບໜ້າລວມແຍກກັນ.','ຫຼັງສົ່ງໄຟລ໌ແລ້ວຈະສະແດງຂັ້ນຕອນກຳລັງບັນທຶກເຂົ້າ Google Drive ແລະ ຈະໂຫຼດລາຍການໃໝ່ຫຼັງສຳເລັດ.']},
+    {title:'ອັບໂຫຼດ',items:['ປຸ່ມ ＋ ອັບໂຫຼດ ສາມາດເລືອກຫຼາຍຮູບໄດ້.','ຈະສະແດງຄວາມຄືບໜ້າຂອງຮູບປັດຈຸບັນ ແລະ ຄວາມຄືບໜ້າລວມແຍກກັນ.','ລະຫວ່າງອັບໂຫຼດ ສາມາດກົດ ຍົກເລີກອັບໂຫຼດ ເພື່ອຢຸດຮູບປັດຈຸບັນ ແລະ ຮູບທີ່ເຫຼືອ. ຮູບທີ່ສຳເລັດແລ້ວຈະຍັງຢູ່.','ຫຼັງສົ່ງໄຟລ໌ແລ້ວຈະສະແດງຂັ້ນຕອນກຳລັງບັນທຶກເຂົ້າ Google Drive ແລະ ຈະໂຫຼດລາຍການໃໝ່ຫຼັງສຳເລັດ.']},
     {title:'ລຶບ ແລະ ກູ້ຄືນ',items:['ການລຶບຮູບ, ຫຼາຍຮູບ ແລະ ໂຟນເດີຈະຕ້ອງຜ່ານໜ້າຢືນຢັນກ່ອນ.','ລາຍການທີ່ລຶບຈະບໍ່ຖືກລຶບຖາວອນທັນທີ ແຕ່ຈະຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.','ຖ້າລຶບຜິດ ສາມາດກູ້ຄືນໄດ້ຈາກຖັງຂີ້ເຫຍື້ອ Google Drive.']},
     {title:'ອັບເດດ',items:['ອະລະບໍ້າຮູບຈະກວດຫາເວີຊັນໃໝ່ອັດຕະໂນມັດ.','ລະຫວ່າງອັບໂຫຼດ, ບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບ ຈະບໍ່ບັງຄັບໂຫຼດໃໝ່; ຈະອັບເດດຫຼັງວຽກສຳເລັດ.','ຫຼັງອັບເດດຈະມີປັອບອັບແຈ້ງການໜຶ່ງຄັ້ງ ແລະ ສາມາດເບິ່ງລາຍລະອຽດຈາກແຖບປະຫວັດອັບເດດ.']}
   ]
@@ -169,6 +171,8 @@ let viewerOriginalKey='';
 let viewerOriginalPromise=null;
 let neighborPrefetchTimer=0;
 let uploadBusy=false;
+let uploadCancelRequested=false;
+let activeUploadXhr=null;
 let downloadBusy=false;
 let deleteBusy=false;
 let trashBusy=false;
@@ -1154,8 +1158,14 @@ function openConfirmSheet(title,text,onConfirm,confirmLabel=t('confirm')){
   cancel.addEventListener('click',closeSheet);ok.addEventListener('click',()=>{closeSheet();onConfirm?.()});
   row.append(cancel,ok);sheetActions.appendChild(row);backdrop.hidden=false;
 }
+function cancelUpload(){
+  if(!uploadBusy)return;
+  uploadCancelRequested=true;
+  if(activeUploadXhr){try{activeUploadXhr.abort()}catch(_){}}
+}
 function closeSheet(){
-  if(uploadBusy||downloadBusy||deleteBusy)return;
+  if(uploadBusy){cancelUpload();return}
+  if(downloadBusy||deleteBusy)return;
   const wasPrepared=preparedSaveActive;
   preparedSaveActive=false;backdrop.hidden=true;backdrop.classList.remove('above-trash');sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok');
   if(!wasPrepared&&pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
@@ -1282,7 +1292,7 @@ function showUploadProgress(file,index,total,filePercent,overallPercent,saving=f
     <div class="upload-progress-row overall"><strong>${escapeHtml(t('uploadOverall',overallPercent))}</strong><span>${overallPercent}%</span></div>
     <div class="upload-progress-track overall"><span style="width:${overallPercent}%"></span></div>
   </div>`;
-  $('closeSheet').textContent=t('uploading');$('closeSheet').disabled=true;backdrop.hidden=false;
+  $('closeSheet').textContent=t('uploadCancel');$('closeSheet').disabled=false;backdrop.hidden=false;
 }
 function openCreateFolderSheet(parentId){
   openSheet(t('createFolder'),'',[],t('cancel'));
@@ -1367,8 +1377,9 @@ async function uploadSelectedFiles(){
   const files=[...photoInput.files],bases=apiBases(),key=accessKey();
   if(!bases.length)return handleUploadError({code:'API_NOT_CONFIGURED'});
   if(!key)return handleUploadError({code:'ACCESS_KEY_MISSING'});
-  uploadBusy=true;let done=0;
+  uploadBusy=true;uploadCancelRequested=false;activeUploadXhr=null;let done=0;
   for(let i=0;i<files.length;i++){
+    if(uploadCancelRequested)break;
     const file=files[i];
     try{
       showUploadProgress(file,i+1,files.length,0,Math.round(done/files.length*100),false);
@@ -1381,11 +1392,25 @@ async function uploadSelectedFiles(){
       });
       done++;
     }catch(e){
+      activeUploadXhr=null;
       uploadBusy=false;$('closeSheet').disabled=false;
+      if(e?.code==='UPLOAD_CANCELLED'||uploadCancelRequested){
+        uploadCancelRequested=false;
+        openSheet(t('uploadCancelled'),t('uploadCancelledDetail',done,files.length));
+        refreshCurrent();
+        return;
+      }
+      uploadCancelRequested=false;
       handleUploadError(e,file.name);applyPendingAppUpdate();return;
     }
   }
-  uploadBusy=false;
+  activeUploadXhr=null;uploadBusy=false;
+  if(uploadCancelRequested){
+    uploadCancelRequested=false;
+    openSheet(t('uploadCancelled'),t('uploadCancelledDetail',done,files.length));
+    refreshCurrent();
+    return;
+  }
   if(applyPendingAppUpdate())return;
   openSheet(t('uploadDone'),`${done} / ${files.length}`);
   setTimeout(()=>{closeSheet();refreshCurrent()},900);
@@ -1393,20 +1418,40 @@ async function uploadSelectedFiles(){
 function uploadOne(file,folderId,onProgress,onSaving){
   const bases=apiBases(),key=accessKey();
   return new Promise((resolve,reject)=>{
+    let settled=false;
+    const failCancelled=()=>{
+      if(settled)return;
+      settled=true;
+      const err=new Error('UPLOAD_CANCELLED');err.code='UPLOAD_CANCELLED';reject(err);
+    };
     const tryAt=i=>{
-      if(i>=bases.length)return reject(new Error('UPLOAD_FAILED'));
+      if(uploadCancelRequested)return failCancelled();
+      if(i>=bases.length){settled=true;return reject(new Error('UPLOAD_FAILED'))}
       const xhr=new XMLHttpRequest();
+      activeUploadXhr=xhr;
+      const clear=()=>{if(activeUploadXhr===xhr)activeUploadXhr=null};
       xhr.open('POST',bases[i]+'/api/upload?folder='+encodeURIComponent(folderId));
       xhr.setRequestHeader('X-Album-Key',key);
-      xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress?.(Math.max(0,Math.min(100,Math.round(e.loaded/e.total*100))))};
-      xhr.upload.onload=()=>onSaving?.();
+      xhr.upload.onprogress=e=>{if(!uploadCancelRequested&&e.lengthComputable)onProgress?.(Math.max(0,Math.min(100,Math.round(e.loaded/e.total*100))))};
+      xhr.upload.onload=()=>{if(!uploadCancelRequested)onSaving?.()};
       xhr.onload=()=>{
-        if(xhr.status>=200&&xhr.status<300){onProgress?.(100);return resolve(xhr.responseText)}
+        clear();
+        if(settled)return;
+        if(uploadCancelRequested)return failCancelled();
+        if(xhr.status>=200&&xhr.status<300){settled=true;onProgress?.(100);return resolve(xhr.responseText)}
         if((xhr.status>=500||xhr.status===404)&&i+1<bases.length)return tryAt(i+1);
-        const err=new Error('HTTP_'+xhr.status);err.status=xhr.status;err.body=xhr.responseText||'';reject(err);
+        settled=true;const err=new Error('HTTP_'+xhr.status);err.status=xhr.status;err.body=xhr.responseText||'';reject(err);
       };
-      xhr.onerror=()=>i+1<bases.length?tryAt(i+1):reject(new Error('NETWORK'));
+      xhr.onerror=()=>{
+        clear();
+        if(settled)return;
+        if(uploadCancelRequested)return failCancelled();
+        if(i+1<bases.length)return tryAt(i+1);
+        settled=true;reject(new Error('NETWORK'));
+      };
+      xhr.onabort=()=>{clear();failCancelled()};
       const fd=new FormData();fd.append('file',file,file.name);xhr.send(fd);
+      if(uploadCancelRequested)xhr.abort();
     };
     tryAt(0);
   });
