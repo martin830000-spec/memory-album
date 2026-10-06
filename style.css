@@ -234,3 +234,6 @@ body.light .trash-panel{background:#f8fafc}body.light .trash-item{background:#ff
 .save-files-choice.primary-save-choice{border-color:rgba(90,145,235,.48);background:rgba(90,145,235,.12)}
 .save-files-choice small{display:block;margin-top:4px;line-height:1.45}
 body.light .app-toast{background:rgba(32,38,48,.94);color:#fff}
+
+/* V0.6.10 · mobile management touch targets */
+@media(max-width:480px){.album-toolbar-actions button{min-height:42px;padding-top:9px;padding-bottom:9px}.link-btn{min-height:42px;padding:10px 0}.trash-toolbar button,.trash-restore-btn{min-height:40px}}

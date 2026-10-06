@@ -43,7 +43,7 @@ function corsHeaders(origin, allowed) {
   return {
     'Access-Control-Allow-Origin': ok ? (origin || allowed) : allowed,
     'Vary': 'Origin',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Album-Key, Range',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Album-Key, X-Album-Request-Id, Range',
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
     'Access-Control-Expose-Headers': 'Content-Type, Content-Length, Content-Range, X-File-Name'
   };
