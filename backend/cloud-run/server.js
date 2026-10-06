@@ -19,7 +19,10 @@ let recentCache = { data: [], expiresAt: 0 };
 const insideRootCache = new Map();
 const translationCache = new Map();
 const fileMetaCache = new Map();
+const thumbnailLogAt = new Map();
 const FILE_META_TTL_MS = 30 * 60 * 1000;
+const THUMB_LOG_INTERVAL_MS = 5 * 60 * 1000;
+const THUMB_LOG_MAX_KEYS = 600;
 const KNOWN_LAO_FOLDER_NAMES = new Map([
   ['결혼사진', 'ຮູບແຕ່ງງານ'],
   ['아내 졸업사진', 'ຮູບຈົບການສຶກສາຂອງພັນລະຍາ']
@@ -41,7 +44,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.8' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.9' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -294,6 +297,21 @@ app.post('/api/media/delete', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+function logThumbnailEvent(level, event, data = {}, key = '') {
+  const now = Date.now();
+  const throttleKey = String(key || event || 'thumb');
+  const last = Number(thumbnailLogAt.get(throttleKey) || 0);
+  if (now - last < THUMB_LOG_INTERVAL_MS) return false;
+  thumbnailLogAt.set(throttleKey, now);
+  if (thumbnailLogAt.size > THUMB_LOG_MAX_KEYS) {
+    const oldest = [...thumbnailLogAt.entries()].sort((a, b) => a[1] - b[1]).slice(0, Math.ceil(THUMB_LOG_MAX_KEYS / 4));
+    for (const [oldKey] of oldest) thumbnailLogAt.delete(oldKey);
+  }
+  const fn = typeof console[level] === 'function' ? console[level] : console.log;
+  fn.call(console, event, JSON.stringify(data));
+  return true;
+}
+
 function isThumbnailTransientStatus(status) {
   const n = Number(status || 0);
   return n === 403 || n === 404 || n === 408 || n === 409 || n === 425 || n === 429 || n >= 500;
@@ -302,7 +320,7 @@ function isThumbnailTransientStatus(status) {
 function thumbnailNotReady(res, id, reason, upstreamStatus = 0) {
   const safeReason = String(reason || 'pending').replace(/[^a-z0-9_-]/gi, '').slice(0, 48) || 'pending';
   const status = Number(upstreamStatus || 0);
-  console.warn('[thumb-pending]', JSON.stringify({ id: String(id || ''), reason: safeReason, upstreamStatus: status || null }));
+  logThumbnailEvent('warn', '[thumb-pending]', { id: String(id || ''), reason: safeReason, upstreamStatus: status || null }, `pending:${String(id || '')}:${safeReason}`);
   res.setHeader('Retry-After', '2');
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Album-Thumb-State', safeReason);
@@ -362,11 +380,11 @@ app.get('/api/thumb', async (req, res, next) => {
         meta = rememberFileMeta(fresh);
       }
     } catch (metaError) {
-      console.warn('[thumb-refresh-failed]', JSON.stringify({
+      logThumbnailEvent('warn', '[thumb-refresh-failed]', {
         id,
         upstreamStatus: firstStatus || null,
         metadataStatus: Number(metaError?.status || 0) || null
-      }));
+      }, `refresh:${id}`);
     }
 
     if (!meta.thumbnailLink) {
@@ -378,7 +396,7 @@ app.get('/api/thumb', async (req, res, next) => {
       const upstream = await fetchGoogle(sizedThumbnailUrl(meta.thumbnailLink, 640), {
         headers: { Authorization: `Bearer ${retryToken}` }
       });
-      console.info('[thumb-recovered]', JSON.stringify({ id, firstStatus: firstStatus || null }));
+      logThumbnailEvent('info', '[thumb-recovered]', { id, firstStatus: firstStatus || null }, `recovered:${id}`);
       res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
       return pipeGoogleResponse(upstream, res, meta.name, false);
     } catch (retryError) {
@@ -395,17 +413,61 @@ app.get('/api/preview', async (req, res, next) => {
   try {
     const id = String(req.query.id || '');
     if (!id) return res.status(400).json({ ok: false, error: 'file_id_required' });
-    const meta = await getVerifiedImageMeta(id, 'id,name,mimeType,parents,size,modifiedTime,thumbnailLink');
+    const fields = 'id,name,mimeType,parents,size,modifiedTime,thumbnailLink';
+    let meta = await getVerifiedImageMeta(id, fields);
+
+    // Preview must never fall back to the full original. The viewer starts /api/media
+    // separately, so using alt=media here could download the same multi-MB file twice.
+    if (!meta.thumbnailLink) {
+      const fresh = await getMeta(id, fields);
+      if (String(fresh?.mimeType || '').startsWith('image/')) meta = rememberFileMeta(fresh);
+    }
+    if (!meta.thumbnailLink) return thumbnailNotReady(res, id, 'preview_link_missing');
+
     const token = await getGoogleToken();
-    let url = meta.thumbnailLink || '';
-    if (url) url = url.replace(/=s\d+(?:-c)?$/, '=s2048');
-    if (!url) url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`;
-    const upstream = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
-    res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
-    pipeGoogleResponse(upstream, res, meta.name, false);
+    let firstError = null;
+    try {
+      const upstream = await fetchGoogle(sizedThumbnailUrl(meta.thumbnailLink, 2048), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
+      return pipeGoogleResponse(upstream, res, meta.name, false);
+    } catch (e) {
+      firstError = e;
+    }
+
+    const firstStatus = Number(firstError?.status || 0);
+    if (!isThumbnailTransientStatus(firstStatus)) throw firstError;
+
+    try {
+      const fresh = await getMeta(id, fields);
+      if (String(fresh?.mimeType || '').startsWith('image/')) meta = rememberFileMeta(fresh);
+    } catch (metaError) {
+      logThumbnailEvent('warn', '[preview-refresh-failed]', {
+        id,
+        upstreamStatus: firstStatus || null,
+        metadataStatus: Number(metaError?.status || 0) || null
+      }, `preview-refresh:${id}`);
+    }
+
+    if (!meta.thumbnailLink) return thumbnailNotReady(res, id, 'preview_link_missing_after_refresh', firstStatus);
+
+    try {
+      const retryToken = await getGoogleToken();
+      const upstream = await fetchGoogle(sizedThumbnailUrl(meta.thumbnailLink, 2048), {
+        headers: { Authorization: `Bearer ${retryToken}` }
+      });
+      res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
+      return pipeGoogleResponse(upstream, res, meta.name, false);
+    } catch (retryError) {
+      const retryStatus = Number(retryError?.status || firstStatus || 0);
+      if (isThumbnailTransientStatus(retryStatus)) {
+        return thumbnailNotReady(res, id, `preview_upstream_${retryStatus || 'error'}`, retryStatus);
+      }
+      throw retryError;
+    }
   } catch (e) { next(e); }
 });
-
 
 app.get('/api/media', async (req, res, next) => {
   try {

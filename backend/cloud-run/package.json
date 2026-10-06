@@ -1,6 +1,6 @@
 {
   "name": "memory-album-api",
-  "version": "0.5.7",
+  "version": "0.5.9",
   "private": true,
   "type": "module",
   "scripts": {
