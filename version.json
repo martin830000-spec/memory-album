@@ -1,12 +1,36 @@
 {
-  "version": "V0.6.11",
-  "build": "20261006-LARGE-DOWNLOAD-R1",
+  "version": "V0.6.12",
+  "build": "20261006-BACKEND-HARDENING-R1",
   "date": "2026-10-06",
   "summary": {
-    "ko": "수백 장 원본 저장 시 메모리 폭증을 막고 저장 취소 기능을 추가했습니다.",
-    "lo": "ປ້ອງກັນ memory ເຕັມເວລາບັນທຶກຮູບຈຳນວນຫຼາຍ ແລະ ເພີ່ມການຍົກເລີກ."
+    "ko": "업로드·폴더 생성 중복 방지와 백엔드 업로드 보안을 강화했습니다.",
+    "lo": "ເພີ່ມການປ້ອງກັນສ້າງຊ້ຳ ແລະ ປັບປຸງຄວາມປອດໄພ backend upload."
   },
   "history": [
+    {
+      "version": "V0.6.12",
+      "date": "2026-10-06",
+      "title": {
+        "ko": "백엔드 업로드·재시도 안정화",
+        "lo": "ປັບປຸງ backend upload ແລະ retry"
+      },
+      "changes": {
+        "ko": [
+          "Multer를 보안 수정이 포함된 안정판 2.4.0으로 업그레이드하고 직접 의존성 버전을 고정",
+          "POST 작업에 동일 요청 ID를 붙여 직통 Cloud Run → Cloudflare 재시도에서도 같은 작업을 식별",
+          "사진 업로드 요청 ID를 Google Drive appProperties에 기록해 응답 유실 후 재시도되어도 같은 사진을 다시 생성하지 않음",
+          "새 폴더 생성도 같은 방식으로 중복 생성을 방지",
+          "기존 인증키·Drive 루트 경계·업로드 크기 제한·이미지 전용 정책은 그대로 유지"
+        ],
+        "lo": [
+          "ອັບເກຣດ Multer ເປັນ 2.4.0 ທີ່ມີ security fixes ແລະ ລັອກ version ຂອງ direct dependencies",
+          "ເພີ່ມ request ID ດຽວກັນໃຫ້ POST ເມື່ອ retry ຈາກ Cloud Run ໄປ Cloudflare",
+          "ບັນທຶກ request ID ຂອງ upload ໃນ Google Drive appProperties ເພື່ອບໍ່ສ້າງຮູບຊ້ຳຖ້າ response ຫາຍ",
+          "ການສ້າງໂຟນເດີໃໝ່ກໍປ້ອງກັນການສ້າງຊ້ຳໃນຮູບແບບດຽວກັນ",
+          "ຮັກສາ access key, root boundary, ຂະໜາດ upload limit ແລະ image-only policy ເໝືອນເດີມ"
+        ]
+      }
+    },
     {
       "version": "V0.6.11",
       "date": "2026-10-06",
