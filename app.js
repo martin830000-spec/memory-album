@@ -52,6 +52,7 @@ const I18N={
     loadFailed:'사진을 불러오지 못했습니다.',uploading:'업로드 중',uploadingTitle:'사진 업로드 중',uploadDone:'업로드 완료',uploadFailed:'업로드 실패',chooseFolder:'업로드할 폴더 선택',
     uploadCount:(current,total)=>`${current} / ${total}장`,uploadOverall:p=>`전체 진행률 ${p}%`,uploadCurrent:p=>`현재 사진 ${p}%`,uploadSaving:'Google Drive에 저장 중…',
     createFolder:'새 폴더',createFolderHint:'사진을 정리할 새 앨범 폴더 만들기',createSubfolder:'＋ 폴더',folderName:'폴더 이름',folderNamePlaceholder:'새 폴더 이름',
+    renameFolder:'이름바꾸기',renameFolderTitle:'폴더 이름바꾸기',renameFolderPlaceholder:'새 폴더 이름',folderRenamed:'폴더 이름을 변경했습니다.',folderRenameFailed:'폴더 이름을 변경하지 못했습니다.',folderNameUnchanged:'현재와 같은 이름입니다.',
     folderCreated:'폴더를 만들었습니다.',folderCreateFailed:'폴더를 만들지 못했습니다.',folderExists:'같은 이름의 폴더가 이미 있습니다.',
     delete:'삭제',deletePhoto:'사진 삭제',deleteFolder:'폴더 삭제',deleting:'삭제 중',deleteDone:'삭제 완료',deleteFailed:'삭제 실패',
     deletePhotoConfirm:name=>`"${name}" 사진을 삭제할까요? Google Drive 휴지통으로 이동합니다.`,
@@ -83,6 +84,7 @@ const I18N={
     loadFailed:'ບໍ່ສາມາດໂຫຼດຮູບໄດ້.',uploading:'ກຳລັງອັບໂຫຼດ',uploadingTitle:'ກຳລັງອັບໂຫຼດຮູບ',uploadDone:'ອັບໂຫຼດສຳເລັດ',uploadFailed:'ອັບໂຫຼດບໍ່ສຳເລັດ',chooseFolder:'ເລືອກໂຟນເດີທີ່ຈະອັບໂຫຼດ',
     uploadCount:(current,total)=>`${current} / ${total} ຮູບ`,uploadOverall:p=>`ຄວາມຄືບໜ້າລວມ ${p}%`,uploadCurrent:p=>`ຮູບປັດຈຸບັນ ${p}%`,uploadSaving:'ກຳລັງບັນທຶກເຂົ້າ Google Drive…',
     createFolder:'ສ້າງໂຟນເດີ',createFolderHint:'ສ້າງໂຟນເດີອະລະບໍ້າໃໝ່',createSubfolder:'＋ ໂຟນເດີ',folderName:'ຊື່ໂຟນເດີ',folderNamePlaceholder:'ຊື່ໂຟນເດີໃໝ່',
+    renameFolder:'ປ່ຽນຊື່',renameFolderTitle:'ປ່ຽນຊື່ໂຟນເດີ',renameFolderPlaceholder:'ຊື່ໂຟນເດີໃໝ່',folderRenamed:'ປ່ຽນຊື່ໂຟນເດີແລ້ວ.',folderRenameFailed:'ປ່ຽນຊື່ໂຟນເດີບໍ່ສຳເລັດ.',folderNameUnchanged:'ຊື່ນີ້ແມ່ນຊື່ປັດຈຸບັນແລ້ວ.',
     folderCreated:'ສ້າງໂຟນເດີແລ້ວ.',folderCreateFailed:'ສ້າງໂຟນເດີບໍ່ສຳເລັດ.',folderExists:'ມີໂຟນເດີຊື່ນີ້ແລ້ວ.',
     delete:'ລຶບ',deletePhoto:'ລຶບຮູບ',deleteFolder:'ລຶບໂຟນເດີ',deleting:'ກຳລັງລຶບ',deleteDone:'ລຶບສຳເລັດ',deleteFailed:'ລຶບບໍ່ສຳເລັດ',
     deletePhotoConfirm:name=>`ລຶບຮູບ "${name}" ບໍ? ຮູບຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.`,
@@ -616,7 +618,7 @@ function applyLanguage(){
   $('refreshFoldersBtn').textContent=t('refresh');$('folderEmptyTitle').textContent=t('folderEmptyTitle');$('folderEmptyText').textContent=t('folderEmptyText');
   $('uploadHomeTitle').textContent=t('upload');$('uploadHomeText').textContent=t('uploadHint');$('recentTitle').textContent=t('recent');$('recentText').textContent=t('recentHint');
   $('createFolderTitle').textContent=t('createFolder');$('createFolderText').textContent=t('createFolderHint');$('trashHomeTitle').textContent=t('trash');$('trashHomeText').textContent=t('trashHint');
-  $('folderSubtitle').textContent=t('folderSubtitle');$('folderCount').textContent=t('loadingPhotos');$('uploadFolderBtn').textContent=t('uploadShort');$('createSubfolderBtn').textContent=t('createSubfolder');$('deleteFolderBtn').textContent=t('deleteFolder');$('selectPhotosBtn').textContent=t('selectPhotos');
+  $('folderSubtitle').textContent=t('folderSubtitle');$('folderCount').textContent=t('loadingPhotos');$('uploadFolderBtn').textContent=t('uploadShort');$('createSubfolderBtn').textContent=t('createSubfolder');$('renameFolderBtn').textContent=t('renameFolder');$('deleteFolderBtn').textContent=t('deleteFolder');$('selectPhotosBtn').textContent=t('selectPhotos');
   $('selectAllBtn').textContent=t('selectAll');$('cancelSelectionBtn').textContent=t('cancel');updateSelectionBar();
   $('closeSheet').textContent=t('ok');$('folderBackBtn').setAttribute('aria-label',t('backLabel'));$('footerText').textContent=t('footer');
   $('viewerLoading').textContent=t('viewerLoading');
@@ -1086,7 +1088,7 @@ async function openRecent(pushHistory=true){
   state.currentFolder={id:'__recent__',name:t('recentTitle'),displayName:t('recentTitle'),isRecent:true};
   state.childFolders=[];state.media=[];homeView.hidden=true;folderView.hidden=false;
   folderTitle.textContent=t('recentTitle');folderSubtitle.textContent=t('recentSubtitle');folderCount.textContent=t('loadingPhotos');
-  $('uploadFolderBtn').hidden=true;$('createSubfolderBtn').hidden=true;$('deleteFolderBtn').hidden=true;
+  $('uploadFolderBtn').hidden=true;$('createSubfolderBtn').hidden=true;$('renameFolderBtn').hidden=true;$('deleteFolderBtn').hidden=true;
   subfolderList.innerHTML='';photoGrid.innerHTML='<div class="loading-line"></div>';
   if(pushHistory)pushAlbumHistory('recent');window.scrollTo({top:0,behavior:'smooth'});
   try{
@@ -1111,7 +1113,7 @@ async function openFolderById(id,push=true){
   const folder=rootItem||state.childFolders.find(x=>String(x.id)===String(id))||{id,name:''};
   if(push&&state.currentFolder)state.folderStack.push(state.currentFolder);
   state.currentFolder=folder;homeView.hidden=true;folderView.hidden=false;
-  $('uploadFolderBtn').hidden=false;$('createSubfolderBtn').hidden=false;$('deleteFolderBtn').hidden=false;
+  $('uploadFolderBtn').hidden=false;$('createSubfolderBtn').hidden=false;$('renameFolderBtn').hidden=false;$('deleteFolderBtn').hidden=false;
   folderTitle.textContent=displayName(folder)||t('loadingPhotos');folderSubtitle.textContent=t('folderSubtitle');folderCount.textContent=t('loadingPhotos');
   subfolderList.innerHTML='';photoGrid.innerHTML='<div class="loading-line"></div>';if(push)pushAlbumHistory('folder',id);window.scrollTo({top:0,behavior:'smooth'});
   try{
@@ -1303,6 +1305,40 @@ function openCreateFolderSheet(parentId){
   button.addEventListener('click',submit);
   input.addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
   setTimeout(()=>input.focus(),0);
+}
+
+function openRenameFolderSheet(){
+  const folder=state.currentFolder;if(!folder||folder.isRecent)return;
+  openSheet(t('renameFolderTitle'),' ',[],t('cancel'));
+  const currentName=String(folder.name||displayName(folder)||'').trim();
+  sheetActions.innerHTML=`<label class="sheet-input-label">${escapeHtml(t('folderName'))}<input id="renameFolderInput" class="sheet-input" type="text" maxlength="100" value="${escapeAttr(currentName)}" placeholder="${escapeAttr(t('renameFolderPlaceholder'))}" autocomplete="off"></label><button id="renameFolderConfirmBtn" class="primary" type="button">${escapeHtml(t('renameFolder'))}</button>`;
+  const input=$('renameFolderInput'),button=$('renameFolderConfirmBtn');
+  const submit=async()=>{
+    if(button.disabled)return;
+    const name=String(input.value||'').trim();if(!name){input.focus();return}
+    if(name===currentName){closeSheet();showToast(t('folderNameUnchanged'));return}
+    button.disabled=true;
+    try{
+      const data=await apiPostJson('/api/folder/rename?lang='+encodeURIComponent(uiLang()),{id:folder.id,name});
+      const updated={...folder,...(data.folder||{}),name:String(data.folder?.name||name)};
+      const replaceById=rows=>(rows||[]).map(x=>String(x?.id)===String(folder.id)?{...x,...updated}:x);
+      state.currentFolder=updated;
+      state.folders=replaceById(state.folders);
+      state.childFolders=replaceById(state.childFolders);
+      state.folderStack=replaceById(state.folderStack);
+      folderTitle.textContent=displayName(updated);
+      closeSheet();
+      showToast(t('folderRenamed'));
+    }catch(e){
+      button.disabled=false;
+      const detail=apiErrorDetail(e);
+      const msg=e?.status===409?t('folderExists'):t('folderRenameFailed');
+      sheetText.textContent=msg+(detail?' · '+detail:'');
+    }
+  };
+  button.addEventListener('click',submit);
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
+  setTimeout(()=>{input.focus();input.select()},0);
 }
 function confirmDeleteCurrentFolder(){
   const folder=state.currentFolder;if(!folder||folder.isRecent)return;
@@ -1674,7 +1710,7 @@ $('releaseNoticeOk').addEventListener('click',()=>closeReleaseNotice(false));
 $('themeBtn').addEventListener('click',e=>{body.classList.toggle('light');e.currentTarget.textContent=body.classList.contains('light')?'☀':'☾'});
 $('closeSheet').addEventListener('click',closeSheet);$('folderBackBtn').addEventListener('click',closeFolder);$('refreshFoldersBtn').addEventListener('click',()=>loadFolders(true));
 $('refreshFolderBtn').addEventListener('click',refreshCurrent);$('uploadHomeBtn').addEventListener('click',chooseUploadFolder);$('recentBtn').addEventListener('click',openRecent);$('createFolderBtn').addEventListener('click',()=>openCreateFolderSheet(''));$('trashBtn').addEventListener('click',()=>openTrash(true));$('trashCloseBtn').addEventListener('click',()=>closeTrash(false));$('trashRefreshBtn').addEventListener('click',loadTrash);
-$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent?beginUploadTo(state.currentFolder.id):chooseUploadFolder());$('createSubfolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent&&openCreateFolderSheet(state.currentFolder.id));$('deleteFolderBtn').addEventListener('click',confirmDeleteCurrentFolder);$('selectPhotosBtn').addEventListener('click',()=>setSelectionMode(!selectionMode));$('selectAllBtn').addEventListener('click',toggleSelectAll);$('cancelSelectionBtn').addEventListener('click',()=>setSelectionMode(false));$('downloadSelectedBtn').addEventListener('click',downloadSelectedPhotos);$('deleteSelectedBtn').addEventListener('click',confirmDeleteSelectedPhotos);photoInput.addEventListener('change',uploadSelectedFiles);
+$('sortBtn').addEventListener('click',cycleSort);$('uploadFolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent?beginUploadTo(state.currentFolder.id):chooseUploadFolder());$('createSubfolderBtn').addEventListener('click',()=>state.currentFolder&&!state.currentFolder.isRecent&&openCreateFolderSheet(state.currentFolder.id));$('renameFolderBtn').addEventListener('click',openRenameFolderSheet);$('deleteFolderBtn').addEventListener('click',confirmDeleteCurrentFolder);$('selectPhotosBtn').addEventListener('click',()=>setSelectionMode(!selectionMode));$('selectAllBtn').addEventListener('click',toggleSelectAll);$('cancelSelectionBtn').addEventListener('click',()=>setSelectionMode(false));$('downloadSelectedBtn').addEventListener('click',downloadSelectedPhotos);$('deleteSelectedBtn').addEventListener('click',confirmDeleteSelectedPhotos);photoInput.addEventListener('change',uploadSelectedFiles);
 $('viewerCloseBtn').addEventListener('click',closeViewer);$('viewerPrevBtn').addEventListener('click',()=>moveViewer(-1));$('viewerNextBtn').addEventListener('click',()=>moveViewer(1));$('viewerDownloadBtn').addEventListener('click',downloadCurrent);$('viewerShareBtn').addEventListener('click',shareCurrent);$('viewerDeleteBtn').addEventListener('click',confirmDeleteCurrentPhoto);
 viewerStage.addEventListener('pointerdown',onViewerPointerDown,{passive:false});
 viewerStage.addEventListener('pointermove',onViewerPointerMove,{passive:false});
