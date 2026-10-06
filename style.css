@@ -224,3 +224,6 @@ body.light .trash-panel{background:#f8fafc}body.light .trash-item{background:#ff
 /* V0.6.5 · current manual marker */
 .manual-current-badge{display:inline-flex;align-items:center;gap:5px;margin:10px 0 0;padding:6px 9px;border-radius:999px;background:#e8f7ef;border:1px solid #bfe4cf;color:#287a4e;font-size:10.5px;font-weight:900}
 @media(min-width:760px){.manual-quick-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.manual-quick-item{display:block}.manual-quick-icon{margin-bottom:8px}.manual-quick-item strong{font-size:12px}.manual-quick-item p{font-size:10.5px}}
+
+/* V0.6.6 · stability/performance hardening */
+.backdrop.above-trash{z-index:1800}

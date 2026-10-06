@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.3' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.4' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -76,14 +76,13 @@ app.get('/api/folder', async (req, res, next) => {
     await assertFolderInsideRoot(id);
 
     const folderMeta = await getMeta(id, 'id,name,mimeType,parents,createdTime,modifiedTime');
-    const data = await driveList({
+    const all = await driveListAll({
       q: `'${escapeQuery(id)}' in parents and trashed = false`,
       orderBy: 'modifiedTime desc',
       pageSize: '1000',
       fields: 'nextPageToken,files(id,name,mimeType,size,createdTime,modifiedTime,parents,thumbnailLink,imageMediaMetadata(width,height,time))'
-    });
+    }, 5000);
 
-    const all = data.files || [];
     const folderRows = all.filter(x => x.mimeType === 'application/vnd.google-apps.folder');
     const mediaRows = all.filter(x => String(x.mimeType || '').startsWith('image/'));
     const now = Date.now();
@@ -119,7 +118,7 @@ app.get('/api/folder', async (req, res, next) => {
       folder: localizedFolder,
       folders,
       media,
-      nextPageToken: data.nextPageToken || null
+      nextPageToken: null
     });
   } catch (e) { next(e); }
 });
