@@ -44,7 +44,7 @@ const I18N={
     updateTitle:'사진첩이 업데이트됐어요',updateDetail:'업데이트 내역 상세',updateConfirm:'확인',updateHistoryLoadFailed:'업데이트 내역을 불러오지 못했습니다.',currentVersion:v=>`현재 버전 ${v}`,
     folderEmptyTitle:'Google Drive 연결 대기',folderEmptyText:'사진첩 전용 연결이 완료되면 Drive 폴더가 그대로 여기에 표시됩니다.',
     upload:'사진 올리기',uploadHint:'폴더를 선택한 뒤 여러 장을 올릴 수 있어요',recent:'최근 사진',recentHint:'새로 추가된 사진 보기',
-    trash:'Google 휴지통',trashHint:'삭제한 사진·폴더 복구',trashTitle:'Google 휴지통',trashSubtitle:'사진첩에서 삭제한 사진과 폴더를 복구할 수 있습니다.',trashEmpty:'복구할 항목이 없습니다.',trashLoading:'휴지통 불러오는 중…',restore:'복구',restoring:'복구 중…',restoreDone:'복구했습니다.',restoreFailed:'복구하지 못했습니다.',trashPhoto:'사진',trashFolder:'폴더',trashRefresh:'↻ 새로고침',
+    trash:'Google 휴지통',trashHint:'삭제한 사진·폴더 복구',trashTitle:'Google 휴지통',trashSubtitle:'사진첩에서 삭제한 사진과 폴더를 복구할 수 있습니다.',trashEmpty:'복구할 항목이 없습니다.',trashLoading:'휴지통 불러오는 중…',restore:'복구',restoring:'복구 중…',restoreDone:'복구했습니다.',restorePhotoDone:'사진을 복구했습니다.',restoreFolderDone:'폴더를 복구했습니다.',restoreFailed:'복구하지 못했습니다.',trashPhoto:'사진',trashFolder:'폴더',trashRefresh:'↻ 새로고침',
     folderSubtitle:'Google Drive의 현재 폴더',loadingPhotos:'사진 불러오는 중',sortNewest:'최신순',sortOldest:'오래된순',sortName:'이름순',
     uploadShort:'＋ 업로드',photoEmptyTitle:'사진이 없습니다',photoEmptyText:'Drive에서 사진을 추가하거나 이 폴더에 업로드하세요.',
     ok:'확인',close:'닫기',ready:'준비 중',apiPending:'사진첩 전용 Google Drive 연결 설정이 아직 완료되지 않았어요.',
@@ -60,7 +60,7 @@ const I18N={
     recentTitle:'최근 사진',recentSubtitle:'최근 추가된 사진',recentEmpty:'최근 추가된 사진이 없습니다.',
     selectPhotos:'사진 선택',selectedCount:n=>`${n}장 선택`,selectAll:'전체 선택',clearAll:'전체 해제',
     downloadSelected:n=>`${n}장 저장`,downloadPreparing:'선택한 원본 사진 준비 중…',downloadFailed:'선택 사진을 저장하지 못했습니다.',selectAtLeastOne:'저장할 사진을 선택해주세요.',
-    savingSelected:(current,total)=>`${current} / ${total}장 원본 준비 중…`,savePrepared:n=>`${n}장 저장 준비 완료`,saveToPhotos:'사진 앱에 저장',saveFiles:'사진 파일로 저장',
+    savingSelected:(current,total)=>`${current} / ${total}장 원본 준비 중…`,savePrepared:n=>`${n}장 저장 준비 완료`,saveToPhotos:'사진 앱에 저장 / 공유',saveFiles:'사진 파일로 저장',saveToDevice:'기기에 저장',shareFiles:'공유하기',saveDeviceHint:'원본 사진을 휴대폰 다운로드 폴더에 저장합니다.',saveIOSHint:'iPhone 공유 시트에서 “이미지 저장”을 선택하면 사진 앱에 저장할 수 있습니다.',shareFilesHint:'카카오톡·Messenger·Google 포토 등 원하는 앱으로 보냅니다.',
     confirm:'확인',deleteSelected:n=>`${n}장 삭제`,deleteSelectedConfirm:n=>`${n}장의 사진을 삭제할까요? 선택한 사진은 Google Drive 휴지통으로 이동합니다.`,
     deletingSelected:(current,total)=>`${current} / ${total}장 삭제 중…`,deleteSelectedDone:n=>`${n}장 삭제 완료`,deleteSelectedFailed:(done,total)=>`${done} / ${total}장 삭제 후 중단되었습니다.`,
     directTitle:'직접 연결 경로 사용',cloudflareTitle:'Cloudflare 우회 경로 사용',sourceHusband:'부부대화 · 남편앱',sourceWife:'부부대화 · 아내앱',sourceGeneral:'일상대화',
@@ -75,7 +75,7 @@ const I18N={
     updateTitle:'ອະລະບໍ້າຮູບຖືກອັບເດດແລ້ວ',updateDetail:'ເບິ່ງລາຍລະອຽດອັບເດດ',updateConfirm:'ຕົກລົງ',updateHistoryLoadFailed:'ບໍ່ສາມາດໂຫຼດປະຫວັດອັບເດດໄດ້.',currentVersion:v=>`ເວີຊັນປັດຈຸບັນ ${v}`,
     folderEmptyTitle:'ລໍຖ້າເຊື່ອມ Google Drive',folderEmptyText:'ເມື່ອເຊື່ອມລະບົບຮູບແລ້ວ ໂຟນເດີໃນ Drive ຈະສະແດງຢູ່ນີ້ຕາມທີ່ມີ.',
     upload:'ອັບໂຫຼດຮູບ',uploadHint:'ເລືອກໂຟນເດີແລ້ວອັບໂຫຼດຫຼາຍຮູບໄດ້',recent:'ຮູບຫຼ້າສຸດ',recentHint:'ເບິ່ງຮູບທີ່ເພີ່ມໃໝ່',
-    trash:'ຖັງຂີ້ເຫຍື້ອ Google',trashHint:'ກູ້ຮູບ ແລະ ໂຟນເດີທີ່ລຶບ',trashTitle:'ຖັງຂີ້ເຫຍື້ອ Google',trashSubtitle:'ສາມາດກູ້ຮູບ ແລະ ໂຟນເດີທີ່ລຶບຈາກອະລະບໍ້າໄດ້.',trashEmpty:'ບໍ່ມີລາຍການໃຫ້ກູ້ຄືນ.',trashLoading:'ກຳລັງໂຫຼດຖັງຂີ້ເຫຍື້ອ…',restore:'ກູ້ຄືນ',restoring:'ກຳລັງກູ້ຄືນ…',restoreDone:'ກູ້ຄືນແລ້ວ.',restoreFailed:'ກູ້ຄືນບໍ່ສຳເລັດ.',trashPhoto:'ຮູບ',trashFolder:'ໂຟນເດີ',trashRefresh:'↻ ໂຫຼດໃໝ່',
+    trash:'ຖັງຂີ້ເຫຍື້ອ Google',trashHint:'ກູ້ຮູບ ແລະ ໂຟນເດີທີ່ລຶບ',trashTitle:'ຖັງຂີ້ເຫຍື້ອ Google',trashSubtitle:'ສາມາດກູ້ຮູບ ແລະ ໂຟນເດີທີ່ລຶບຈາກອະລະບໍ້າໄດ້.',trashEmpty:'ບໍ່ມີລາຍການໃຫ້ກູ້ຄືນ.',trashLoading:'ກຳລັງໂຫຼດຖັງຂີ້ເຫຍື້ອ…',restore:'ກູ້ຄືນ',restoring:'ກຳລັງກູ້ຄືນ…',restoreDone:'ກູ້ຄືນແລ້ວ.',restorePhotoDone:'ກູ້ຮູບຄືນແລ້ວ.',restoreFolderDone:'ກູ້ໂຟນເດີຄືນແລ້ວ.',restoreFailed:'ກູ້ຄືນບໍ່ສຳເລັດ.',trashPhoto:'ຮູບ',trashFolder:'ໂຟນເດີ',trashRefresh:'↻ ໂຫຼດໃໝ່',
     folderSubtitle:'ໂຟນເດີປັດຈຸບັນໃນ Google Drive',loadingPhotos:'ກຳລັງໂຫຼດຮູບ',sortNewest:'ໃໝ່ສຸດ',sortOldest:'ເກົ່າສຸດ',sortName:'ຕາມຊື່',
     uploadShort:'＋ ອັບໂຫຼດ',photoEmptyTitle:'ຍັງບໍ່ມີຮູບ',photoEmptyText:'ເພີ່ມຮູບໃນ Drive ຫຼື ອັບໂຫຼດເຂົ້າໂຟນເດີນີ້.',
     ok:'ຕົກລົງ',close:'ປິດ',ready:'ກຳລັງກຽມ',apiPending:'ຍັງບໍ່ທັນເຊື່ອມລະບົບ Google Drive ສຳລັບອະລະບໍ້າ.',
@@ -91,7 +91,7 @@ const I18N={
     recentTitle:'ຮູບຫຼ້າສຸດ',recentSubtitle:'ຮູບທີ່ເພີ່ມຫຼ້າສຸດ',recentEmpty:'ຍັງບໍ່ມີຮູບທີ່ເພີ່ມໃໝ່.',
     selectPhotos:'ເລືອກຮູບ',selectedCount:n=>`ເລືອກ ${n} ຮູບ`,selectAll:'ເລືອກທັງໝົດ',clearAll:'ຍົກເລີກທັງໝົດ',
     downloadSelected:n=>`ບັນທຶກ ${n} ຮູບ`,downloadPreparing:'ກຳລັງກຽມຮູບຕົ້ນສະບັບທີ່ເລືອກ…',downloadFailed:'ບັນທຶກຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະບັນທຶກ.',
-    savingSelected:(current,total)=>`ກຳລັງກຽມຮູບຕົ້ນສະບັບ ${current} / ${total}…`,savePrepared:n=>`ກຽມ ${n} ຮູບແລ້ວ`,saveToPhotos:'ບັນທຶກເຂົ້າແອັບຮູບ',saveFiles:'ບັນທຶກເປັນໄຟລ໌ຮູບ',
+    savingSelected:(current,total)=>`ກຳລັງກຽມຮູບຕົ້ນສະບັບ ${current} / ${total}…`,savePrepared:n=>`ກຽມ ${n} ຮູບແລ້ວ`,saveToPhotos:'ບັນທຶກເຂົ້າ Photos / ແບ່ງປັນ',saveFiles:'ບັນທຶກເປັນໄຟລ໌ຮູບ',saveToDevice:'ບັນທຶກລົງໂທລະສັບ',shareFiles:'ແບ່ງປັນ',saveDeviceHint:'ບັນທຶກຮູບຕົ້ນສະບັບໄວ້ໃນໂຟນເດີ Download ຂອງໂທລະສັບ.',saveIOSHint:'ໃນ iPhone ເລືອກ “Save Images” ຈາກ Share Sheet ເພື່ອບັນທຶກເຂົ້າ Photos.',shareFilesHint:'ສົ່ງໄປ KakaoTalk, Messenger, Google Photos ຫຼື ແອັບອື່ນ.',
     confirm:'ຢືນຢັນ',deleteSelected:n=>`ລຶບ ${n} ຮູບ`,deleteSelectedConfirm:n=>`ລຶບຮູບທີ່ເລືອກ ${n} ຮູບບໍ? ຮູບຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.`,
     deletingSelected:(current,total)=>`ກຳລັງລຶບ ${current} / ${total} ຮູບ…`,deleteSelectedDone:n=>`ລຶບສຳເລັດ ${n} ຮູບ`,deleteSelectedFailed:(done,total)=>`ລຶບໄດ້ ${done} / ${total} ຮູບ ແລ້ວຢຸດ.`,
     directTitle:'ໃຊ້ການເຊື່ອມຕໍ່ໂດຍກົງ',cloudflareTitle:'ໃຊ້ເສັ້ທາງ Cloudflare',sourceHusband:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍຜົວ',sourceWife:'ແອັບສົນທະນາຄູ່ຮັກ · ຝ່າຍເມຍ',sourceGeneral:'ແອັບສົນທະນາທົ່ວໄປ',
@@ -314,7 +314,7 @@ function manualCopy(lang){
         desc:'폴더 안에서는 사진을 보거나, 업로드하거나, 새 하위 폴더를 만들고 여러 장 선택을 시작할 수 있습니다.',
         steps:[
           ['사진 열기','썸네일을 한 번 누르면 원본 사진 화면이 열립니다.'],
-          ['최신순/오래된순','정렬 버튼으로 사진 순서를 바꿉니다.'],
+          ['최신순/오래된순','기본은 가장 최근 파일이 위에 보입니다. 정렬 버튼으로 오래된순·이름순도 선택할 수 있습니다.'],
           ['사진 선택','버튼을 누르거나 사진 한 장을 길게 눌러 여러 장 선택모드로 들어갑니다.'],
           ['폴더 삭제','삭제를 누른 뒤 반드시 확인을 한 번 더 눌러야 실제 삭제됩니다.']
         ],
@@ -379,7 +379,7 @@ function manualCopy(lang){
     extraTitle:'알아두면 편한 기능',
     extras:[
       ['📥 한 장 저장','원본 사진 화면의 다운로드 버튼을 누르면 현재 사진 한 장이 원본 파일로 저장됩니다.'],
-      ['📦 여러 장 저장','선택모드에서 “N장 저장”을 누르면 원본을 준비한 뒤 휴대폰의 저장/공유 화면을 엽니다.'],
+      ['📦 여러 장 저장','Android는 “기기에 저장”과 “공유하기”를 나눠 선택합니다. iPhone은 “사진 앱에 저장 / 공유”에서 시스템 공유 시트를 열고 이미지 저장을 선택할 수 있습니다.'],
       ['↩️ 휴대폰 뒤로가기','원본 사진 → 현재 폴더 → 사진첩 홈 순서로 자연스럽게 돌아갑니다.'],
       ['🔄 자동 업데이트','새 버전이 있으면 사용 중인 작업을 방해하지 않고 안전한 시점에 자동 적용합니다.'],
       ['🔔 업데이트 팝업','새 버전의 주요 변경점을 한 번 알려주며, 업데이트 내역의 🔔 버튼으로 바로 위에 팝업을 다시 띄울 수 있습니다. 팝업을 닫으면 업데이트 내역으로 돌아옵니다.'],
@@ -389,7 +389,7 @@ function manualCopy(lang){
     faqTitle:'문제가 생겼을 때',
     faq:[
       ['사진이 처음에 조금 흐려요','640px 썸네일 → 2048px 고화질 프리뷰 → 원본 순으로 빠르게 교체합니다. 현재 사진을 누르는 순간 프리뷰를 요청하고 이전·다음 사진도 미리 준비합니다.'],
-      ['삭제한 사진을 되돌리고 싶어요','사진첩 메인 화면의 “Google 휴지통”을 열고 해당 사진이나 폴더 옆의 “복구” 버튼을 누르면 됩니다.'],
+      ['삭제한 사진을 되돌리고 싶어요','사진첩 메인 화면의 “Google 휴지통”에서 “복구”를 누르면 원래 위치로 돌아가고 복구 완료 메시지가 표시됩니다.'],
       ['공유한 사진이 조금 흐려졌어요','사진첩은 원본 파일을 공유하지만 카카오톡·Messenger 등이 전송하면서 자체 압축할 수 있습니다.'],
       ['업데이트 중 화면이 갑자기 바뀔까 걱정돼요','사진 보기·선택·업로드·저장·삭제·설명서 사용 중에는 자동 새로고침을 미룹니다.']
     ],
@@ -411,7 +411,7 @@ function manualCopy(lang){
     ],
     sections:[
       {kind:'home',num:'01',kicker:'ໜ້າແລກ',title:'ເລີ່ມວຽກຈາກໜ້າຫຼັກ',desc:'ໜ້າຫຼັກສະແດງ ອັບໂຫຼດ, ຮູບຫຼ້າສຸດ, ສ້າງໂຟນເດີ ແລະ ລາຍການອະລະບໍ້າ.',steps:[['ອັບໂຫຼດ','ໃຊ້ເມື່ອຈະເພີ່ມຮູບໃໝ່. ຖ້າອັບຈາກໜ້າຫຼັກ ຈະໃຫ້ເລືອກໂຟນເດີກ່ອນ.'],['ຮູບຫຼ້າສຸດ','ເບິ່ງຮູບທີ່ເພີ່ມໃໝ່ຈາກທຸກໂຟນເດີ.'],['ໂຟນເດີໃໝ່','ສ້າງອະລະບໍ້າ ຫຼື ໂຟນເດີຍ່ອຍໃໝ່.'],['ຖັງຂີ້ເຫຍື້ອ Google','ເບິ່ງ ແລະ ກູ້ຮູບ/ໂຟນເດີທີ່ລຶບຈາກອະລະບໍ້າ.'],['ເປີດອະລະບໍ້າ','ແຕະໂຟນເດີໃນລາຍການດ້ານລຸ່ມເພື່ອເຂົ້າເບິ່ງຮູບ.']],note:'ປຸ່ມ “ແອັບຫຼັກ” ໃຊ້ກັບໄປແອັບແປພາສາ. “ຄູ່ມື” ເປີດໜ້າອະທິບາຍນີ້.'},
-      {kind:'folder',num:'02',kicker:'ໜ້າໂຟນເດີ',title:'ເບິ່ງຮູບ · ຈັດລຽງ · ຈັດການໂຟນເດີ',desc:'ພາຍໃນໂຟນເດີສາມາດເບິ່ງຮູບ, ອັບໂຫຼດ, ສ້າງໂຟນເດີຍ່ອຍ ແລະ ເລືອກຫຼາຍຮູບ.',steps:[['ເປີດຮູບ','ແຕະຮູບຕົວຢ່າງໜຶ່ງຄັ້ງ.'],['ຈັດລຽງ','ປ່ຽນລຳດັບຈາກໃໝ່ສຸດ/ເກົ່າສຸດ.'],['ເລືອກຮູບ','ກົດປຸ່ມ ຫຼື ກົດຄ້າງຮູບໜຶ່ງເພື່ອເຂົ້າໂໝດເລືອກ.'],['ລຶບໂຟນເດີ','ຕ້ອງກົດຢືນຢັນອີກໜຶ່ງຄັ້ງກ່ອນລຶບ.']],note:'ໂຟນເດີທີ່ລຶບສາມາດກູ້ຄືນໄດ້ຈາກ “ຖັງຂີ້ເຫຍື້ອ Google” ໃນໜ້າຫຼັກ.'},
+      {kind:'folder',num:'02',kicker:'ໜ້າໂຟນເດີ',title:'ເບິ່ງຮູບ · ຈັດລຽງ · ຈັດການໂຟນເດີ',desc:'ພາຍໃນໂຟນເດີສາມາດເບິ່ງຮູບ, ອັບໂຫຼດ, ສ້າງໂຟນເດີຍ່ອຍ ແລະ ເລືອກຫຼາຍຮູບ.',steps:[['ເປີດຮູບ','ແຕະຮູບຕົວຢ່າງໜຶ່ງຄັ້ງ.'],['ຈັດລຽງ','ຄ່າເລີ່ມຕົ້ນແມ່ນລາຍການຫຼ້າສຸດຢູ່ເທິງ; ປ່ຽນເປັນເກົ່າສຸດ ຫຼື ຕາມຊື່ໄດ້.'],['ເລືອກຮູບ','ກົດປຸ່ມ ຫຼື ກົດຄ້າງຮູບໜຶ່ງເພື່ອເຂົ້າໂໝດເລືອກ.'],['ລຶບໂຟນເດີ','ຕ້ອງກົດຢືນຢັນອີກໜຶ່ງຄັ້ງກ່ອນລຶບ.']],note:'ໂຟນເດີທີ່ລຶບສາມາດກູ້ຄືນໄດ້ຈາກ “ຖັງຂີ້ເຫຍື້ອ Google” ໃນໜ້າຫຼັກ.'},
       {kind:'select',num:'03',kicker:'ແບບ Gallery',title:'ກົດຄ້າງເພື່ອເລືອກຫຼາຍຮູບ',desc:'ກົດຄ້າງຮູບປະມານ 0.4 ວິນາທີ ແລ້ວແຕະຮູບອື່ນເພື່ອເພີ່ມ/ຍົກເລີກ.',steps:[['ກົດຄ້າງ','ກົດຄ້າງຮູບທຳອິດ ແລະ ຈະເຫັນເຄື່ອງໝາຍເລືອກ.'],['ເລືອກເພີ່ມ','ແຕະຮູບອື່ນເພື່ອເພີ່ມ ຫຼື ແຕະຊ້ຳເພື່ອຍົກເລີກ.'],['ເລືອກທັງໝົດ','ເລືອກ ຫຼື ຍົກເລີກຮູບທັງໝົດທີ່ກຳລັງເບິ່ງ.'],['ບັນທຶກ/ລຶບ','ບັນທຶກຫຼາຍຮູບ ຫຼື ລຶບພ້ອມກັນຫຼັງຢືນຢັນ.']],note:'ຖ້າມີຮູບຫຼາຍຫຼາຍ ແນະນຳໃຫ້ແບ່ງບັນທຶກເປັນຫຼາຍຄັ້ງ.'},
       {kind:'viewer',num:'04',kicker:'ຮູບຕົ້ນສະບັບ',title:'ປັດຊ້າຍ/ຂວາ · ຊູມ · ເລື່ອນ · ແບ່ງປັນ',desc:'ໜ້າຮູບຕົ້ນສະບັບໃຊ້ເບິ່ງຮູບ, ຊູມ, ປ່ຽນຮູບ, ແບ່ງປັນ, ດາວໂຫຼດ ແລະ ລຶບ.',steps:[['ປັດຊ້າຍ/ຂວາ','ເມື່ອບໍ່ຊູມ ປັດຊ້າຍໄປຮູບຖັດໄປ, ປັດຂວາໄປຮູບກ່ອນ.'],['ຊູມສອງນິ້ວ','ໃຊ້ສອງນິ້ວເພື່ອຂະຫຍາຍ/ຫຍໍ້.'],['ເລື່ອນຫຼັງຊູມ','ຫຼັງຊູມໃຊ້ນິ້ວດຽວເລື່ອນໄດ້ທຸກທິດ.'],['ແບ່ງປັນ/ດາວໂຫຼດ','ໃຊ້ໄອຄອນດ້ານເທິງເພື່ອແບ່ງປັນ ຫຼື ບັນທຶກຮູບປັດຈຸບັນ.']],note:'ຕອນເປີດຮູບຈະສະແດງ thumbnail ກ່ອນ ແລ້ວປ່ຽນເປັນ preview 2048px ແລະ ຮູບຕົ້ນສະບັບ.'},
       {kind:'upload',num:'05',kicker:'ເພີ່ມຮູບ',title:'ອັບໂຫຼດຫຼາຍຮູບພ້ອມກັນ',desc:'ສາມາດເລືອກຮູບຫຼາຍຮູບຈາກໜ້າເລືອກຮູບຂອງໂທລະສັບ.',steps:[['ເລືອກຮູບ','ກົດ ＋ ອັບໂຫຼດ ແລະ ເລືອກຮູບ.'],['ຄວາມຄືບໜ້າຮູບ','ເບິ່ງ % ຂອງຮູບທີ່ກຳລັງສົ່ງ.'],['ຄວາມຄືບໜ້າລວມ','ເບິ່ງຈຳນວນຮູບທີ່ສຳເລັດຈາກທັງໝົດ.'],['ບັນທຶກລົງ Drive','ຫຼັງ “ກຳລັງບັນທຶກເຂົ້າ Google Drive” ສຳເລັດ ລາຍການຈະໂຫຼດໃໝ່.']],note:'ອັບເດດອັດຕະໂນມັດຈະບໍ່ຂັດຈັງຫວະຂະນະອັບໂຫຼດ.'},
@@ -421,7 +421,7 @@ function manualCopy(lang){
     extraTitle:'ຟັງຊັນທີ່ຮູ້ໄວ້ຈະສະດວກ',
     extras:[
       ['📥 ບັນທຶກຮູບດຽວ','ໃນໜ້າຮູບຕົ້ນສະບັບ ກົດດາວໂຫຼດເພື່ອບັນທຶກຮູບປັດຈຸບັນ.'],
-      ['📦 ບັນທຶກຫຼາຍຮູບ','ໃນໂໝດເລືອກ ກົດ “ບັນທຶກ N ຮູບ” ແລ້ວໃຊ້ໜ້າ Share/Save ຂອງໂທລະສັບ.'],
+      ['📦 ບັນທຶກຫຼາຍຮູບ','Android ແຍກ “ບັນທຶກລົງໂທລະສັບ” ແລະ “ແບ່ງປັນ”; iPhone ໃຊ້ Share Sheet ເພື່ອເລືອກ Save Images ເຂົ້າ Photos.'],
       ['↩️ ປຸ່ມກັບ','ກັບຈາກຮູບ → ໂຟນເດີ → ໜ້າຫຼັກອະລະບໍ້າ.'],
       ['🔄 ອັບເດດອັດຕະໂນມັດ','ຖ້າມີເວີຊັນໃໝ່ ຈະລໍຖ້າເວລາທີ່ປອດໄພກ່ອນອັບເດດ.'],
       ['🔔 ປັອບອັບອັບເດດ','ສະແດງການປ່ຽນແປງສຳຄັນໜຶ່ງຄັ້ງ; ກົດ 🔔 ໃນປະຫວັດອັບເດດເພື່ອເປີດປັອບອັບຢູ່ເທິງ ແລະ ປິດແລ້ວກັບຄືນປະຫວັດ.'],
@@ -431,7 +431,7 @@ function manualCopy(lang){
     faqTitle:'ເມື່ອມີບັນຫາ',
     faq:[
       ['ຮູບຕອນແຮກເບິ່ງບໍ່ຄົມ','ລະບົບຈະປ່ຽນ 640px thumbnail → 2048px preview → ຮູບຕົ້ນສະບັບ ແລະ preload ຮູບກ່ອນ/ຖັດໄປ.'],
-      ['ຢາກກູ້ຮູບທີ່ລຶບ','ເປີດ “ຖັງຂີ້ເຫຍື້ອ Google” ຈາກໜ້າຫຼັກ ແລະ ກົດ “ກູ້ຄືນ”.'],
+      ['ຢາກກູ້ຮູບທີ່ລຶບ','ເປີດ “ຖັງຂີ້ເຫຍື້ອ Google” ແລະ ກົດ “ກູ້ຄືນ”; ຫຼັງສຳເລັດຈະມີຂໍ້ຄວາມຢືນຢັນ.'],
       ['ຮູບທີ່ແບ່ງປັນຫຍຸ້ງນິດໜ່ອຍ','ອະລະບໍ້າສົ່ງໄຟລ໌ຕົ້ນສະບັບ ແຕ່ KakaoTalk/Messenger ອາດບີບອັດຕອນສົ່ງ.'],
       ['ກົວວ່າອັບເດດຈະຂັດຈັງຫວະ','ລະຫວ່າງເບິ່ງ, ເລືອກ, ອັບໂຫຼດ, ບັນທຶກ, ລຶບ ຫຼື ເບິ່ງຄູ່ມື ຈະບໍ່ໂຫຼດໃໝ່.']
     ],
@@ -688,8 +688,17 @@ async function apiBlob(path,options={}){const res=await apiFetch(path,options);r
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function escapeAttr(v){return escapeHtml(v)}
 function displayName(item){return String(item?.displayName||item?.name||'')}
+function recentTimeOf(item){return Date.parse(item?.modifiedTime||item?.createdTime||item?.imageTime||0)||0}
+function trashTimeOf(item){return Date.parse(item?.trashedTime||item?.modifiedTime||item?.createdTime||0)||0}
+function newestFirst(rows,timeFn=recentTimeOf){
+  return [...(rows||[])].sort((a,b)=>{
+    const delta=timeFn(b)-timeFn(a);
+    return delta||String(a?.name||'').localeCompare(String(b?.name||''),uiLang()==='lo'?'lo':'ko');
+  });
+}
 function folderIcon(name){const n=String(name||'').toLowerCase();if(/결혼|wedding|ແຕ່ງ/.test(n))return'💍';if(/졸업|graduation|ຈົບ/.test(n))return'🎓';if(/여행|travel|ທ່ຽວ/.test(n))return'✈️';return'📁'}
 function renderFolders(){
+  state.folders=newestFirst(state.folders);
   if(!state.folders.length){
     albumList.innerHTML=`<div class="empty-state album-empty"><div class="empty-icon">📁</div><strong>${escapeHtml(t('folderEmptyTitle'))}</strong><p>${escapeHtml(apiReady()?t('folderEmptyText'):t('apiMissing'))}</p></div>`;return;
   }
@@ -716,6 +725,7 @@ async function loadFolders(showError=true){
   }
 }
 function renderSubfolders(){
+  state.childFolders=newestFirst(state.childFolders);
   if(!state.childFolders.length){subfolderList.innerHTML='';return}
   subfolderList.innerHTML=state.childFolders.map(folder=>`
     <button class="subfolder-card" type="button" data-child-id="${escapeAttr(folder.id)}">
@@ -732,8 +742,7 @@ function sortedMedia(){
   return rows;
 }
 function dateOf(item){
-  if(state.currentFolder?.isRecent)return Date.parse(item.createdTime||item.modifiedTime||item.imageTime||0)||0;
-  return Date.parse(item.imageTime||item.createdTime||item.modifiedTime||0)||0;
+  return recentTimeOf(item);
 }
 function renderMedia(){
   const rows=sortedMedia();state.media=rows;
@@ -836,23 +845,49 @@ function canShareFiles(files){
   if(typeof navigator.canShare!=='function')return true;
   try{return !!navigator.canShare({files})}catch(_){return false}
 }
+function isIOSDevice(){
+  const ua=String(navigator.userAgent||'');
+  return /iPad|iPhone|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
+}
+function preparedSaveChoice(label,note,onClick,extraClass=''){
+  const b=document.createElement('button');b.type='button';b.className='sheet-choice save-files-choice '+extraClass;
+  b.innerHTML='<strong>'+escapeHtml(label)+'</strong>'+(note?'<small>'+escapeHtml(note)+'</small>':'');
+  b.addEventListener('click',onClick);sheetActions.appendChild(b);return b;
+}
+function finishPreparedSave(files,delayed=true){
+  closeSheet();setSelectionMode(false);
+  setTimeout(()=>applyPendingAppUpdate(),delayed?Math.max(1200,files.length*220+500):0);
+}
 function openPreparedSaveSheet(files){
   preparedSaveActive=true;
-  const shareSupported=canShareFiles(files);
+  const shareSupported=canShareFiles(files),ios=isIOSDevice();
   openSheet(t('savePrepared',files.length),'',[],t('cancel'));
-  const b=document.createElement('button');b.type='button';b.className='sheet-choice save-files-choice';
-  b.innerHTML='<strong>'+escapeHtml(shareSupported?t('saveToPhotos'):t('saveFiles'))+'</strong>';
-  b.addEventListener('click',async()=>{
-    if(shareSupported){
+
+  if(ios&&shareSupported){
+    preparedSaveChoice(t('saveToPhotos'),t('saveIOSHint'),async()=>{
       try{
         await navigator.share({files,title:t('savePrepared',files.length)});
-        closeSheet();setSelectionMode(false);applyPendingAppUpdate();return;
-      }catch(e){if(e?.name==='AbortError')return}
-    }
-    closeSheet();saveFilesByDownload(files);setSelectionMode(false);
-    setTimeout(()=>applyPendingAppUpdate(),Math.max(1200,files.length*220+500));
-  });
-  sheetActions.appendChild(b);
+        finishPreparedSave(files,false);
+      }catch(e){if(e?.name!=='AbortError')showToast(t('saveFiles'))}
+    },'primary-save-choice');
+    preparedSaveChoice(t('saveFiles'),t('saveDeviceHint'),()=>{
+      saveFilesByDownload(files);finishPreparedSave(files,true);
+    });
+    return;
+  }
+
+  preparedSaveChoice(t('saveToDevice'),t('saveDeviceHint'),()=>{
+    saveFilesByDownload(files);finishPreparedSave(files,true);
+  },'primary-save-choice');
+
+  if(shareSupported){
+    preparedSaveChoice(t('shareFiles'),t('shareFilesHint'),async()=>{
+      try{
+        await navigator.share({files,title:t('savePrepared',files.length)});
+        finishPreparedSave(files,false);
+      }catch(e){if(e?.name!=='AbortError')showToast(t('saveFiles'))}
+    });
+  }
 }
 function saveFilesByDownload(files){
   files.forEach((file,i)=>setTimeout(()=>{
@@ -1123,6 +1158,17 @@ function closeSheet(){
   preparedSaveActive=false;backdrop.hidden=true;backdrop.classList.remove('above-trash');sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok');
   if(!wasPrepared&&pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
+let appToastTimer=0;
+function showToast(message){
+  const el=$('appToast');if(!el||!message)return;
+  if(appToastTimer)clearTimeout(appToastTimer);
+  el.textContent='✓ '+String(message);el.hidden=false;
+  requestAnimationFrame(()=>el.classList.add('show'));
+  appToastTimer=setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(()=>{if(!el.classList.contains('show'))el.hidden=true},180);
+  },1900);
+}
 function apiErrorDetail(e){
   const parts=[];
   if(e?.status)parts.push('HTTP '+e.status);
@@ -1152,7 +1198,7 @@ function trashDateLabel(item){
   try{return new Intl.DateTimeFormat(uiLang()==='lo'?'lo-LA':'ko-KR',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(raw))}catch(_){return String(raw)}
 }
 function renderTrash(){
-  const rows=Array.isArray(state.trash)?state.trash:[];
+  const rows=newestFirst(Array.isArray(state.trash)?state.trash:[],trashTimeOf);state.trash=rows;
   $('trashCount').textContent=rows.length?String(rows.length):'0';
   if(!rows.length){
     $('trashList').innerHTML='<div class="trash-empty"><div>🗑️</div><strong>'+escapeHtml(t('trashEmpty'))+'</strong></div>';
@@ -1199,6 +1245,8 @@ function closeTrash(fromHistory=false){
 }
 async function restoreTrashItem(id,button){
   if(!id||trashBusy)return;
+  const restoringItem=state.trash.find(x=>String(x.id)===String(id));
+  const restoringFolder=restoringItem?.mimeType==='application/vnd.google-apps.folder';
   trashBusy=true;
   const old=button?.textContent||t('restore');
   if(button){button.disabled=true;button.textContent=t('restoring')}
@@ -1206,6 +1254,7 @@ async function restoreTrashItem(id,button){
     await apiPostJson('/api/trash/restore',{id});
     state.trash=state.trash.filter(x=>String(x.id)!==String(id));
     renderTrash();
+    showToast(restoringFolder?t('restoreFolderDone'):t('restorePhotoDone'));
     loadFolders(false);
   }catch(e){
     if(button){button.disabled=false;button.textContent=old}
