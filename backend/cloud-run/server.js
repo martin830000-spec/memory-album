@@ -34,14 +34,14 @@ app.use((req, res, next) => {
   if (allowed && origin) res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Album-Key, Range');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Album-Key, X-Album-Request-Id, Range');
   res.setHeader('Access-Control-Expose-Headers', 'Content-Type, Content-Length, Content-Range, X-File-Name');
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (!allowed) return res.status(403).json({ ok: false, error: 'origin_not_allowed' });
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.6' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.7' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -170,8 +170,23 @@ app.post('/api/folders', async (req, res, next) => {
   try {
     const parentId = String(req.body?.parentId || ROOT_ID);
     const name = normalizeFolderName(req.body?.name);
+    const requestId = albumRequestId(req);
     if (!name) return res.status(400).json({ ok: false, error: 'folder_name_required' });
     if (parentId !== ROOT_ID) await assertFolderInsideRoot(parentId);
+
+    if (requestId) {
+      const replay = await driveList({
+        q: `'${escapeQuery(parentId)}' in parents and trashed = false and mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='memoryAlbumRequestId' and value='${escapeQuery(requestId)}' }`,
+        pageSize: '1',
+        fields: 'files(id,name,mimeType,createdTime,modifiedTime,parents)'
+      });
+      const replayed = (replay.files || [])[0];
+      if (replayed) {
+        insideRootCache.set(String(replayed.id), { value: true, at: Date.now() });
+        const localized = (await localizeFolders([replayed], req.query.lang))[0] || replayed;
+        return res.json({ ok: true, folder: localized, replayed: true });
+      }
+    }
 
     const existing = await driveList({
       q: `'${escapeQuery(parentId)}' in parents and trashed = false and mimeType = 'application/vnd.google-apps.folder' and name = '${escapeQuery(name)}'`,
@@ -183,7 +198,7 @@ app.post('/api/folders', async (req, res, next) => {
     const created = await driveJsonRequest('files', {
       method: 'POST',
       params: { fields: 'id,name,mimeType,createdTime,modifiedTime,parents' },
-      body: { name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] }
+      body: { name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId], ...(requestId ? { appProperties: { memoryAlbumRequestId: requestId } } : {}) }
     });
     insideRootCache.set(String(created.id), { value: true, at: Date.now() });
     const localized = (await localizeFolders([created], req.query.lang))[0] || created;
@@ -336,6 +351,7 @@ app.get('/api/media', async (req, res, next) => {
 app.post('/api/upload', upload.single('file'), async (req, res, next) => {
   try {
     const folderId = String(req.query.folder || '');
+    const requestId = albumRequestId(req);
     if (!folderId) return res.status(400).json({ ok: false, error: 'folder_id_required' });
     if (!req.file) return res.status(400).json({ ok: false, error: 'file_required' });
     await assertFolderInsideRoot(folderId);
@@ -343,11 +359,25 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
     const mime = String(req.file.mimetype || 'application/octet-stream');
     if (!mime.startsWith('image/')) return res.status(415).json({ ok: false, error: 'image_only' });
 
+    if (requestId) {
+      const replay = await driveList({
+        q: `'${escapeQuery(folderId)}' in parents and trashed = false and appProperties has { key='memoryAlbumRequestId' and value='${escapeQuery(requestId)}' }`,
+        pageSize: '1',
+        fields: 'files(id,name,mimeType,size,createdTime,modifiedTime,parents)'
+      });
+      const replayed = (replay.files || [])[0];
+      if (replayed) {
+        insideRootCache.set(String(replayed.id), { value: true, at: Date.now() });
+        return res.json({ ok: true, file: replayed, replayed: true });
+      }
+    }
+
     const safeName = await uniqueName(folderId, normalizeUploadName(req.file.originalname || 'photo'));
     const token = await getGoogleToken();
 
     const fd = new FormData();
-    fd.append('metadata', new Blob([JSON.stringify({ name: safeName, parents: [folderId] })], { type: 'application/json; charset=UTF-8' }));
+    const metadata = { name: safeName, parents: [folderId], ...(requestId ? { appProperties: { memoryAlbumRequestId: requestId } } : {}) };
+    fd.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json; charset=UTF-8' }));
     fd.append('file', new Blob([req.file.buffer], { type: mime }), safeName);
 
     const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,size,createdTime,modifiedTime,parents';
@@ -636,6 +666,10 @@ async function listAlbumTrash(limit = 200) {
 
 function normalizeFolderName(name) {
   return String(name || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 100);
+}
+
+function albumRequestId(req) {
+  return String(req?.headers?.['x-album-request-id'] || '').trim().replace(/[^A-Za-z0-9._:-]/g, '').slice(0, 96);
 }
 
 function escapeQuery(value) {
