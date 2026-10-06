@@ -160,6 +160,9 @@ const previewUrlCache=new Map();
 const previewInflight=new Map();
 const PREVIEW_CACHE_LIMIT=8;
 const THUMB_CACHE_LIMIT=220;
+const THUMB_PENDING_MAX_RETRIES=24;
+const THUMB_NETWORK_MAX_RETRIES=3;
+const THUMB_RENDER_MAX_RETRIES=4;
 let thumbActive=0;
 let trashThumbActive=0;
 let rootLoadSeq=0;
@@ -1043,7 +1046,7 @@ function setupTrashThumbObserver(){
   imgs.slice(0,8).forEach(img=>{img.dataset.thumbVisible='1';enqueueTrashThumb(img)});
 }
 function enqueueTrashThumb(img){
-  if(!img||img.dataset.loaded||img.dataset.trashQueued)return;
+  if(!img||img.dataset.loaded||img.dataset.thumbRetryStopped||img.dataset.trashQueued)return;
   img.dataset.trashQueued='1';trashThumbQueue.push(img);pumpTrashThumbQueue();
 }
 function pumpTrashThumbQueue(){
@@ -1075,65 +1078,144 @@ function rememberThumbUrl(cacheKey,url){
   }
   return url;
 }
+function forgetThumbUrl(cacheKey,url){
+  if(thumbUrlCache.get(cacheKey)===url)thumbUrlCache.delete(cacheKey);
+  if(!url||thumbUrlInUse(url))return;
+  thumbUrls.delete(url);
+  try{URL.revokeObjectURL(url)}catch(_){}
+}
+function clearThumbFailure(img){
+  delete img.dataset.thumbRetryStopped;
+  img.closest('.photo-tile')?.classList.remove('thumb-load-failed');
+  const placeholder=img.closest('.photo-tile')?.querySelector('.photo-placeholder');
+  if(placeholder&&placeholder.isConnected)placeholder.textContent='▧';
+}
+function markThumbFailed(img){
+  if(!img)return;
+  img.dataset.thumbRetryStopped='1';
+  delete img.dataset.loaded;
+  img.classList.remove('loaded');
+  const tile=img.closest('.photo-tile');
+  if(tile){
+    tile.classList.add('thumb-load-failed');
+    const placeholder=tile.querySelector('.photo-placeholder');
+    if(placeholder){
+      const name=String(img.getAttribute('alt')||tile.querySelector('.photo-name')?.textContent||'').trim();
+      placeholder.textContent=name||'사진';
+      placeholder.title=name;
+    }
+  }
+}
 function enqueueThumb(img){
-  if(!img||img.dataset.loaded||img.dataset.queued)return;
+  if(!img||img.dataset.loaded||img.dataset.thumbRetryStopped||img.dataset.queued)return;
   img.dataset.queued='1';thumbQueue.push(img);pumpThumbQueue();
 }
 function pumpThumbQueue(){
   while(thumbActive<THUMB_CONCURRENCY&&thumbQueue.length){
     const img=thumbQueue.shift();
-    if(!img||img.dataset.loaded||!img.isConnected)continue;
+    if(!img||img.dataset.loaded||img.dataset.thumbRetryStopped||!img.isConnected)continue;
     delete img.dataset.queued;
     thumbActive++;
     loadThumb(img).finally(()=>{thumbActive--;pumpThumbQueue()});
   }
 }
 function scheduleThumbRetry(img,error){
-  if(!img?.isConnected||img.dataset.loaded)return false;
+  if(!img?.isConnected||img.dataset.loaded||img.dataset.thumbRetryStopped)return false;
   const retryable=error?.status!==401&&error?.status!==403&&error?.code!=='ACCESS_KEY_MISSING'&&error?.code!=='API_NOT_CONFIGURED';
   if(!retryable)return false;
 
   const retries=Number(img.dataset.thumbRetryCount||0);
   const drivePending=error?.status===425;
+  const renderFailure=error?.code==='THUMB_RENDER_FAILED'||error?.code==='THUMB_INVALID_RESPONSE';
   const pendingDelays=[1000,2000,4000,8000,15000];
   const networkDelays=[1200,3000,7000];
-  if(!drivePending&&retries>=networkDelays.length)return false;
+  const renderDelays=[500,1200,2500,5000];
+  if(drivePending&&retries>=THUMB_PENDING_MAX_RETRIES)return false;
+  if(renderFailure&&retries>=THUMB_RENDER_MAX_RETRIES)return false;
+  if(!drivePending&&!renderFailure&&retries>=THUMB_NETWORK_MAX_RETRIES)return false;
 
-  const delay=drivePending?pendingDelays[Math.min(retries,pendingDelays.length-1)]:networkDelays[retries];
+  const delay=drivePending
+    ?pendingDelays[Math.min(retries,pendingDelays.length-1)]
+    :renderFailure
+      ?renderDelays[Math.min(retries,renderDelays.length-1)]
+      :networkDelays[Math.min(retries,networkDelays.length-1)];
   img.dataset.thumbRetryCount=String(retries+1);
   if(img._thumbRetryTimer)clearTimeout(img._thumbRetryTimer);
   img._thumbRetryTimer=setTimeout(()=>{
     img._thumbRetryTimer=0;
-    if(!img.isConnected||img.dataset.loaded)return;
-    // Pause retries while well outside the active gallery/trash viewport. The observer resumes them on re-entry.
+    if(!img.isConnected||img.dataset.loaded||img.dataset.thumbRetryStopped)return;
+    // Pause retries while outside the active gallery/trash viewport. Reopening the view creates a fresh retry budget.
     if(img.dataset.thumbVisible==='0')return;
-    if(img.classList.contains('trash-thumb')&&!trashOpen())return;
-    enqueueThumb(img);
+    if(img.classList.contains('trash-thumb')){
+      if(!trashOpen())return;
+      enqueueTrashThumb(img);
+    }else enqueueThumb(img);
   },delay);
   return true;
+}
+function applyThumbUrl(img,cacheKey,url){
+  return new Promise(resolve=>{
+    if(!img?.isConnected){resolve(false);return}
+    const seq=Number(img._thumbRenderSeq||0)+1;
+    img._thumbRenderSeq=seq;
+    let settled=false;
+    const finish=(ok)=>{
+      if(settled)return;settled=true;
+      img.onload=null;img.onerror=null;
+      resolve(ok);
+    };
+    img.onload=()=>{
+      if(img._thumbRenderSeq!==seq||!img.isConnected){finish(false);return}
+      if(img._thumbRetryTimer){clearTimeout(img._thumbRetryTimer);img._thumbRetryTimer=0}
+      delete img.dataset.thumbRetryCount;
+      delete img.dataset.thumbForceReload;
+      delete img.dataset.thumbRetryStopped;
+      img.classList.add('loaded');img.dataset.loaded='1';
+      const tile=img.closest('.photo-tile');
+      tile?.classList.remove('thumb-load-failed');
+      const placeholder=tile?.querySelector('.photo-placeholder');
+      if(placeholder)placeholder.remove();
+      finish(true);
+    };
+    img.onerror=()=>{
+      if(img._thumbRenderSeq!==seq){finish(false);return}
+      img.classList.remove('loaded');delete img.dataset.loaded;
+      img.removeAttribute('src');
+      forgetThumbUrl(cacheKey,url);
+      img.dataset.thumbForceReload='1';
+      const error=Object.assign(new Error('thumb_render_failed'),{code:'THUMB_RENDER_FAILED'});
+      if(!scheduleThumbRetry(img,error))markThumbFailed(img);
+      finish(false);
+    };
+    img.src=url;
+  });
 }
 async function loadThumb(img){
   const id=img.dataset.fileId;if(!id)return;
   const version=String(img.dataset.thumbVersion||''),cacheKey=id+'|'+version;
+  const forceReload=img.dataset.thumbForceReload==='1';
   const cached=thumbUrlCache.get(cacheKey);
-  const applyUrl=url=>{
-    if(!img.isConnected)return;
-    if(img._thumbRetryTimer){clearTimeout(img._thumbRetryTimer);img._thumbRetryTimer=0}
-    delete img.dataset.thumbRetryCount;
-    img.addEventListener('load',()=>{
-      const placeholder=img.closest('.photo-tile')?.querySelector('.photo-placeholder');
-      if(placeholder)placeholder.remove();
-    },{once:true});
-    img.src=url;img.classList.add('loaded');img.dataset.loaded='1';
-  };
-  if(cached){thumbUrlCache.delete(cacheKey);thumbUrlCache.set(cacheKey,cached);applyUrl(cached);return}
+  if(cached&&!forceReload){
+    thumbUrlCache.delete(cacheKey);thumbUrlCache.set(cacheKey,cached);
+    await applyThumbUrl(img,cacheKey,cached);
+    return;
+  }
+  if(cached&&forceReload){
+    img.removeAttribute('src');
+    forgetThumbUrl(cacheKey,cached);
+  }
   const path='/api/thumb?id='+encodeURIComponent(id)+(version?'&v='+encodeURIComponent(version):'');
   try{
-    const {blob}=await apiBlob(path,{cache:'force-cache'});
+    const data=await apiBlob(path,{cache:forceReload?'reload':'force-cache'});
     if(!img.isConnected)return;
-    const url=rememberThumbUrl(cacheKey,URL.createObjectURL(blob));applyUrl(url);
+    if(!data.blob?.size||data.type&&!String(data.type).toLowerCase().startsWith('image/')){
+      throw Object.assign(new Error('thumb_invalid_response'),{code:'THUMB_INVALID_RESPONSE'});
+    }
+    clearThumbFailure(img);
+    const url=rememberThumbUrl(cacheKey,URL.createObjectURL(data.blob));
+    await applyThumbUrl(img,cacheKey,url);
   }catch(e){
-    if(!scheduleThumbRetry(img,e))img.alt='';
+    if(!scheduleThumbRetry(img,e))markThumbFailed(img);
   }
 }
 
@@ -1735,9 +1817,12 @@ async function renderViewer(){
   resetViewerZoom();
   const loadSeq=++viewerLoadSeq;
   releaseViewerBlob();
-  viewerName.textContent=item.name||'';
-  viewerCounter.textContent=`${state.viewerIndex+1} / ${state.media.length}`;
-  viewerImage.alt=item.name||'';
+  const viewerMeta={id:String(item.id||''),name:String(item.name||''),index:state.viewerIndex,total:state.media.length};
+  viewer.dataset.renderItemId=viewerMeta.id;
+  viewerName.textContent=viewerMeta.name;
+  viewerName.title=viewerMeta.name;
+  viewerCounter.textContent=`${viewerMeta.index+1} / ${viewerMeta.total}`;
+  viewerImage.alt=viewerMeta.name;
 
   const thumbUrl=loadedThumbUrl(item.id);
   if(thumbUrl){
