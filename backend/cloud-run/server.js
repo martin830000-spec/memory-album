@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.5' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.6' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -277,12 +277,25 @@ app.get('/api/thumb', async (req, res, next) => {
   try {
     const id = String(req.query.id || '');
     if (!id) return res.status(400).json({ ok: false, error: 'file_id_required' });
-    const meta = await getVerifiedImageMeta(id, 'id,name,mimeType,parents,size,modifiedTime,thumbnailLink');
-    const token = await getGoogleToken();
-    let url = meta.thumbnailLink || '';
-    if (url) url = url.replace(/=s\d+(?:-c)?$/, '=s640');
-    if (!url) url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`;
+    const fields = 'id,name,mimeType,parents,size,modifiedTime,thumbnailLink';
+    let meta = await getVerifiedImageMeta(id, fields);
 
+    // Newly uploaded Drive images may not have thumbnailLink yet. Refresh metadata once
+    // instead of falling back to the full original, which can be tens of MB per grid tile.
+    if (!meta.thumbnailLink) {
+      const fresh = await getMeta(id, fields);
+      if (!String(fresh?.mimeType || '').startsWith('image/')) {
+        return res.status(415).json({ ok: false, error: 'not_image' });
+      }
+      meta = rememberFileMeta(fresh);
+    }
+    if (!meta.thumbnailLink) {
+      res.setHeader('Retry-After', '2');
+      return res.status(425).json({ ok: false, error: 'thumbnail_not_ready' });
+    }
+
+    const token = await getGoogleToken();
+    const url = String(meta.thumbnailLink).replace(/=s\d+(?:-c)?$/, '=s640');
     const upstream = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
     res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
     pipeGoogleResponse(upstream, res, meta.name, false);
