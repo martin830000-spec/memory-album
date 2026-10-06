@@ -685,7 +685,7 @@ async function apiFetch(path,options={}){
       if(res.status===401||res.status===403||res.status===425)throw err;
       lastError=err;
     }catch(e){
-      lastError=e;if(e?.status===401||e?.status===403||e?.status===425)throw e;
+      lastError=e;if(e?.name==='AbortError'||e?.status===401||e?.status===403||e?.status===425)throw e;
     }
   }
   throw lastError||new Error('API_FAILED');
@@ -917,7 +917,7 @@ async function downloadSelectedPhotos(){
   if(!items.length)return openSheet(t('download'),t('selectAtLeastOne'));
   const safeShare=selectedShareSafe(items),ios=isIOSDevice();
   openSheet(t('download'),safeShare?t('downloadChoiceHint'):t('downloadLargeHint',items.length),[],t('cancel'));
-  if(ios&&safeShare){
+  if(ios&&safeShare&&typeof navigator.share==='function'){
     preparedSaveChoice(t('saveToPhotos'),t('saveIOSHint'),()=>prepareSelectedForShare(items),'primary-save-choice');
     preparedSaveChoice(t('saveFiles'),t('saveDeviceHint'),()=>streamDownloadSelected(items));
     return;
