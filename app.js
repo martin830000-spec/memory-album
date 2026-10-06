@@ -672,14 +672,21 @@ function accessKey(){
   return String(lsGet(ACCESS_KEY_FALLBACK_STORAGE)||'').trim();
 }
 function apiReady(){return apiBases().length>0}
+function createRequestId(){
+  try{if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID()}catch(_){}
+  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)+'-'+Math.random().toString(36).slice(2);
+}
 async function apiFetch(path,options={}){
   const bases=apiBases();if(!bases.length)throw Object.assign(new Error('API_NOT_CONFIGURED'),{code:'API_NOT_CONFIGURED'});
   const key=accessKey();if(!key)throw Object.assign(new Error('ACCESS_KEY_MISSING'),{code:'ACCESS_KEY_MISSING'});
+  const fetchOptions={...options};const providedRequestId=String(fetchOptions.requestId||'').trim();delete fetchOptions.requestId;
+  const method=String(fetchOptions.method||'GET').toUpperCase();
+  const requestId=providedRequestId||(!['GET','HEAD'].includes(method)?createRequestId():'');
   let lastError=null;
   for(let i=0;i<bases.length;i++){
-    const headers=new Headers(options.headers||{});headers.set('X-Album-Key',key);
+    const headers=new Headers(fetchOptions.headers||{});headers.set('X-Album-Key',key);if(requestId)headers.set('X-Album-Request-Id',requestId);
     try{
-      const res=await fetch(bases[i]+path,{...options,headers,cache:options.cache||'no-store'});
+      const res=await fetch(bases[i]+path,{...fetchOptions,headers,cache:fetchOptions.cache||'no-store'});
       if(res.ok)return res;
       const err=new Error('HTTP_'+res.status);err.status=res.status;err.body=await res.text().catch(()=> '');
       if(res.status===401||res.status===403||res.status===425)throw err;
@@ -1511,7 +1518,7 @@ async function uploadSelectedFiles(){
   setTimeout(()=>{closeSheet();refreshCurrent()},900);
 }
 function uploadOne(file,folderId,onProgress,onSaving){
-  const bases=apiBases(),key=accessKey();
+  const bases=apiBases(),key=accessKey(),requestId=createRequestId();
   return new Promise((resolve,reject)=>{
     let settled=false;
     const failCancelled=()=>{
@@ -1526,7 +1533,7 @@ function uploadOne(file,folderId,onProgress,onSaving){
       activeUploadXhr=xhr;
       const clear=()=>{if(activeUploadXhr===xhr)activeUploadXhr=null};
       xhr.open('POST',bases[i]+'/api/upload?folder='+encodeURIComponent(folderId));
-      xhr.setRequestHeader('X-Album-Key',key);
+      xhr.setRequestHeader('X-Album-Key',key);xhr.setRequestHeader('X-Album-Request-Id',requestId);
       xhr.upload.onprogress=e=>{if(!uploadCancelRequested&&e.lengthComputable)onProgress?.(Math.max(0,Math.min(100,Math.round(e.loaded/e.total*100))))};
       xhr.upload.onload=()=>{if(!uploadCancelRequested)onSaving?.()};
       xhr.onload=()=>{
