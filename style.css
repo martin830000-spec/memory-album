@@ -263,3 +263,33 @@ body.light .app-toast{background:rgba(32,38,48,.94);color:#fff}
   .viewer-title-wrap strong{font-size:12px;line-height:17px}
   .viewer-title-wrap small{font-size:10px;line-height:12px;margin-top:0}
 }
+
+
+/* V0.6.16 · rapid viewer navigation metadata stability */
+.viewer-title-wrap{
+  contain:layout paint;
+  isolation:isolate;
+  background:#050608;
+}
+.viewer-title-wrap strong,.viewer-title-wrap small{
+  display:block;
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  text-align:center;
+}
+.viewer-title-wrap strong{
+  height:17px;
+  line-height:17px;
+}
+.viewer-title-wrap small{
+  height:12px;
+  line-height:12px;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:600px){
+  .viewer-title-wrap{height:31px;max-height:31px;overflow:hidden}
+}

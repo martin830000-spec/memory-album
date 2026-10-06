@@ -169,6 +169,8 @@ let rootLoadSeq=0;
 let contentLoadSeq=0;
 let trashLoadSeq=0;
 let viewerLoadSeq=0;
+let viewerRenderRaf=0;
+let viewerRenderRequested=0;
 let viewerOriginalController=null;
 let viewerOriginalKey='';
 let viewerOriginalPromise=null;
@@ -1800,31 +1802,31 @@ function onViewerTouchEnd(e){
   }
   e.preventDefault();
 }
-async function openViewer(index,pushHistory=true){
+function openViewer(index,pushHistory=true){
   const rows=state.media;if(!rows[index])return;
   resetViewerZoom();
   state.viewerIndex=index;viewer.hidden=false;body.classList.add('viewer-open');
   if(pushHistory)history.pushState(albumHistoryState('viewer',String(rows[index].id||'')),'',location.href);
-  await renderViewer();
+  renderViewerNow();
 }
 function loadedThumbUrl(fileId){
   const id=String(fileId||'');
   const img=[...photoGrid.querySelectorAll('.photo-thumb')].find(x=>x.dataset.fileId===id&&x.dataset.loaded==='1'&&x.src);
   return img?.src||'';
 }
-async function renderViewer(){
-  const item=state.media[state.viewerIndex];if(!item)return closeViewer();
-  resetViewerZoom();
-  const loadSeq=++viewerLoadSeq;
-  releaseViewerBlob();
-  const viewerMeta={id:String(item.id||''),name:String(item.name||''),index:state.viewerIndex,total:state.media.length};
-  viewer.dataset.renderItemId=viewerMeta.id;
-  viewerName.textContent=viewerMeta.name;
-  viewerName.title=viewerMeta.name;
-  viewerCounter.textContent=`${viewerMeta.index+1} / ${viewerMeta.total}`;
-  viewerImage.alt=viewerMeta.name;
-
+function renderViewerMeta(item,index,total,loadSeq){
+  const meta={id:String(item?.id||''),name:String(item?.name||''),index,total,loadSeq};
+  viewer.dataset.renderItemId=meta.id;
+  viewer.dataset.renderSeq=String(loadSeq);
+  viewerName.replaceChildren(meta.name);
+  viewerName.title=meta.name;
+  viewerCounter.replaceChildren(`${meta.index+1} / ${meta.total}`);
+  viewerImage.alt=meta.name;
+}
+async function loadViewerMedia(item,index,loadSeq){
+  const current=()=>loadSeq===viewerLoadSeq&&!viewer.hidden&&state.viewerIndex===index&&String(state.media[index]?.id||'')===String(item.id||'');
   const thumbUrl=loadedThumbUrl(item.id);
+  if(!current())return;
   if(thumbUrl){
     viewerImage.src=thumbUrl;
     viewerLoading.hidden=true;
@@ -1836,16 +1838,16 @@ async function renderViewer(){
 
   let fullApplied=false;
   const previewPromise=ensurePreviewUrl(item).then(url=>{
-    if(!url||fullApplied||loadSeq!==viewerLoadSeq||viewer.hidden||state.media[state.viewerIndex]?.id!==item.id)return;
+    if(!url||fullApplied||!current())return;
     viewerImage.src=url;viewerLoading.hidden=true;
   });
   scheduleViewerNeighborPrefetch(loadSeq);
 
   try{
     await Promise.race([previewPromise,new Promise(resolve=>setTimeout(resolve,120))]);
-    if(loadSeq!==viewerLoadSeq||viewer.hidden||state.media[state.viewerIndex]?.id!==item.id)return;
+    if(!current())return;
     const data=await startViewerOriginal(item);
-    if(loadSeq!==viewerLoadSeq||viewer.hidden||state.media[state.viewerIndex]?.id!==item.id)return;
+    if(!current())return;
     fullApplied=true;
     const fullUrl=URL.createObjectURL(data.blob);
     state.viewerBlob=data.blob;state.viewerBlobKey=viewerItemKey(item);
@@ -1853,13 +1855,34 @@ async function renderViewer(){
     viewerImage.src=fullUrl;
     viewerLoading.hidden=true;
   }catch(e){
-    if(loadSeq!==viewerLoadSeq||e?.name==='AbortError')return;
+    if(!current()||e?.name==='AbortError')return;
     await previewPromise;
     if(!thumbUrl&&!viewerImage.src){
       viewerLoading.textContent=t('loadFailed');
       viewerLoading.hidden=false;
     }
   }
+}
+function renderViewerNow(){
+  if(viewerRenderRaf){cancelAnimationFrame(viewerRenderRaf);viewerRenderRaf=0}
+  const index=state.viewerIndex,item=state.media[index];
+  if(!item)return closeViewer();
+  resetViewerZoom();
+  const loadSeq=++viewerLoadSeq;
+  releaseViewerBlob();
+  renderViewerMeta(item,index,state.media.length,loadSeq);
+  loadViewerMedia(item,index,loadSeq);
+}
+function scheduleViewerRender(){
+  viewerRenderRequested++;
+  if(viewerRenderRaf)return;
+  viewerRenderRaf=requestAnimationFrame(()=>{
+    viewerRenderRaf=0;
+    const requestAtFrame=viewerRenderRequested;
+    renderViewerNow();
+    // If a navigation event landed during this frame, collapse it into one more frame.
+    if(requestAtFrame!==viewerRenderRequested)scheduleViewerRender();
+  });
 }
 function releaseViewerBlob(){
   abortViewerOriginal();
@@ -1869,10 +1892,18 @@ function releaseViewerBlob(){
 }
 function closeViewer(fromHistory=false){
   if(!fromHistory&&history.state?.[ALBUM_HISTORY_KEY]&&history.state.view==='viewer'){history.back();return}
+  if(viewerRenderRaf){cancelAnimationFrame(viewerRenderRaf);viewerRenderRaf=0}
+  viewerRenderRequested++;
   viewerLoadSeq++;resetViewerZoom();releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.removeAttribute('src');viewerLoading.textContent=t('viewerLoading');
+  viewer.removeAttribute('data-render-item-id');viewer.removeAttribute('data-render-seq');
+  viewerName.replaceChildren('');viewerCounter.replaceChildren('');
   if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
 }
-async function moveViewer(delta){if(!state.media.length)return;state.viewerIndex=(state.viewerIndex+delta+state.media.length)%state.media.length;await renderViewer()}
+function moveViewer(delta){
+  const n=state.media.length;if(!n||viewer.hidden)return;
+  state.viewerIndex=(state.viewerIndex+delta+n)%n;
+  scheduleViewerRender();
+}
 async function ensureViewerBlob(){
   const item=state.media[state.viewerIndex];if(!item)return null;
   const key=viewerItemKey(item);
