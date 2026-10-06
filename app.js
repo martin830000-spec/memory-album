@@ -1034,12 +1034,13 @@ function setupTrashThumbObserver(){
   trashThumbQueue.length=0;
   const imgs=[...$('trashList').querySelectorAll('.trash-thumb')];
   if(!imgs.length)return;
-  if(typeof IntersectionObserver!=='function'){imgs.forEach(enqueueTrashThumb);return}
+  if(typeof IntersectionObserver!=='function'){imgs.forEach(img=>{img.dataset.thumbVisible='1';enqueueTrashThumb(img)});return}
   trashThumbObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
-    if(entry.isIntersecting){trashThumbObserver.unobserve(entry.target);enqueueTrashThumb(entry.target)}
+    entry.target.dataset.thumbVisible=entry.isIntersecting?'1':'0';
+    if(entry.isIntersecting&&!entry.target.dataset.loaded)enqueueTrashThumb(entry.target);
   }),{root:$('trashList'),rootMargin:'500px 0px'});
-  imgs.slice(0,8).forEach(enqueueTrashThumb);
-  imgs.slice(8).forEach(img=>trashThumbObserver.observe(img));
+  imgs.forEach(img=>trashThumbObserver.observe(img));
+  imgs.slice(0,8).forEach(img=>{img.dataset.thumbVisible='1';enqueueTrashThumb(img)});
 }
 function enqueueTrashThumb(img){
   if(!img||img.dataset.loaded||img.dataset.trashQueued)return;
@@ -1104,8 +1105,9 @@ function scheduleThumbRetry(img,error){
   img._thumbRetryTimer=setTimeout(()=>{
     img._thumbRetryTimer=0;
     if(!img.isConnected||img.dataset.loaded)return;
-    // Pause retries while well outside the gallery viewport. The observer resumes them on re-entry.
+    // Pause retries while well outside the active gallery/trash viewport. The observer resumes them on re-entry.
     if(img.dataset.thumbVisible==='0')return;
+    if(img.classList.contains('trash-thumb')&&!trashOpen())return;
     enqueueThumb(img);
   },delay);
   return true;
