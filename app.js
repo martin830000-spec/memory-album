@@ -1018,15 +1018,16 @@ function resetSelection(){selectionMode=false;selectedMediaIds.clear();photoGrid
 function setupThumbObserver(){
   if(thumbObserver)thumbObserver.disconnect();
   thumbQueue.length=0;
+  const imgs=[...photoGrid.querySelectorAll('.photo-thumb')];
   if(typeof IntersectionObserver!=='function'){
-    photoGrid.querySelectorAll('.photo-thumb').forEach(enqueueThumb);return;
+    imgs.forEach(img=>{img.dataset.thumbVisible='1';enqueueThumb(img)});return;
   }
   thumbObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
-    if(entry.isIntersecting){thumbObserver.unobserve(entry.target);enqueueThumb(entry.target)}
+    entry.target.dataset.thumbVisible=entry.isIntersecting?'1':'0';
+    if(entry.isIntersecting&&!entry.target.dataset.loaded)enqueueThumb(entry.target);
   }),{rootMargin:'1000px 0px'});
-  const imgs=[...photoGrid.querySelectorAll('.photo-thumb')];
-  imgs.slice(0,THUMB_EAGER_COUNT).forEach(enqueueThumb);
-  imgs.slice(THUMB_EAGER_COUNT).forEach(img=>thumbObserver.observe(img));
+  imgs.forEach(img=>thumbObserver.observe(img));
+  imgs.slice(0,THUMB_EAGER_COUNT).forEach(img=>{img.dataset.thumbVisible='1';enqueueThumb(img)});
 }
 function setupTrashThumbObserver(){
   if(trashThumbObserver)trashThumbObserver.disconnect();
@@ -1086,12 +1087,37 @@ function pumpThumbQueue(){
     loadThumb(img).finally(()=>{thumbActive--;pumpThumbQueue()});
   }
 }
+function scheduleThumbRetry(img,error){
+  if(!img?.isConnected||img.dataset.loaded)return false;
+  const retryable=error?.status!==401&&error?.status!==403&&error?.code!=='ACCESS_KEY_MISSING'&&error?.code!=='API_NOT_CONFIGURED';
+  if(!retryable)return false;
+
+  const retries=Number(img.dataset.thumbRetryCount||0);
+  const drivePending=error?.status===425;
+  const pendingDelays=[1000,2000,4000,8000,15000];
+  const networkDelays=[1200,3000,7000];
+  if(!drivePending&&retries>=networkDelays.length)return false;
+
+  const delay=drivePending?pendingDelays[Math.min(retries,pendingDelays.length-1)]:networkDelays[retries];
+  img.dataset.thumbRetryCount=String(retries+1);
+  if(img._thumbRetryTimer)clearTimeout(img._thumbRetryTimer);
+  img._thumbRetryTimer=setTimeout(()=>{
+    img._thumbRetryTimer=0;
+    if(!img.isConnected||img.dataset.loaded)return;
+    // Pause retries while well outside the gallery viewport. The observer resumes them on re-entry.
+    if(img.dataset.thumbVisible==='0')return;
+    enqueueThumb(img);
+  },delay);
+  return true;
+}
 async function loadThumb(img){
   const id=img.dataset.fileId;if(!id)return;
   const version=String(img.dataset.thumbVersion||''),cacheKey=id+'|'+version;
   const cached=thumbUrlCache.get(cacheKey);
   const applyUrl=url=>{
     if(!img.isConnected)return;
+    if(img._thumbRetryTimer){clearTimeout(img._thumbRetryTimer);img._thumbRetryTimer=0}
+    delete img.dataset.thumbRetryCount;
     img.addEventListener('load',()=>{
       const placeholder=img.closest('.photo-tile')?.querySelector('.photo-placeholder');
       if(placeholder)placeholder.remove();
@@ -1103,15 +1129,9 @@ async function loadThumb(img){
   try{
     const {blob}=await apiBlob(path,{cache:'force-cache'});
     if(!img.isConnected)return;
-    delete img.dataset.thumbRetryCount;
     const url=rememberThumbUrl(cacheKey,URL.createObjectURL(blob));applyUrl(url);
   }catch(e){
-    const retries=Number(img.dataset.thumbRetryCount||0);
-    const retryable=e?.status!==401&&e?.status!==403&&e?.code!=='ACCESS_KEY_MISSING'&&e?.code!=='API_NOT_CONFIGURED';
-    if(img.isConnected&&retryable&&retries<2){
-      img.dataset.thumbRetryCount=String(retries+1);
-      setTimeout(()=>{if(img.isConnected&&!img.dataset.loaded)enqueueThumb(img)},retries===0?900:2200);
-    }else img.alt='';
+    if(!scheduleThumbRetry(img,e))img.alt='';
   }
 }
 
