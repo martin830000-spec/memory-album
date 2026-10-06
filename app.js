@@ -61,7 +61,7 @@ const I18N={
     deleteRecoverHint:'실수로 삭제해도 Google Drive 휴지통에서 복구할 수 있습니다.',cancel:'취소',
     recentTitle:'최근 사진',recentSubtitle:'최근 추가된 사진',recentEmpty:'최근 추가된 사진이 없습니다.',
     selectPhotos:'사진 선택',selectedCount:n=>`${n}장 선택`,selectAll:'전체 선택',clearAll:'전체 해제',
-    downloadSelected:n=>`${n}장 저장`,downloadPreparing:'선택한 원본 사진 준비 중…',downloadFailed:'선택 사진을 저장하지 못했습니다.',selectAtLeastOne:'저장할 사진을 선택해주세요.',
+    downloadSelected:n=>`${n}장 저장`,downloadPreparing:'선택한 원본 사진 준비 중…',downloadFailed:'선택 사진을 저장하지 못했습니다.',downloadOneFailed:'사진을 다운로드하지 못했습니다.',shareFailed:'사진을 공유하지 못했습니다.',selectAtLeastOne:'저장할 사진을 선택해주세요.',
     savingSelected:(current,total)=>`${current} / ${total}장 원본 준비 중…`,savePrepared:n=>`${n}장 저장 준비 완료`,saveToPhotos:'사진 앱에 저장 / 공유',saveFiles:'사진 파일로 저장',saveToDevice:'기기에 저장',shareFiles:'공유하기',saveDeviceHint:'원본 사진을 휴대폰 다운로드 폴더에 저장합니다.',saveIOSHint:'iPhone 공유 시트에서 “이미지 저장”을 선택하면 사진 앱에 저장할 수 있습니다.',shareFilesHint:'카카오톡·Messenger·Google 포토 등 원하는 앱으로 보냅니다.',
     confirm:'확인',deleteSelected:n=>`${n}장 삭제`,deleteSelectedConfirm:n=>`${n}장의 사진을 삭제할까요? 선택한 사진은 Google Drive 휴지통으로 이동합니다.`,
     deletingSelected:(current,total)=>`${current} / ${total}장 삭제 중…`,deleteSelectedDone:n=>`${n}장 삭제 완료`,deleteSelectedFailed:(done,total)=>`${done} / ${total}장 삭제 후 중단되었습니다.`,
@@ -94,7 +94,7 @@ const I18N={
     deleteRecoverHint:'ຖ້າລຶບຜິດ ສາມາດກູ້ຄືນຈາກຖັງຂີ້ເຫຍື້ອ Google Drive.',cancel:'ຍົກເລີກ',
     recentTitle:'ຮູບຫຼ້າສຸດ',recentSubtitle:'ຮູບທີ່ເພີ່ມຫຼ້າສຸດ',recentEmpty:'ຍັງບໍ່ມີຮູບທີ່ເພີ່ມໃໝ່.',
     selectPhotos:'ເລືອກຮູບ',selectedCount:n=>`ເລືອກ ${n} ຮູບ`,selectAll:'ເລືອກທັງໝົດ',clearAll:'ຍົກເລີກທັງໝົດ',
-    downloadSelected:n=>`ບັນທຶກ ${n} ຮູບ`,downloadPreparing:'ກຳລັງກຽມຮູບຕົ້ນສະບັບທີ່ເລືອກ…',downloadFailed:'ບັນທຶກຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະບັນທຶກ.',
+    downloadSelected:n=>`ບັນທຶກ ${n} ຮູບ`,downloadPreparing:'ກຳລັງກຽມຮູບຕົ້ນສະບັບທີ່ເລືອກ…',downloadFailed:'ບັນທຶກຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',downloadOneFailed:'ດາວໂຫຼດຮູບບໍ່ສຳເລັດ.',shareFailed:'ແບ່ງປັນຮູບບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະບັນທຶກ.',
     savingSelected:(current,total)=>`ກຳລັງກຽມຮູບຕົ້ນສະບັບ ${current} / ${total}…`,savePrepared:n=>`ກຽມ ${n} ຮູບແລ້ວ`,saveToPhotos:'ບັນທຶກເຂົ້າ Photos / ແບ່ງປັນ',saveFiles:'ບັນທຶກເປັນໄຟລ໌ຮູບ',saveToDevice:'ບັນທຶກລົງໂທລະສັບ',shareFiles:'ແບ່ງປັນ',saveDeviceHint:'ບັນທຶກຮູບຕົ້ນສະບັບໄວ້ໃນໂຟນເດີ Download ຂອງໂທລະສັບ.',saveIOSHint:'ໃນ iPhone ເລືອກ “Save Images” ຈາກ Share Sheet ເພື່ອບັນທຶກເຂົ້າ Photos.',shareFilesHint:'ສົ່ງໄປ KakaoTalk, Messenger, Google Photos ຫຼື ແອັບອື່ນ.',
     confirm:'ຢືນຢັນ',deleteSelected:n=>`ລຶບ ${n} ຮູບ`,deleteSelectedConfirm:n=>`ລຶບຮູບທີ່ເລືອກ ${n} ຮູບບໍ? ຮູບຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.`,
     deletingSelected:(current,total)=>`ກຳລັງລຶບ ${current} / ${total} ຮູບ…`,deleteSelectedDone:n=>`ລຶບສຳເລັດ ${n} ຮູບ`,deleteSelectedFailed:(done,total)=>`ລຶບໄດ້ ${done} / ${total} ຮູບ ແລ້ວຢຸດ.`,
@@ -680,10 +680,10 @@ async function apiFetch(path,options={}){
       const res=await fetch(bases[i]+path,{...options,headers,cache:options.cache||'no-store'});
       if(res.ok)return res;
       const err=new Error('HTTP_'+res.status);err.status=res.status;err.body=await res.text().catch(()=> '');
-      if(res.status===401||res.status===403)throw err;
+      if(res.status===401||res.status===403||res.status===425)throw err;
       lastError=err;
     }catch(e){
-      lastError=e;if(e?.status===401||e?.status===403)throw e;
+      lastError=e;if(e?.status===401||e?.status===403||e?.status===425)throw e;
     }
   }
   throw lastError||new Error('API_FAILED');
@@ -1015,8 +1015,16 @@ async function loadThumb(img){
   try{
     const {blob}=await apiBlob(path,{cache:'force-cache'});
     if(!img.isConnected)return;
+    delete img.dataset.thumbRetryCount;
     const url=rememberThumbUrl(cacheKey,URL.createObjectURL(blob));applyUrl(url);
-  }catch(_){img.alt=''}
+  }catch(e){
+    const retries=Number(img.dataset.thumbRetryCount||0);
+    const retryable=e?.status!==401&&e?.status!==403&&e?.code!=='ACCESS_KEY_MISSING'&&e?.code!=='API_NOT_CONFIGURED';
+    if(img.isConnected&&retryable&&retries<2){
+      img.dataset.thumbRetryCount=String(retries+1);
+      setTimeout(()=>{if(img.isConnected&&!img.dataset.loaded)enqueueThumb(img)},retries===0?900:2200);
+    }else img.alt='';
+  }
 }
 
 function previewCacheKey(item){
@@ -1676,17 +1684,21 @@ async function ensureViewerBlob(){
 }
 async function downloadCurrent(){
   const item=state.media[state.viewerIndex];if(!item)return;
-  const itemId=String(item.id),blob=await ensureViewerBlob();if(!blob||String(item.id)!==itemId)return;
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=item.name||'photo';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  try{
+    const itemId=String(item.id),blob=await ensureViewerBlob();if(!blob||String(item.id)!==itemId)return;
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=item.name||'photo';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }catch(e){handleApiError(e,t('downloadOneFailed'))}
 }
 async function shareCurrent(){
   const item=state.media[state.viewerIndex];if(!item)return;
-  const itemId=String(item.id),blob=await ensureViewerBlob();if(!blob||String(item.id)!==itemId)return;
-  const file=new File([blob],item.name||'photo',{type:blob.type||item.mimeType||'application/octet-stream'});
-  if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
-    try{await navigator.share({files:[file],title:item.name||''});return}catch(e){if(e?.name==='AbortError')return}
-  }
-  openSheet(t('share'),t('shareUnsupported'));downloadCurrent();
+  try{
+    const itemId=String(item.id),blob=await ensureViewerBlob();if(!blob||String(item.id)!==itemId)return;
+    const file=new File([blob],item.name||'photo',{type:blob.type||item.mimeType||'application/octet-stream'});
+    if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
+      try{await navigator.share({files:[file],title:item.name||''});return}catch(e){if(e?.name==='AbortError')return;throw e}
+    }
+    openSheet(t('share'),t('shareUnsupported'));await downloadCurrent();
+  }catch(e){handleApiError(e,t('shareFailed'))}
 }
 function confirmDeleteCurrentPhoto(){
   const item=state.media[state.viewerIndex];if(!item)return;
