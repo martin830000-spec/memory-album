@@ -201,8 +201,14 @@ app.post('/api/folders', async (req, res, next) => {
       body: { name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId], ...(requestId ? { appProperties: { memoryAlbumRequestId: requestId } } : {}) }
     });
     insideRootCache.set(String(created.id), { value: true, at: Date.now() });
-    const localized = (await localizeFolders([created], req.query.lang))[0] || created;
-    res.status(201).json({ ok: true, folder: localized });
+    const canonical = requestId ? (await canonicalRequestArtifact(parentId, requestId) || created) : created;
+    insideRootCache.set(String(canonical.id), { value: true, at: Date.now() });
+    const localized = (await localizeFolders([canonical], req.query.lang))[0] || canonical;
+    res.status(String(canonical.id) === String(created.id) ? 201 : 200).json({
+      ok: true,
+      folder: localized,
+      replayed: String(canonical.id) !== String(created.id)
+    });
   } catch (e) { next(e); }
 });
 
@@ -384,8 +390,14 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
     const upstream = await fetchGoogle(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
     const created = await upstream.json();
     insideRootCache.set(created.id, { value: true, at: Date.now() });
+    const canonical = requestId ? (await canonicalRequestArtifact(folderId, requestId) || created) : created;
+    insideRootCache.set(String(canonical.id), { value: true, at: Date.now() });
     recentCache = { data: [], expiresAt: 0 };
-    res.status(201).json({ ok: true, file: created });
+    res.status(String(canonical.id) === String(created.id) ? 201 : 200).json({
+      ok: true,
+      file: canonical,
+      replayed: String(canonical.id) !== String(created.id)
+    });
   } catch (e) { next(e); }
 });
 
@@ -670,6 +682,35 @@ function normalizeFolderName(name) {
 
 function albumRequestId(req) {
   return String(req?.headers?.['x-album-request-id'] || '').trim().replace(/[^A-Za-z0-9._:-]/g, '').slice(0, 96);
+}
+
+async function canonicalRequestArtifact(parentId, requestId) {
+  if (!parentId || !requestId) return null;
+  const data = await driveList({
+    q: `'${escapeQuery(parentId)}' in parents and trashed = false and appProperties has { key='memoryAlbumRequestId' and value='${escapeQuery(requestId)}' }`,
+    pageSize: '20',
+    fields: 'files(id,name,mimeType,size,createdTime,modifiedTime,parents)'
+  });
+  const rows = [...(data.files || [])].sort((a, b) => {
+    const at = Date.parse(a.createdTime || 0) || 0;
+    const bt = Date.parse(b.createdTime || 0) || 0;
+    return at - bt || String(a.id || '').localeCompare(String(b.id || ''));
+  });
+  const keep = rows[0] || null;
+  for (const duplicate of rows.slice(1)) {
+    try {
+      await driveJsonRequest(`files/${encodeURIComponent(duplicate.id)}`, {
+        method: 'PATCH',
+        params: { fields: 'id,trashed' },
+        body: { trashed: true }
+      });
+      insideRootCache.delete(String(duplicate.id));
+      fileMetaCache.delete(String(duplicate.id));
+    } catch (e) {
+      console.warn('[idempotency-cleanup]', duplicate.id, e?.message || e);
+    }
+  }
+  return keep;
 }
 
 function escapeQuery(value) {
