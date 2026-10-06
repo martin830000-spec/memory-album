@@ -61,7 +61,7 @@ const I18N={
     deleteRecoverHint:'실수로 삭제해도 Google Drive 휴지통에서 복구할 수 있습니다.',cancel:'취소',
     recentTitle:'최근 사진',recentSubtitle:'최근 추가된 사진',recentEmpty:'최근 추가된 사진이 없습니다.',
     selectPhotos:'사진 선택',selectedCount:n=>`${n}장 선택`,selectAll:'전체 선택',clearAll:'전체 해제',
-    downloadSelected:n=>`${n}장 저장`,downloadPreparing:'선택한 원본 사진 준비 중…',downloadFailed:'선택 사진을 저장하지 못했습니다.',downloadOneFailed:'사진을 다운로드하지 못했습니다.',shareFailed:'사진을 공유하지 못했습니다.',selectAtLeastOne:'저장할 사진을 선택해주세요.',
+    downloadSelected:n=>`${n}장 저장`,downloadPreparing:'선택한 원본 사진 준비 중…',downloadFailed:'선택 사진을 저장하지 못했습니다.',downloadOneFailed:'사진을 다운로드하지 못했습니다.',shareFailed:'사진을 공유하지 못했습니다.',downloadCancel:'저장 취소',downloadCancelled:'사진 저장 취소됨',downloadCancelledDetail:(done,total)=>`${done} / ${total}장 저장 후 중단했습니다. 이미 저장된 사진은 유지됩니다.`,downloadDone:'사진 저장 완료',downloadDoneDetail:n=>`${n}장의 원본 사진 저장을 완료했습니다.`,downloadChoiceHint:'저장 방법을 선택해주세요.',downloadLargeHint:n=>`${n}장을 한꺼번에 메모리에 준비하지 않고 한 장씩 안전하게 저장합니다. 사진 앱 공유가 필요하면 사진 수를 나눠 선택해주세요.`,selectAtLeastOne:'저장할 사진을 선택해주세요.',
     savingSelected:(current,total)=>`${current} / ${total}장 원본 준비 중…`,savePrepared:n=>`${n}장 저장 준비 완료`,saveToPhotos:'사진 앱에 저장 / 공유',saveFiles:'사진 파일로 저장',saveToDevice:'기기에 저장',shareFiles:'공유하기',saveDeviceHint:'원본 사진을 휴대폰 다운로드 폴더에 저장합니다.',saveIOSHint:'iPhone 공유 시트에서 “이미지 저장”을 선택하면 사진 앱에 저장할 수 있습니다.',shareFilesHint:'카카오톡·Messenger·Google 포토 등 원하는 앱으로 보냅니다.',
     confirm:'확인',deleteSelected:n=>`${n}장 삭제`,deleteSelectedConfirm:n=>`${n}장의 사진을 삭제할까요? 선택한 사진은 Google Drive 휴지통으로 이동합니다.`,
     deletingSelected:(current,total)=>`${current} / ${total}장 삭제 중…`,deleteSelectedDone:n=>`${n}장 삭제 완료`,deleteSelectedFailed:(done,total)=>`${done} / ${total}장 삭제 후 중단되었습니다.`,
@@ -94,7 +94,7 @@ const I18N={
     deleteRecoverHint:'ຖ້າລຶບຜິດ ສາມາດກູ້ຄືນຈາກຖັງຂີ້ເຫຍື້ອ Google Drive.',cancel:'ຍົກເລີກ',
     recentTitle:'ຮູບຫຼ້າສຸດ',recentSubtitle:'ຮູບທີ່ເພີ່ມຫຼ້າສຸດ',recentEmpty:'ຍັງບໍ່ມີຮູບທີ່ເພີ່ມໃໝ່.',
     selectPhotos:'ເລືອກຮູບ',selectedCount:n=>`ເລືອກ ${n} ຮູບ`,selectAll:'ເລືອກທັງໝົດ',clearAll:'ຍົກເລີກທັງໝົດ',
-    downloadSelected:n=>`ບັນທຶກ ${n} ຮູບ`,downloadPreparing:'ກຳລັງກຽມຮູບຕົ້ນສະບັບທີ່ເລືອກ…',downloadFailed:'ບັນທຶກຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',downloadOneFailed:'ດາວໂຫຼດຮູບບໍ່ສຳເລັດ.',shareFailed:'ແບ່ງປັນຮູບບໍ່ສຳເລັດ.',selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະບັນທຶກ.',
+    downloadSelected:n=>`ບັນທຶກ ${n} ຮູບ`,downloadPreparing:'ກຳລັງກຽມຮູບຕົ້ນສະບັບທີ່ເລືອກ…',downloadFailed:'ບັນທຶກຮູບທີ່ເລືອກບໍ່ສຳເລັດ.',downloadOneFailed:'ດາວໂຫຼດຮູບບໍ່ສຳເລັດ.',shareFailed:'ແບ່ງປັນຮູບບໍ່ສຳເລັດ.',downloadCancel:'ຍົກເລີກການບັນທຶກ',downloadCancelled:'ຍົກເລີກການບັນທຶກຮູບແລ້ວ',downloadCancelledDetail:(done,total)=>`ຢຸດຫຼັງຈາກບັນທຶກ ${done} / ${total} ຮູບ. ຮູບທີ່ບັນທຶກແລ້ວຈະຍັງຢູ່.`,downloadDone:'ບັນທຶກຮູບສຳເລັດ',downloadDoneDetail:n=>`ບັນທຶກຮູບຕົ້ນສະບັບ ${n} ຮູບສຳເລັດ.`,downloadChoiceHint:'ເລືອກວິທີບັນທຶກ.',downloadLargeHint:n=>`ຈະບັນທຶກ ${n} ຮູບເທື່ອລະຮູບ ໂດຍບໍ່ເກັບທັງໝົດໄວ້ໃນ memory. ຖ້າຕ້ອງການ Share ເຂົ້າ Photos ໃຫ້ແບ່ງເລືອກເປັນຊຸດນ້ອຍ.`,selectAtLeastOne:'ກະລຸນາເລືອກຮູບທີ່ຈະບັນທຶກ.',
     savingSelected:(current,total)=>`ກຳລັງກຽມຮູບຕົ້ນສະບັບ ${current} / ${total}…`,savePrepared:n=>`ກຽມ ${n} ຮູບແລ້ວ`,saveToPhotos:'ບັນທຶກເຂົ້າ Photos / ແບ່ງປັນ',saveFiles:'ບັນທຶກເປັນໄຟລ໌ຮູບ',saveToDevice:'ບັນທຶກລົງໂທລະສັບ',shareFiles:'ແບ່ງປັນ',saveDeviceHint:'ບັນທຶກຮູບຕົ້ນສະບັບໄວ້ໃນໂຟນເດີ Download ຂອງໂທລະສັບ.',saveIOSHint:'ໃນ iPhone ເລືອກ “Save Images” ຈາກ Share Sheet ເພື່ອບັນທຶກເຂົ້າ Photos.',shareFilesHint:'ສົ່ງໄປ KakaoTalk, Messenger, Google Photos ຫຼື ແອັບອື່ນ.',
     confirm:'ຢືນຢັນ',deleteSelected:n=>`ລຶບ ${n} ຮູບ`,deleteSelectedConfirm:n=>`ລຶບຮູບທີ່ເລືອກ ${n} ຮູບບໍ? ຮູບຈະຖືກຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ Google Drive.`,
     deletingSelected:(current,total)=>`ກຳລັງລຶບ ${current} / ${total} ຮູບ…`,deleteSelectedDone:n=>`ລຶບສຳເລັດ ${n} ຮູບ`,deleteSelectedFailed:(done,total)=>`ລຶບໄດ້ ${done} / ${total} ຮູບ ແລ້ວຢຸດ.`,
@@ -174,6 +174,8 @@ let uploadBusy=false;
 let uploadCancelRequested=false;
 let activeUploadXhr=null;
 let downloadBusy=false;
+let downloadCancelRequested=false;
+let activeDownloadController=null;
 let deleteBusy=false;
 let trashBusy=false;
 let preparedSaveActive=false;
@@ -335,7 +337,7 @@ function manualCopy(lang){
           ['전체 선택','현재 폴더에 보이는 사진을 한 번에 선택하거나 모두 해제합니다.'],
           ['저장 또는 삭제','선택한 사진을 여러 장 저장하거나, 확인창을 거쳐 한 번에 삭제합니다.']
         ],
-        note:'사진이 아주 많을 때는 한 번에 너무 많이 저장하기보다 여러 번 나눠 저장하면 iPhone Safari와 Android Chrome에서 더 안정적입니다.'
+        note:'사진이 아주 많아도 Android·PC의 기기 저장은 원본을 한 장씩 받아 바로 저장하고 메모리에서 해제합니다. iPhone 사진 앱 공유는 브라우저 제한 때문에 큰 묶음보다 여러 번 나눠 선택하는 편이 안전합니다.'
       },
       {
         kind:'viewer',num:'04',kicker:'원본 사진 보기',title:'좌우 스와이프 · 확대 · 이동 · 공유',
@@ -827,23 +829,102 @@ function toggleSelectAll(){
   else state.media.forEach(x=>selectedMediaIds.add(String(x.id)));
   renderMedia();
 }
-async function downloadSelectedPhotos(){
-  const items=state.media.filter(x=>selectedMediaIds.has(String(x.id)));
-  if(!items.length)return openSheet(t('download'),t('selectAtLeastOne'));
-  downloadBusy=true;
-  openSheet(t('download'),t('downloadPreparing'));$('closeSheet').disabled=true;
+function selectedDownloadBytes(items){
+  return items.reduce((sum,item)=>sum+(Number(item?.size)||0),0);
+}
+function selectedShareSafe(items){
+  const bytes=selectedDownloadBytes(items);
+  return items.length<=40&&(!bytes||bytes<=160*1024*1024);
+}
+function showDownloadProgress(item,index,total,done){
+  const pct=Math.max(0,Math.min(100,Math.round((done/Math.max(1,total))*100)));
+  sheetTitle.textContent=t('downloadPreparing');
+  sheetText.textContent=t('savingSelected',index,total)+' · '+String(item?.name||'');
+  sheetActions.innerHTML=`<div class="upload-progress-wrap">
+    <div class="upload-progress-row overall"><strong>${escapeHtml(t('uploadOverall',pct))}</strong><span>${pct}%</span></div>
+    <div class="upload-progress-track overall"><span style="width:${pct}%"></span></div>
+  </div>`;
+  $('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('downloadCancel');backdrop.hidden=false;
+}
+function saveBlobDownload(blob,name,index=0){
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=name||('photo-'+(index+1));document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+async function fetchSelectedOriginal(item,index,total,done){
+  const version=String(item.modifiedTime||'');
+  const controller=new AbortController();activeDownloadController=controller;
+  showDownloadProgress(item,index,total,done);
+  try{
+    return await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache',signal:controller.signal});
+  }finally{
+    if(activeDownloadController===controller)activeDownloadController=null;
+  }
+}
+async function streamDownloadSelected(items){
+  downloadBusy=true;downloadCancelRequested=false;let done=0;
+  try{
+    for(let i=0;i<items.length;i++){
+      if(downloadCancelRequested)break;
+      const data=await fetchSelectedOriginal(items[i],i+1,items.length,done);
+      if(downloadCancelRequested)break;
+      saveBlobDownload(data.blob,items[i].name||('photo-'+(i+1)),i);
+      done++;
+      await new Promise(resolve=>setTimeout(resolve,220));
+    }
+    downloadBusy=false;activeDownloadController=null;$('closeSheet').disabled=false;
+    if(downloadCancelRequested){
+      downloadCancelRequested=false;openSheet(t('downloadCancelled'),t('downloadCancelledDetail',done,items.length));applyPendingAppUpdate();return;
+    }
+    setSelectionMode(false);
+    openSheet(t('downloadDone'),t('downloadDoneDetail',done));applyPendingAppUpdate();
+  }catch(e){
+    const cancelled=downloadCancelRequested||e?.name==='AbortError';
+    downloadBusy=false;activeDownloadController=null;$('closeSheet').disabled=false;
+    if(cancelled){
+      downloadCancelRequested=false;openSheet(t('downloadCancelled'),t('downloadCancelledDetail',done,items.length));
+    }else handleApiError(e,t('downloadFailed'));
+    applyPendingAppUpdate();
+  }
+}
+async function prepareSelectedForShare(items){
+  downloadBusy=true;downloadCancelRequested=false;let done=0;
   try{
     const files=[];
     for(let i=0;i<items.length;i++){
-      const item=items[i];sheetText.textContent=t('savingSelected',i+1,items.length);
-      const version=String(item.modifiedTime||'');
-      const data=await apiBlob('/api/media?id='+encodeURIComponent(item.id)+(version?'&v='+encodeURIComponent(version):''),{cache:'force-cache'});
-      files.push(new File([data.blob],item.name||('photo-'+(i+1)),{type:data.blob.type||item.mimeType||'image/jpeg'}));
+      if(downloadCancelRequested)break;
+      const data=await fetchSelectedOriginal(items[i],i+1,items.length,done);
+      if(downloadCancelRequested)break;
+      files.push(new File([data.blob],items[i].name||('photo-'+(i+1)),{type:data.blob.type||items[i].mimeType||'image/jpeg'}));
+      done++;
     }
-    downloadBusy=false;$('closeSheet').disabled=false;closeSheet();
-    openPreparedSaveSheet(files);
+    downloadBusy=false;activeDownloadController=null;$('closeSheet').disabled=false;
+    if(downloadCancelRequested){
+      downloadCancelRequested=false;openSheet(t('downloadCancelled'),t('downloadCancelledDetail',done,items.length));applyPendingAppUpdate();return;
+    }
+    closeSheet();openPreparedSaveSheet(files);
   }catch(e){
-    downloadBusy=false;$('closeSheet').disabled=false;handleApiError(e,t('downloadFailed'));applyPendingAppUpdate();
+    const cancelled=downloadCancelRequested||e?.name==='AbortError';
+    downloadBusy=false;activeDownloadController=null;$('closeSheet').disabled=false;
+    if(cancelled){
+      downloadCancelRequested=false;openSheet(t('downloadCancelled'),t('downloadCancelledDetail',done,items.length));
+    }else handleApiError(e,t('downloadFailed'));
+    applyPendingAppUpdate();
+  }
+}
+async function downloadSelectedPhotos(){
+  const items=state.media.filter(x=>selectedMediaIds.has(String(x.id)));
+  if(!items.length)return openSheet(t('download'),t('selectAtLeastOne'));
+  const safeShare=selectedShareSafe(items),ios=isIOSDevice();
+  openSheet(t('download'),safeShare?t('downloadChoiceHint'):t('downloadLargeHint',items.length),[],t('cancel'));
+  if(ios&&safeShare){
+    preparedSaveChoice(t('saveToPhotos'),t('saveIOSHint'),()=>prepareSelectedForShare(items),'primary-save-choice');
+    preparedSaveChoice(t('saveFiles'),t('saveDeviceHint'),()=>streamDownloadSelected(items));
+    return;
+  }
+  preparedSaveChoice(t('saveToDevice'),t('saveDeviceHint'),()=>streamDownloadSelected(items),'primary-save-choice');
+  if(safeShare&&typeof navigator.share==='function'){
+    preparedSaveChoice(t('shareFiles'),t('shareFilesHint'),()=>prepareSelectedForShare(items));
   }
 }
 function canShareFiles(files){
@@ -874,7 +955,7 @@ function openPreparedSaveSheet(files){
       try{
         await navigator.share({files,title:t('savePrepared',files.length)});
         finishPreparedSave(files,false);
-      }catch(e){if(e?.name!=='AbortError')showToast(t('saveFiles'))}
+      }catch(e){if(e?.name!=='AbortError')handleApiError(e,t('shareFailed'))}
     },'primary-save-choice');
     preparedSaveChoice(t('saveFiles'),t('saveDeviceHint'),()=>{
       saveFilesByDownload(files);finishPreparedSave(files,true);
@@ -891,7 +972,7 @@ function openPreparedSaveSheet(files){
       try{
         await navigator.share({files,title:t('savePrepared',files.length)});
         finishPreparedSave(files,false);
-      }catch(e){if(e?.name!=='AbortError')showToast(t('saveFiles'))}
+      }catch(e){if(e?.name!=='AbortError')handleApiError(e,t('shareFailed'))}
     });
   }
 }
@@ -1171,9 +1252,15 @@ function cancelUpload(){
   uploadCancelRequested=true;
   if(activeUploadXhr){try{activeUploadXhr.abort()}catch(_){}}
 }
+function cancelDownload(){
+  if(!downloadBusy)return;
+  downloadCancelRequested=true;
+  if(activeDownloadController){try{activeDownloadController.abort()}catch(_){}}
+}
 function closeSheet(){
   if(uploadBusy){cancelUpload();return}
-  if(downloadBusy||deleteBusy)return;
+  if(downloadBusy){cancelDownload();return}
+  if(deleteBusy)return;
   const wasPrepared=preparedSaveActive;
   preparedSaveActive=false;backdrop.hidden=true;backdrop.classList.remove('above-trash');sheetActions.innerHTML='';$('closeSheet').hidden=false;$('closeSheet').disabled=false;$('closeSheet').textContent=t('ok');
   if(!wasPrepared&&pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
