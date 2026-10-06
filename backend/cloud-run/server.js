@@ -35,13 +35,13 @@ app.use((req, res, next) => {
   res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Album-Key, X-Album-Request-Id, Range');
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Type, Content-Length, Content-Range, X-File-Name');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Type, Content-Length, Content-Range, X-File-Name, X-Album-Thumb-State, Retry-After');
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (!allowed) return res.status(403).json({ ok: false, error: 'origin_not_allowed' });
   next();
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.7' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'memory-album-api', version: '0.5.8' }));
 
 app.use('/api', (req, res, next) => {
   if (req.path === '/health') return next();
@@ -294,6 +294,30 @@ app.post('/api/media/delete', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+function isThumbnailTransientStatus(status) {
+  const n = Number(status || 0);
+  return n === 403 || n === 404 || n === 408 || n === 409 || n === 425 || n === 429 || n >= 500;
+}
+
+function thumbnailNotReady(res, id, reason, upstreamStatus = 0) {
+  const safeReason = String(reason || 'pending').replace(/[^a-z0-9_-]/gi, '').slice(0, 48) || 'pending';
+  const status = Number(upstreamStatus || 0);
+  console.warn('[thumb-pending]', JSON.stringify({ id: String(id || ''), reason: safeReason, upstreamStatus: status || null }));
+  res.setHeader('Retry-After', '2');
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Album-Thumb-State', safeReason);
+  return res.status(425).json({
+    ok: false,
+    error: 'thumbnail_not_ready',
+    reason: safeReason,
+    ...(status ? { upstreamStatus: status } : {})
+  });
+}
+
+function sizedThumbnailUrl(link, size) {
+  return String(link || '').replace(/=s\d+(?:-c)?$/, `=s${size}`);
+}
+
 app.get('/api/thumb', async (req, res, next) => {
   try {
     const id = String(req.query.id || '');
@@ -311,15 +335,59 @@ app.get('/api/thumb', async (req, res, next) => {
       meta = rememberFileMeta(fresh);
     }
     if (!meta.thumbnailLink) {
-      res.setHeader('Retry-After', '2');
-      return res.status(425).json({ ok: false, error: 'thumbnail_not_ready' });
+      return thumbnailNotReady(res, id, 'link_missing');
     }
 
     const token = await getGoogleToken();
-    const url = String(meta.thumbnailLink).replace(/=s\d+(?:-c)?$/, '=s640');
-    const upstream = await fetchGoogle(url, { headers: { Authorization: `Bearer ${token}` } });
-    res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
-    pipeGoogleResponse(upstream, res, meta.name, false);
+    let firstError = null;
+    try {
+      const upstream = await fetchGoogle(sizedThumbnailUrl(meta.thumbnailLink, 640), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
+      return pipeGoogleResponse(upstream, res, meta.name, false);
+    } catch (e) {
+      firstError = e;
+    }
+
+    // thumbnailLink can be created but temporarily stale/unavailable. Force one fresh
+    // Drive metadata read and retry once before asking the browser to back off.
+    const firstStatus = Number(firstError?.status || 0);
+    if (!isThumbnailTransientStatus(firstStatus)) throw firstError;
+
+    let fresh = null;
+    try {
+      fresh = await getMeta(id, fields);
+      if (String(fresh?.mimeType || '').startsWith('image/')) {
+        meta = rememberFileMeta(fresh);
+      }
+    } catch (metaError) {
+      console.warn('[thumb-refresh-failed]', JSON.stringify({
+        id,
+        upstreamStatus: firstStatus || null,
+        metadataStatus: Number(metaError?.status || 0) || null
+      }));
+    }
+
+    if (!meta.thumbnailLink) {
+      return thumbnailNotReady(res, id, 'link_missing_after_refresh', firstStatus);
+    }
+
+    try {
+      const retryToken = await getGoogleToken();
+      const upstream = await fetchGoogle(sizedThumbnailUrl(meta.thumbnailLink, 640), {
+        headers: { Authorization: `Bearer ${retryToken}` }
+      });
+      console.info('[thumb-recovered]', JSON.stringify({ id, firstStatus: firstStatus || null }));
+      res.setHeader('Cache-Control', 'private, max-age=86400, stale-while-revalidate=604800');
+      return pipeGoogleResponse(upstream, res, meta.name, false);
+    } catch (retryError) {
+      const retryStatus = Number(retryError?.status || firstStatus || 0);
+      if (isThumbnailTransientStatus(retryStatus)) {
+        return thumbnailNotReady(res, id, `upstream_${retryStatus || 'error'}`, retryStatus);
+      }
+      throw retryError;
+    }
   } catch (e) { next(e); }
 });
 

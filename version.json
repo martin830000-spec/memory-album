@@ -1,12 +1,38 @@
 {
-  "version": "V0.6.13",
-  "build": "20261007-THUMB-RETRY-VIEWER-NAV-R1",
+  "version": "V0.6.14",
+  "build": "20261007-THUMB-UPSTREAM-RECOVERY-R1",
   "date": "2026-10-07",
   "summary": {
-    "ko": "Drive 썸네일 처리 지연 시 자동 재시도를 강화하고 모바일 전체화면 좌우 이동 버튼을 복원했습니다.",
-    "lo": "ປັບປຸງການ retry thumbnail ເມື່ອ Drive ປະມວນຜົນຊ້າ ແລະ ສະແດງປຸ່ມກ່ອນ/ຖັດໄປໃນ viewer ມືຖື."
+    "ko": "Drive 썸네일 링크가 일시적으로 실패하는 사진의 자동 복구와 장기 재시도를 강화했습니다.",
+    "lo": "ປັບປຸງການກູ້ thumbnail ອັດຕະໂນມັດ ເມື່ອລິ້ງ thumbnail ຂອງ Drive ຜິດພາດຊົ່ວຄາວ."
   },
   "history": [
+    {
+      "version": "V0.6.14",
+      "date": "2026-10-07",
+      "title": {
+        "ko": "Drive 썸네일 링크 자동 복구",
+        "lo": "ກູ້ລິ້ງ thumbnail ຂອງ Drive"
+      },
+      "changes": {
+        "ko": [
+          "Drive에 thumbnailLink가 있어도 실제 썸네일 요청이 403·404·429·5xx 등으로 일시 실패하면 메타데이터를 즉시 새로 조회",
+          "새 thumbnailLink로 한 번 즉시 재시도하고 성공하면 그대로 표시",
+          "재시도 후에도 썸네일 서버가 일시 실패하면 425 thumbnail_not_ready로 통일해 기존 1→2→4→8→15초 장기 재시도가 계속 동작",
+          "425 응답은 no-store 처리해 실패 응답이 브라우저 캐시에 남지 않도록 함",
+          "진단 로그에는 파일 ID·상태코드만 기록하고 OAuth 토큰이나 thumbnail URL은 기록하지 않음",
+          "원본 이미지를 썸네일 대신 내려받는 fallback은 계속 사용하지 않음"
+        ],
+        "lo": [
+          "ຖ້າ thumbnailLink ມີຢູ່ແຕ່ request ລົ້ມເຫຼວ 403·404·429·5xx ຈະອ່ານ metadata ໃໝ່ທັນທີ",
+          "ລອງ thumbnailLink ໃໝ່ອີກ 1 ຄັ້ງ ແລະ ສະແດງທັນທີຖ້າສຳເລັດ",
+          "ຖ້າຍັງຜິດພາດຊົ່ວຄາວ ຈະສົ່ງ 425 thumbnail_not_ready ເພື່ອໃຫ້ retry 1→2→4→8→15 ວິນາທີດຳເນີນຕໍ່",
+          "ຕັ້ງ 425 ເປັນ no-store ເພື່ອບໍ່ເກັບ response ຜິດພາດໃນ browser cache",
+          "log ເກັບພຽງ file ID ແລະ status code ບໍ່ເກັບ OAuth token ຫຼື thumbnail URL",
+          "ຍັງບໍ່ນຳຮູບຕົ້ນສະບັບມາໃຊ້ແທນ thumbnail"
+        ]
+      }
+    },
     {
       "version": "V0.6.13",
       "date": "2026-10-07",
