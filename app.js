@@ -1821,7 +1821,9 @@ function renderViewerMeta(item,index,total,loadSeq){
   viewerName.replaceChildren(meta.name);
   viewerName.title=meta.name;
   viewerCounter.replaceChildren(`${meta.index+1} / ${meta.total}`);
-  viewerImage.alt=meta.name;
+  // The filename is already shown in the viewer header. Keep the <img> alt empty so
+  // Android Chrome never paints a broken-image filename over the loading message.
+  viewerImage.alt='';
 }
 async function loadViewerMedia(item,index,loadSeq){
   const current=()=>loadSeq===viewerLoadSeq&&!viewer.hidden&&state.viewerIndex===index&&String(state.media[index]?.id||'')===String(item.id||'');
@@ -1829,9 +1831,11 @@ async function loadViewerMedia(item,index,loadSeq){
   if(!current())return;
   if(thumbUrl){
     viewerImage.src=thumbUrl;
+    viewerImage.classList.remove('viewer-image-hidden');
     viewerLoading.hidden=true;
   }else{
     viewerImage.removeAttribute('src');
+    viewerImage.classList.add('viewer-image-hidden');
     viewerLoading.textContent=t('viewerLoading');
     viewerLoading.hidden=false;
   }
@@ -1839,7 +1843,9 @@ async function loadViewerMedia(item,index,loadSeq){
   let fullApplied=false;
   const previewPromise=ensurePreviewUrl(item).then(url=>{
     if(!url||fullApplied||!current())return;
-    viewerImage.src=url;viewerLoading.hidden=true;
+    viewerImage.src=url;
+    viewerImage.classList.remove('viewer-image-hidden');
+    viewerLoading.hidden=true;
   });
   scheduleViewerNeighborPrefetch(loadSeq);
 
@@ -1853,6 +1859,7 @@ async function loadViewerMedia(item,index,loadSeq){
     state.viewerBlob=data.blob;state.viewerBlobKey=viewerItemKey(item);
     state.viewerUrl=fullUrl;
     viewerImage.src=fullUrl;
+    viewerImage.classList.remove('viewer-image-hidden');
     viewerLoading.hidden=true;
   }catch(e){
     if(!current()||e?.name==='AbortError')return;
@@ -1869,6 +1876,12 @@ function renderViewerNow(){
   if(!item)return closeViewer();
   resetViewerZoom();
   const loadSeq=++viewerLoadSeq;
+  // Hide and detach the previous source before revoking its object URL. Otherwise
+  // Chrome can briefly render a broken-image icon/alt text during rapid navigation.
+  viewerImage.classList.add('viewer-image-hidden');
+  viewerImage.removeAttribute('src');
+  viewerLoading.textContent=t('viewerLoading');
+  viewerLoading.hidden=false;
   releaseViewerBlob();
   renderViewerMeta(item,index,state.media.length,loadSeq);
   loadViewerMedia(item,index,loadSeq);
@@ -1894,7 +1907,7 @@ function closeViewer(fromHistory=false){
   if(!fromHistory&&history.state?.[ALBUM_HISTORY_KEY]&&history.state.view==='viewer'){history.back();return}
   if(viewerRenderRaf){cancelAnimationFrame(viewerRenderRaf);viewerRenderRaf=0}
   viewerRenderRequested++;
-  viewerLoadSeq++;resetViewerZoom();releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.removeAttribute('src');viewerLoading.textContent=t('viewerLoading');
+  viewerLoadSeq++;resetViewerZoom();viewerImage.classList.add('viewer-image-hidden');viewerImage.removeAttribute('src');releaseViewerBlob();viewer.hidden=true;body.classList.remove('viewer-open');state.viewerIndex=-1;viewerImage.alt='';viewerLoading.textContent=t('viewerLoading');viewerLoading.hidden=true;
   viewer.removeAttribute('data-render-item-id');viewer.removeAttribute('data-render-seq');
   viewerName.replaceChildren('');viewerCounter.replaceChildren('');
   if(pendingAppUpdate)setTimeout(()=>applyPendingAppUpdate(),0);
