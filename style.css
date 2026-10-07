@@ -293,3 +293,8 @@ body.light .app-toast{background:rgba(32,38,48,.94);color:#fff}
 @media(max-width:600px){
   .viewer-title-wrap{height:31px;max-height:31px;overflow:hidden}
 }
+
+
+/* V0.6.17 · prevent broken-image filename from overlapping viewer loading text */
+.viewer-stage img.viewer-image-hidden{visibility:hidden}
+.viewer-loading{z-index:2;pointer-events:none}
